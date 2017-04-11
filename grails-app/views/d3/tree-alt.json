@@ -1,0 +1,17 @@
+{
+  "root": [
+    {
+     "parent A": [
+       {"name": "child A1"},
+       {"name": "child A2"},
+       {"name": "child A3"}
+     ]
+    },
+    {
+     "parent B": [
+       {"name": "child B1"},
+       {"name": "child B2"}
+     ]
+    }
+  ]
+}
