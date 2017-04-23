@@ -1,10 +1,15 @@
 
 class TermsAggregation {
-	constructor(field,size) {	
+	constructor(field,size) {
+		var notSpecified = "missing";
+		if ( field=="service_date" || field=="filing_date" ) {
+			notSpecified = "1899-12-31";
+		}
+			
 		this.terms = {
 			"field": field,
 	        "size": size,
-	        "missing": "not specified"
+	        "missing": notSpecified	
 		}
     }
 }

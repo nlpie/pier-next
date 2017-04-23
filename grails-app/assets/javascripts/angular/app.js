@@ -1,14 +1,30 @@
 import * as angular from '../lib/angular.min.js';
+
 import SearchService from '../angular/service/search/SearchService';
 import SearchController from '../angular/controller/search/SearchController';
-import UserService from '../angular/service/UserService';
-import UserController from '../angular/controller/UserController';
-import UiState from '../angular/service/config/UiState';
+//import UserService from '../angular/service/UserService';
+//import UserController from '../angular/controller/UserController';
+import UIService from '../angular/service/config/UIService';
+import UiState from '../angular/model/ui/UiState';
+
 
 angular
     .module('app', [])
-    .service('uiState', UiState)
-    .service('userService', UserService)
+    //.service('userService', UserService)
     .service('searchService', SearchService)
-	.controller('userController', UserController)
+    .service('uiService', UIService)
+    .service('uiState', UiState)
+    /*.service('injectOn', ($injector) => {
+		  return (thisArg) => {
+		    if(!thisArg.constructor) {
+		      throw new Error('Constructor method not found.');
+		    }
+		   $injector.annotate(thisArg.constructor).map(name => {
+		      if(name !== 'injectOn' && name !== '$scope') {
+		        thisArg[name] = $injector.get(name);
+		      }
+		    });
+		  };
+		})*/
+	//.controller('userController', UserController)
 	.controller('searchController', SearchController);

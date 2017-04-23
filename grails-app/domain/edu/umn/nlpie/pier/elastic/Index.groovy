@@ -1,7 +1,7 @@
 package edu.umn.nlpie.pier.elastic
 
 import edu.umn.nlpie.pier.ui.ConceptualSearch
-import edu.umn.nlpie.pier.ui.SemanticSimilaritySearch
+import edu.umn.nlpie.pier.ui.SemanticRelatednessSearch
 
 
 class Index {
@@ -17,7 +17,7 @@ class Index {
 		status inList:['Searchable','Disabled','In Progress'], nullable:true
 		alias (nullable:true)
 		conceptualSearch (nullable:true)
-		semanticSimilaritySearch (nullable:true)
+		semanticRelatednessSearch (nullable:true)
 	}
 	
     Cluster cluster
@@ -29,7 +29,7 @@ class Index {
 	Integer numberOfShards
 	Integer numberOfReplicas
 	ConceptualSearch conceptualSearch
-	SemanticSimilaritySearch semanticSimilaritySearch
+	SemanticRelatednessSearch semanticRelatednessSearch
 	
 	Date dateCreated
 	Date lastUpdated

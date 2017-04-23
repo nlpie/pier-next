@@ -1,5 +1,3 @@
-//import Search from '../../model/search/Search';
-//import Result from '../../model/search/Result';
 
 class SearchService {
 	
@@ -7,7 +5,12 @@ class SearchService {
 	constructor( $http, $q ) {
 		this.$http = $http;
 		this.$q = $q;
-		this.currentSearch = undefined;//= new Search();
+	}
+	
+	fetchResultsFromElastic(searchObj) {
+		console.info("SearchService.fetchResultsFromElastic");
+		//return the promise and let the client resolve it
+		return this.$http.post( APP.root + '/search/execute', JSON.stringify(searchObj) );
 	}
 	
 	file(r) {
@@ -15,7 +18,7 @@ class SearchService {
 	}
  
 	//based on https://appendto.com/2016/02/working-promises-angularjs-services/ (deferred technique)
-    search() {
+    search_() {
     	var me = this;
     	// if results object is not defined then start the new process for fetch it
     	if ( !me.currentSearch.result || me.currentSearch.dirty ) {

@@ -3,7 +3,7 @@ package edu.umn.nlpie.pier.ui
 import java.util.Date;
 
 
-class SemanticSimilaritySearch {
+class SemanticRelatednessSearch {
 
     static mapping = { }
 	

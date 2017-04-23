@@ -53,8 +53,9 @@
                             </li>
                         </ul>
                     </div>
-					
-					<input type="text" name="query" class="form-control" placeholder="Search words and/or phrases anywhere in the note text" 
+					<input type="text" name="query" class="form-control" 
+						placeholder="Search words and/or phrases anywhere in the note text" 
+						ng-model="sc.uiState.currentSearch.userInput"
 						style="border-right:none;-webkit-box-shadow: none !important;-moz-box-shadow: none !important;box-shadow: none !important;"
 						ng-model-options="{
     						'updateOn': 'default blur',
@@ -81,7 +82,7 @@
 				          		<a href ng-click="">query n-2</a>
 							</li>
 						</ul>
-						<button class="btn btn-default" type="submit">
+						<button class="btn btn-default" type="submit" ng-click="sc.uiState.currentSearch.execute()">
 							<i class="fa fa-search" aria-hidden="true"></i>
 						</button>
 					</div>

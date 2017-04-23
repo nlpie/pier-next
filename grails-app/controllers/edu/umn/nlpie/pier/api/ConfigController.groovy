@@ -42,9 +42,9 @@ class ConfigController {
 	}
 	
 	def reveng() {
-		def i = Index.findByIndexName('notes_v2')
-		println i.cluster
-		configService.reverseEngineerDomainInstancesFromIndexMapping(i)
+		def index = Index.findByIndexName('notes_v2')
+		println index.cluster
+		configService.reverseEngineerDomainInstancesFromIndexMapping(index)
 	}
 	
 	def under() {
@@ -54,9 +54,9 @@ class ConfigController {
 	}
 	
 	def requests() {
+		//with spring security in place can restrict the set of requests based on user allowed to invoke this method
 		println "requests ${new Date()}"
 		def requests = configService.requests
-		//println requests
 		respond requests
 	}
 	

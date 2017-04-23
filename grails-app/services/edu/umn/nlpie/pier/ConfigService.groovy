@@ -125,7 +125,7 @@ class ConfigService {
 		println settings
 		
 		
-		mappings.keys().each{ mappingKey ->
+		mappings.keys().each { mappingKey ->
 			def type = new Type(typeName:mappingKey)
 			index.addToTypes(type)
 			

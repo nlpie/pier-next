@@ -6,8 +6,8 @@ import MinAggregation from './MinAggregation';
 import MaxAggregation from './MaxAggregation';
 
 class SearchQuery {
-    constructor(terms,notesPerPage,offset) {
-    	this.query = new QuerystringQuery(terms);
+    constructor(userInput,notesPerPage,offset) {
+    	this.query = new QuerystringQuery(userInput);
     	this.aggs = new Aggregations();
     	this.highlight = new Highlight();
     	//fields					//get fields from user settings OR just rely on _source (default)
@@ -38,9 +38,10 @@ use bool query instead of filters (in filter block?)
     	//delete after development
     	
     	this.aggs.add( "Service Date", new TermsAggregation("service_date",5) );
+    	this.aggs.add( "Min Svc Date", new MinAggregation("service_date"));
+    	this.aggs.add( "Max Svc Date", new MaxAggregation("service_date"));
 		this.aggs.add( "TOS", new TermsAggregation("tos",5) );
-		this.aggs.add( "Min Svc Date", new MinAggregation("service_date"));
-		this.aggs.add( "Max Svc Date", new MaxAggregation("service_date"));
+		this.aggs.add( "MRN", new TermsAggregation("mrn",5) );
     	alert(JSON.stringify(this));
     	
     	//end delete

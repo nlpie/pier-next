@@ -36,6 +36,7 @@
 	<link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
 	
 	<g:javascript>
+		//fill in global values using Grails-provided objects
 		APP = {
 			context: "${request.contextPath}",
 			root: "${request.scheme}://${request.serverName}:${request.serverPort}${request.contextPath}"
@@ -87,7 +88,7 @@
 						</li>
 						<li class="<g:if test="${controllerName=='config' && actionName=='settings'}">active</g:if>">
 							<a href="${request.contextPath}/config/settings" data-toggle="tooltip" data-placement="bottom" title="settings">
-								<i class="fa fa-cogs fa-lg" aria-hidden="true"></i>
+								<i class="fa fa-sliders fa-lg" aria-hidden="true"></i>
 							</a>
 						</li>
 						<li class="<g:if test="${actionName=='login'}">active</g:if>">
@@ -108,6 +109,7 @@
 		//sets up dynamic loading of ES6 modules/classes and loads top level file with imports of other modules
 	 	System.config({
 	        transpiler: 'babel',
+	        //optional: ['es7.classProperties'],
 	        defaultJSExtensions: true
 	    });
 	    //see for timing of this call wrt async loading of system.js and dependencies, https://github.com/jspm/registry/issues/358
