@@ -25,7 +25,7 @@ class Search {
     
     execute() {
     	console.info("Search.execute()");
-    	this.searchService.fetchResultsFromElastic(this.query).then();
+    	this.searchService.fetchResultsFromElastic("notes_v1",this.query).then();
     }
     
     /*clear() { 

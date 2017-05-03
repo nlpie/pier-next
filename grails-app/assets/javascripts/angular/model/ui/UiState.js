@@ -25,10 +25,11 @@ class UiState {
     
     fetchContexts() {
     	var me = this;	//use me instead of this, b/c 'this' inside of promise's success function is not the same as 'this' for an instance of the client class 	
-    	this.uiService.authorizedRequests().then( function(response) {
-    		me.authorizedContexts = response.data;
-    		me.currentContext = me.authorizedContexts[0];
-    	});
+    	this.uiService.authorizedRequests()
+	    	.then( function(response) {
+	    		me.authorizedContexts = response.data;
+	    		me.currentContext = me.authorizedContexts[0];
+	    	});
     }
     
     changeContext(c) {

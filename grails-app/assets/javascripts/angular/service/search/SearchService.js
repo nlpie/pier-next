@@ -7,10 +7,10 @@ class SearchService {
 		this.$q = $q;
 	}
 	
-	fetchResultsFromElastic(searchObj) {
+	fetchResultsFromElastic(index,searchObj) {
 		console.info("SearchService.fetchResultsFromElastic");
 		//return the promise and let the client resolve it
-		return this.$http.post( APP.root + '/search/execute', JSON.stringify(searchObj) );
+		return this.$http.post( APP.root + '/search/execute/' + index, JSON.stringify(searchObj) );
 	}
 	
 	file(r) {
