@@ -1,6 +1,6 @@
 package edu.umn.nlpie.pier.elastic
 
-import java.util.Date;
+import grails.converters.JSON
 
 
 class Cluster {
@@ -14,6 +14,16 @@ class Cluster {
     	uri url:true
 		description()
 		environment inList:['DEV','TEST','In PROD'], nullable:true
+	}
+	
+	static marshaller = {
+		JSON.registerObjectMarshaller(Cluster) { c ->
+			[
+				"id": c.id,
+				"uri": c.uri,
+				"commonName": c.commonName
+			]
+		}
 	}
 	
     String clusterName

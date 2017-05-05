@@ -1,12 +1,15 @@
 package edu.umn.nlpie.pier.elastic
 
+import org.codehaus.groovy.grails.web.converters.configuration.DefaultConverterConfiguration
+
 import edu.umn.nlpie.pier.ui.ConceptualSearch
 import edu.umn.nlpie.pier.ui.SemanticRelatednessSearch
+import grails.converters.JSON
 
 
 class Index {
-
-    static mapping = {
+	
+	static mapping = {
 		table "`index`"
     }
 	
@@ -14,10 +17,23 @@ class Index {
     	indexName unique:'cluster'
 		commonName()
 		description()
-		status inList:['Searchable','Disabled','In Progress'], nullable:true
+		status inList:['Searchable', 'Disabled', 'In Progress'], nullable:false
+		corpusType inList:['clinic notes', 'pathology notes', 'microbiology notes', 'imaging notes'], nullable:false, unique:'status'
 		alias (nullable:true)
 		conceptualSearch (nullable:true)
 		semanticRelatednessSearch (nullable:true)
+	}
+	
+	static marshaller = {
+		JSON.registerObjectMarshaller(Index) { i ->
+			[ 
+				"id": i.id,
+				"name": i.indexName,
+				"commonName": i.commonName,
+				"alias": i.alias,
+				"cluser": i.cluster
+			]
+		}
 	}
 	
     Cluster cluster
@@ -26,6 +42,7 @@ class Index {
 	String commonName
 	String description
 	String status = "In Progess"
+	String corpusType = "clinic notes"
 	Integer numberOfShards
 	Integer numberOfReplicas
 	ConceptualSearch conceptualSearch
@@ -37,6 +54,22 @@ class Index {
 	static belongsTo = [ cluster:Cluster ]
 	static hasMany = [ types:Type ]
 	static hasOne = [ conceptualSearch:ConceptualSearch ]
+	
+	static searchableCorpora() {
+		
+	}
+	static currentClinicNotesIndex() {
+		Index.findByCorpusTypeAndStatus("clinical notes","Searchable")
+	}
+	static currentPathologyNotesIndex() {
+		Index.findByCorpusTypeAndStatus("pathology notes","Searchable")
+	}
+	static currentMicrobiologyNotesIndex() {
+		Index.findByCorpusTypeAndStatus("microbiology notes","Searchable")
+	}
+	static currentImagingNotesIndex() {
+		Index.findByCorpusTypeAndStatus("imaging notes","Searchable")
+	}
 	
 	@Override
 	String toString() {

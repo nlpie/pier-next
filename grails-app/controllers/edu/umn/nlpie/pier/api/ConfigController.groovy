@@ -55,8 +55,9 @@ class ConfigController {
 	
 	def requests() {
 		//with spring security in place can restrict the set of requests based on user allowed to invoke this method
-		println "requests ${new Date()}"
 		def requests = configService.requests
+		println "requests ${new Date()}"
+		requests.each { println it }
 		respond requests
 	}
 	
