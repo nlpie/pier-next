@@ -11,7 +11,7 @@ class UIService {
     
     authorizedRequests() {
 		//return the promise and let the client resolve it
-		return this.$http.get( APP.root + '/config/requests' );
+		return this.$http.get( APP.root + '/config/authorizedContexts' );
 	}
 
 }

@@ -4,22 +4,23 @@ import edu.umn.nlpie.pier.elastic.Cluster
 import edu.umn.nlpie.pier.elastic.Field
 import edu.umn.nlpie.pier.elastic.Index
 import edu.umn.nlpie.pier.elastic.Type
-import edu.umn.nlpie.pier.request.Request
+import edu.umn.nlpie.pier.request.AuthorizedContext
 import edu.umn.nlpie.pier.springsecurity.User
 import edu.umn.nlpie.pier.ui.FieldPreference
 import edu.umn.nlpie.pier.ui.Ontology
-import grails.converters.JSON
 import grails.plugins.rest.client.RestBuilder
 import grails.transaction.Transactional
 
 @Transactional
 class ConfigService {
 	
-	//static scope = "request"
+	static scope = "prototype"
 
-    def getRequests() {
+    def getAuthorizedContexts() {
 		//get user from spring security service
-		Request.findAllByStatus( "Completed", [sort: "icsRequest"] )
+		def username = "wein0153"
+		//Request.findAllByStatus( "Completed", [sort: "icsRequest"] )
+		AuthorizedContext.findAllByUsername(username)
     }
 	
 	def getDefaultPreferences() {

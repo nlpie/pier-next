@@ -36,19 +36,19 @@
        			<div class="input-group" style="display:table;">
 					<div class="input-group-btn" class="input-group-addon" style="width:1%;">
 						<button type="button" class="btn btn-default" data-toggle="dropdown" style="border-right:none">
-                            <span class="label-icon" title="{{sc.uiState.currentContext.description}}" >{{sc.uiState.currentContext.icsRequest}}</span>
+                            <span class="label-icon" title="{{sc.uiState.currentContext.description}}" >{{sc.uiState.currentContext.label}}</span>
                             <span class="caret"></span>
                         </button>
                         <ul class="dropdown-menu" role="menu">
                             <li role="presentation" class="dropdown-header pull-left">Authorized Search Contexts</li>
                         	<li ng-repeat="c in sc.uiState.authorizedContexts" class="pull-left">
                         		<a>
-		                        	<i class="fa fa-file-text-o pier-li-icon" ng-click="sc.uiState.changeContext(c)" title="search only notes"></i>
+		                        	<i class="fa fa-file-text-o pier-li-icon" ng-style="(c.hasClinicalNotes) ? {'color':'purple'} : {'color': 'gray'}"  ng-click="sc.uiState.changeContext(c)" ng-attr-title="(c.hasClinicalNotes) ? 'includes clinical notes' : 'excludes clinical notes'"></i>
 		                        	<i class="fa icon-i-imaging-root-category pier-li-left-padded-icon" ng-click="sc.uiState.changeContext(c)" title="search only imaging reports"></i>
                         			
-                        			<i class="icon-i-pathology pier-li-left-padded-icon"></i>
+                        			<i class="icon-i-pathology pier-li-left-padded-icon" title="search only microbiology notes"></i>
                         			
-                        			<span class="pier-li-left-padded-content" ng-click="sc.uiState.changeContext(c)" title="{{c.description}}">{{c.icsRequest}}</span>
+                        			<span class="pier-li-left-padded-content" ng-click="sc.uiState.changeContext(c)" title="{{c.description}}">{{c.label}}</span>
                         		</a>
                             </li>
                         </ul>

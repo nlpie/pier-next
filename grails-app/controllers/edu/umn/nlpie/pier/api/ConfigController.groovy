@@ -53,12 +53,10 @@ class ConfigController {
 		PierUtils.labelFromUnderscore("label_from_underscore")
 	}
 	
-	def requests() {
+	def authorizedContexts() {
 		//with spring security in place can restrict the set of requests based on user allowed to invoke this method
-		def requests = configService.requests
-		println "requests ${new Date()}"
-		requests.each { println it }
-		respond requests
+		def contexts = configService.authorizedContexts
+		respond contexts
 	}
 	
 	def find() {

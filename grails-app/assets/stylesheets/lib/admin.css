@@ -212,5 +212,13 @@ label:focus,
 	-webkit-box-shadow: none;
 }
 
+.noteset-available {
+	color: green
+}
+
+.noteset-unavailable {
+	color: red
+}
+
 
 
