@@ -43,7 +43,7 @@
                             <li role="presentation" class="dropdown-header pull-left">Authorized Search Contexts</li>
                         	<li ng-repeat="c in sc.uiState.authorizedContexts" class="pull-left">
                         		<a>
-		                        	<i class="fa fa-file-text-o pier-li-icon" ng-style="(c.hasClinicalNotes) ? {'color':'purple'} : {'color': 'gray'}"  ng-click="sc.uiState.changeContext(c)" ng-attr-title="(c.hasClinicalNotes) ? 'includes clinical notes' : 'excludes clinical notes'"></i>
+		                        	<i class="fa fa-file-text-o pier-li-icon" ng-style="(c.hasClinicalNotes) ? {'color':'purple'} : {'color': 'gray'}"  ng-click="sc.uiState.changeContext(c)" ng-attr-title="(c.hasClinicalNotes) ?? 'includes clinical notes' : 'excludes clinical notes'"></i>
 		                        	<i class="fa icon-i-imaging-root-category pier-li-left-padded-icon" ng-click="sc.uiState.changeContext(c)" title="search only imaging reports"></i>
                         			
                         			<i class="icon-i-pathology pier-li-left-padded-icon" title="search only microbiology notes"></i>
