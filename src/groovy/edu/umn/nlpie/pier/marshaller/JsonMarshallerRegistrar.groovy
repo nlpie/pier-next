@@ -107,9 +107,7 @@ class JsonMarshallerRegistrar {
 		}
 		
 		def marshallers = []
-		marshallers << "AuthorizedContext"
-		marshallers << "Index"
-		marshallers << "Cluster"
+		marshallers << "authorized.context [named config]"
 		marshallers << "Field"
 		marshallers << "Type"
 		marshallers << "index.mapping [named config]"
