@@ -1,6 +1,6 @@
 package edu.umn.nlpie.pier.poc
 
-import edu.umn.nlpie.pier.request.AuthorizedContext
+import edu.umn.nlpie.pier.context.AuthorizedContext
 
 class PocController {
 

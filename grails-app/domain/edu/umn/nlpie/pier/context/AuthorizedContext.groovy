@@ -1,8 +1,6 @@
 package edu.umn.nlpie.pier.context
 
-import grails.converters.JSON
-
-import javax.annotation.PostConstruct
+import edu.umn.nlpie.pier.elastic.Index
 
 
 class AuthorizedContext {
@@ -39,14 +37,20 @@ class AuthorizedContext {
 		this.filterValue.trim()
 	}
 	
-	def hasClinicalNotes() {
+	Index searchableClinicalNotesIndex() {
 		def count = RequestSet.countByRequestIdAndIsNoteSetAndStatus(requestId,true,'Completed')
-		return (count==1) ? true : false
+		//return (count==1) ? true : false
+		return (count==1) ? Index.currentClinicalNotesIndex() : null
 	}
 	
-	def hasMicrobiologyNotes() {
-		def has = RequestSet.countByRequestIdAndIsMicrobiologySetAndStatus(requestId,true,'Completed')
-		if ( label.startsWith("Melton-MeauxG-Req00277") ) return true
-		return (count==1) ? true : false
+	Index searchableMicrobiologyNotesIndex() {
+		def count = RequestSet.countByRequestIdAndIsMicrobiologySetAndStatus(requestId,true,'Completed')
+		if ( label.startsWith("Melton-MeauxG-Req00277") ) count=1
+		//return (count==1) ? true : false
+		return (count==1) ? Index.currentMicrobiologyNotesIndex() : null
+	}
+	
+	def searchableIndexes() {
+		Index.findAllByStatus("Searchable",[sort:"commonName"])
 	}
 }

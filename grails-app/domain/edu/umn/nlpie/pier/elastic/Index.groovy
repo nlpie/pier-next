@@ -18,22 +18,10 @@ class Index {
 		commonName()
 		description()
 		status inList:['Searchable', 'Disabled', 'In Progress'], nullable:false
-		corpusType inList:['clinic notes', 'pathology notes', 'microbiology notes', 'imaging notes'], nullable:false, unique:'status'
+		corpusType inList:['clinical notes', 'pathology notes', 'microbiology notes', 'imaging notes'], nullable:false, unique:'status'
 		alias (nullable:true)
 		conceptualSearch (nullable:true)
 		semanticRelatednessSearch (nullable:true)
-	}
-	
-	static marshaller = {
-		JSON.registerObjectMarshaller(Index) { i ->
-			[ 
-				"id": i.id,
-				"name": i.indexName,
-				"commonName": i.commonName,
-				"alias": i.alias,
-				"cluser": i.cluster
-			]
-		}
 	}
 	
     Cluster cluster
@@ -55,10 +43,7 @@ class Index {
 	static hasMany = [ types:Type ]
 	static hasOne = [ conceptualSearch:ConceptualSearch ]
 	
-	static searchableCorpora() {
-		
-	}
-	static currentClinicNotesIndex() {
+	static currentClinicalNotesIndex() {
 		Index.findByCorpusTypeAndStatus("clinical notes","Searchable")
 	}
 	static currentPathologyNotesIndex() {
