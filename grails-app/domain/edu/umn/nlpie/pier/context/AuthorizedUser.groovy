@@ -1,4 +1,4 @@
-package edu.umn.nlpie.pier.request
+package edu.umn.nlpie.pier.context
 
 import grails.util.Environment
 

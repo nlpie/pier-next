@@ -56,7 +56,9 @@ class ConfigController {
 	def authorizedContexts() {
 		//with spring security in place can restrict the set of requests based on user allowed to invoke this method
 		def contexts = configService.authorizedContexts
-		respond contexts
+		JSON.use ('authorized.context') {
+			respond contexts
+		}
 	}
 	
 	def find() {

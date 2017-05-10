@@ -9,7 +9,7 @@ class UIService {
 		this.$q = $q;
     }
     
-    authorizedRequests() {
+    authorizedContexts() {
 		//return the promise and let the client resolve it
 		return this.$http.get( APP.root + '/config/authorizedContexts' );
 	}

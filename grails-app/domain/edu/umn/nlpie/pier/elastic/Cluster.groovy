@@ -16,16 +16,6 @@ class Cluster {
 		environment inList:['DEV','TEST','In PROD'], nullable:true
 	}
 	
-	static marshaller = {
-		JSON.registerObjectMarshaller(Cluster) { c ->
-			[
-				"id": c.id,
-				"uri": c.uri,
-				"commonName": c.commonName
-			]
-		}
-	}
-	
     String clusterName
 	String uri
 	String commonName

@@ -1,10 +1,10 @@
 package edu.umn.nlpie.pier
 
+import edu.umn.nlpie.pier.context.AuthorizedContext
 import edu.umn.nlpie.pier.elastic.Cluster
 import edu.umn.nlpie.pier.elastic.Field
 import edu.umn.nlpie.pier.elastic.Index
 import edu.umn.nlpie.pier.elastic.Type
-import edu.umn.nlpie.pier.request.AuthorizedContext
 import edu.umn.nlpie.pier.springsecurity.User
 import edu.umn.nlpie.pier.ui.FieldPreference
 import edu.umn.nlpie.pier.ui.Ontology
@@ -18,7 +18,7 @@ class ConfigService {
 
     def getAuthorizedContexts() {
 		//get user from spring security service
-		def username = "wein0153"
+		def username = "gmelton"
 		//Request.findAllByStatus( "Completed", [sort: "icsRequest"] )
 		AuthorizedContext.findAllByUsername(username)
     }
@@ -59,18 +59,19 @@ class ConfigService {
 			
 			def cluster = Cluster.findByClusterName("nlp05")?:new Cluster(clusterName:"nlp05",uri:"http://nlp05.ahc.umn.edu:9200",environment:"DEV",description:"test cluster (to be prod)", commonName:"me too")//.save(flush:true, failOnError:true)
 			
-			def epic = Index.findByCommonName("Epic Notes")?:new Index(commonName:"Epic Notes", indexName:"notes_v2", status:"In Progress", description:"clinical epic notes", numberOfShards:6, numberOfReplicas:0)//.save(flush:true, failOnError:true)
-			def path = Index.findByCommonName("Pathology Reports")?:new Index(commonName:"Pathology Reports", indexName:"pathology", status:"In Progress", description:"path reports", numberOfShards:6, numberOfReplicas:0)//.save(flush:true, failOnError:true)
+			def epic = Index.findByCommonName("Epic Notes")?:		new Index(commonName:"Epic Notes", 		  indexName:"notes_v2",  corpusType:"clinical notes", status:"Searchable", description:"clinical epic notes", 	numberOfShards:6, numberOfReplicas:0)//.save(flush:true, failOnError:true)
+			def path = Index.findByCommonName("Pathology Reports")?:new Index(commonName:"Pathology Reports", indexName:"pathology", corpusType:"pathology notes",status:"Searchable", description:"path reports", 			numberOfShards:6, numberOfReplicas:0)//.save(flush:true, failOnError:true)
 			
 			def noteType = Type.findByTypeName("note_data")?:new Type(typeName:"note_data", description:"CDR note")//.save(flush:true, failOnError:true)			
 			
 			def mrn = Field.findByFieldName("mrn")?:new Field(fieldName:"mrn",dataTypeName:"NOT_ANALYZED_STRING", description:"Epic patient identifier")//.save(flush:true, failOnError:true)
 			def encounterId = Field.findByFieldName("encounter_id")?:new Field(fieldName:"encounter_id",dataTypeName:"LONG", description:"Epic visit number")//.save(flush:true, failOnError:true)
-			
+			def text = Field.findByFieldName("text")?:new Field(fieldName:"text",dataTypeName:"SNOWBALL_ANALYZED_STRING", description:"document text", defaultSearchField:true)//.save(flush:true, failOnError:true)
 			//session.flush()
 			
 			noteType.addToFields(mrn)//.save(flush:true, failOnError:true)
 			noteType.addToFields(encounterId)//.save(flush:true, failOnError:true)
+			noteType.addToFields(text)
 			
 			noteType.fields.each { f ->
 				println "adding pref for ${f.fieldName}"
@@ -79,7 +80,8 @@ class ConfigService {
 		
 			epic.addToTypes(noteType)
 			cluster.addToIndexes(epic)
-			cluster.addToIndexes(path)
+			//cluster.addToIndexes(path)
+			println cluster.toString()
 			cluster.save(failOnError:true)
 			
 			println "done"
