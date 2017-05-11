@@ -471,7 +471,7 @@
 	        defaultJSExtensions: true
 	    });
 	    //see for timing of this call wrt async loading of system.js and dependencies, https://github.com/jspm/registry/issues/358
-	    System.import(APP.context + '/assets/angular/app.js')
+	    System.import(APP.CONTEXT + '/assets/angular/app.js')
 	    	.then( function() {
 	    		angular.element(document).ready(function() {
 	    		    angular.bootstrap(document, ['app']);

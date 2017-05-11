@@ -27,7 +27,7 @@ class Field {
     }
 	
 	static constraints = {
-		fieldName()
+		fieldName( unique:'type')
 		dataTypeName( inList: [ "INTEGER", "LONG", "NOT_ANALYZED_STRING", "SNOWBALL_ANALYZED_STRING", "DATE", "DATETIME" ] )
 		description(nullable:true)	
 		dataType display:false

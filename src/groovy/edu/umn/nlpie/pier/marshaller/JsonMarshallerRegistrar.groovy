@@ -9,6 +9,7 @@ import edu.umn.nlpie.pier.elastic.Cluster
 import edu.umn.nlpie.pier.elastic.Field
 import edu.umn.nlpie.pier.elastic.Index
 import edu.umn.nlpie.pier.elastic.Type
+import edu.umn.nlpie.pier.ui.CorpusType
 import grails.converters.JSON
 
 class JsonMarshallerRegistrar {
@@ -64,6 +65,39 @@ class JsonMarshallerRegistrar {
 				
 		}//authorized.context
 		
+		JSON.createNamedConfig ('available.corpora') { DefaultConverterConfiguration<JSON> cfg ->
+			cfg.registerObjectMarshaller (Type) { t ->
+				[
+					id: t.id,
+					environment: t.environment,
+					index: t.index
+				]
+			}
+			cfg.registerObjectMarshaller (Index) { i ->
+				[
+					id: i.id,
+					name: i.indexName,
+					cluster: i.cluster
+				]
+			}
+			cfg.registerObjectMarshaller (Cluster) { c ->
+				[
+					id: c.id,
+					name: c.uri
+				]
+			}
+				
+		}//available.corpora
+		
+		JSON.registerObjectMarshaller(CorpusType) { cp ->
+			[ 
+				"id": cp.id,
+				"name": cp.name,
+				"description": cp.description
+			]
+		}
+		
+		
 		JSON.registerObjectMarshaller(Field) { f ->
 			[ "${f.fieldName}": f.dataType ]
 		}
@@ -108,6 +142,7 @@ class JsonMarshallerRegistrar {
 		
 		def marshallers = []
 		marshallers << "authorized.context [named config]"
+		marshallers << "CorpusType"
 		marshallers << "Field"
 		marshallers << "Type"
 		marshallers << "index.mapping [named config]"

@@ -10,6 +10,8 @@ grails.config.locations = [
 	"file:/Users/rmcewan/nlppier/ds_${Environment.current.name}.groovy"]
 println "env: ${Environment.current.name} "
 
+ENV = Environment.current.name.toString()
+
 // grails.config.locations = [ "classpath:${appName}-config.properties",
 //                             "classpath:${appName}-config.groovy",
 //                             "file:${userHome}/.grails/${appName}-config.properties",

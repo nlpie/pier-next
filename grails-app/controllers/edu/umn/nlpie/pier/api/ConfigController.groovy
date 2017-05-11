@@ -1,11 +1,12 @@
 package edu.umn.nlpie.pier.api
 
-import edu.umn.nlpie.pier.PierUtils
 import edu.umn.nlpie.pier.ConfigService
+import edu.umn.nlpie.pier.PierUtils
 import edu.umn.nlpie.pier.api.exception.*
-import edu.umn.nlpie.pier.elastic.Cluster
 import edu.umn.nlpie.pier.elastic.Index
+import edu.umn.nlpie.pier.elastic.Type
 import edu.umn.nlpie.pier.springsecurity.User
+import edu.umn.nlpie.pier.ui.CorpusType
 import grails.converters.JSON
 
 class ConfigController {
@@ -15,6 +16,28 @@ class ConfigController {
 	static responseFormats = ['json']
 	//static allowedMethods = [get: "GET", "find": "POST"]
 		
+	//keep
+	def authorizedContexts() {
+		//with spring security in place can restrict the set of requests based on user allowed to invoke this method
+		def contexts = configService.authorizedContexts
+		JSON.use ('authorized.context') {
+			respond contexts
+		}
+	}
+	
+	//keep
+	def corpusTypes() {
+		respond CorpusType.list()
+	}
+	
+	//keep
+	def corpora() {
+		def env = params.id
+		JSON.use("available.corpora") {
+			respond configService.getAvailableCorpora(env)
+		}
+	}
+	
 	
 	
 	def settings() { 
@@ -51,14 +74,6 @@ class ConfigController {
 		PierUtils.toSnakeCase("CamelCaseToUnderscore")
 		PierUtils.underscoreToCamelCase("underscore_to_camel_case")
 		PierUtils.labelFromUnderscore("label_from_underscore")
-	}
-	
-	def authorizedContexts() {
-		//with spring security in place can restrict the set of requests based on user allowed to invoke this method
-		def contexts = configService.authorizedContexts
-		JSON.use ('authorized.context') {
-			respond contexts
-		}
 	}
 	
 	def find() {

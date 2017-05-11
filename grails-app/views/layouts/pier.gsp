@@ -37,9 +37,11 @@
 	
 	<g:javascript>
 		//fill in global values using Grails-provided objects
+		//APP.ENV can be used to check client-side for environment of searchable corpora (elastic type concept)
 		APP = {
-			context: "${request.contextPath}",
-			root: "${request.scheme}://${request.serverName}:${request.serverPort}${request.contextPath}"
+			CONTEXT: "${request.contextPath}",
+			ROOT: "${request.scheme}://${request.serverName}:${request.serverPort}${request.contextPath}",
+			ENV: "${grailsApplication.config.ENV}"
 		};
 	</g:javascript>
 	 
@@ -113,7 +115,7 @@
 	        defaultJSExtensions: true
 	    });
 	    //see for timing of this call wrt async loading of system.js and dependencies, https://github.com/jspm/registry/issues/358
-	    System.import(APP.context + '/assets/angular/app.js')
+	    System.import(APP.CONTEXT + '/assets/angular/app.js')
 	    	.then( function() {
 	    		angular.element(document).ready(function() {
 	    		    angular.bootstrap(document, ['app']);

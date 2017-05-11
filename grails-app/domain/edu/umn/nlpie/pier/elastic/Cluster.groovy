@@ -13,7 +13,7 @@ class Cluster {
     	clusterName unique:'uri'
     	uri url:true
 		description()
-		environment inList:['DEV','TEST','In PROD'], nullable:true
+		environment inList:['DEV','TEST','PROD'], nullable:true	//env is not used by the rest of the code, it's some convenient metadata
 	}
 	
     String clusterName

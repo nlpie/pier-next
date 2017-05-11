@@ -2,8 +2,8 @@ import Result from './Result';
 import SearchQuery from '../search/elastic/SearchQuery';
 
 class Search {
-    constructor(searchService, userInput, context, notesPerPage, offset) {
-    	this.searchService = searchService;
+    constructor(userInput, contextFilterValue, notesPerPage, offset) {
+    	//this.searchService = searchService;
     	
     	this.userInput = userInput;
     	this.context = context;
@@ -23,10 +23,10 @@ class Search {
 		this.results = new Result(this.targetCorpora);
     }
     
-    execute() {
+    /*execute() {
     	console.info("Search.execute()");
     	this.searchService.fetchResultsFromElastic("notes_v1",this.query).then();
-    }
+    }*/
     
     /*clear() { 
 		this.resetFilters();

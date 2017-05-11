@@ -7,7 +7,8 @@ import edu.umn.nlpie.pier.springsecurity.User
 class FieldPreference {
 
 	static constraints = {
-		field(unique:'user')
+		field()
+		//field(unique:'user')
 		user()
 		label()
 		queryable()

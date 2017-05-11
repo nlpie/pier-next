@@ -18,7 +18,6 @@ class Index {
 		commonName()
 		description()
 		status inList:['Searchable', 'Disabled', 'In Progress'], nullable:false
-		corpusType inList:['clinical notes', 'pathology notes', 'microbiology notes', 'imaging notes'], nullable:false, unique:'status'
 		alias (nullable:true)
 		conceptualSearch (nullable:true)
 		semanticRelatednessSearch (nullable:true)
@@ -30,7 +29,6 @@ class Index {
 	String commonName
 	String description
 	String status = "In Progess"
-	String corpusType = "clinic notes"
 	Integer numberOfShards
 	Integer numberOfReplicas
 	ConceptualSearch conceptualSearch
@@ -43,7 +41,7 @@ class Index {
 	static hasMany = [ types:Type ]
 	static hasOne = [ conceptualSearch:ConceptualSearch ]
 	
-	static currentClinicalNotesIndex() {
+	/*static currentClinicalNotesIndex() {
 		Index.findByCorpusTypeAndStatus("clinical notes","Searchable")
 	}
 	static currentPathologyNotesIndex() {
@@ -54,7 +52,7 @@ class Index {
 	}
 	static currentImagingNotesIndex() {
 		Index.findByCorpusTypeAndStatus("imaging notes","Searchable")
-	}
+	}*/
 	
 	@Override
 	String toString() {

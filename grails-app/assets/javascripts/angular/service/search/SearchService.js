@@ -1,3 +1,4 @@
+import Search from '../../model/search/Search';
 
 class SearchService {
 	
@@ -7,14 +8,10 @@ class SearchService {
 		this.$q = $q;
 	}
 	
-	fetchResultsFromElastic(index,searchObj) {
+	fetchResultsFromElastic(userInput,searchContext) {
 		console.info("SearchService.fetchResultsFromElastic");
 		//return the promise and let the client resolve it
-		return this.$http.post( APP.root + '/search/execute/' + index, JSON.stringify(searchObj) );
-	}
-	
-	file(r) {
-		alert(r.icsRequest);
+		return this.$http.post( APP.ROOT + '/search/elastic/' + index, JSON.stringify(searchObj) );
 	}
  
 	//based on https://appendto.com/2016/02/working-promises-angularjs-services/ (deferred technique)
@@ -31,12 +28,6 @@ class SearchService {
     			});
     	}
     };
-    
-    assignResults(data) {
-    	//alert("populate results");
-    	this.currentSearch.result = new Result();
-    	this.currentSearch.result.notes = data;	
-    }
     
     /*doSomething() {
     	let deferred = $q.defer();

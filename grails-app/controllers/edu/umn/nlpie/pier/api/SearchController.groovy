@@ -18,7 +18,7 @@ class SearchController {//extends RestfulController {
 		params.each { println it }
 	}
 	
-	def execute() { 
+	def elastic() { 
 		//lookup user
 		//verify user has access to index
 		//execute query
