@@ -19,7 +19,6 @@ class JsonMarshallerRegistrar {
 		
 		JSON.createNamedConfig ('authorized.context') { DefaultConverterConfiguration<JSON> cfg ->
 			cfg.registerObjectMarshaller (AuthorizedContext) { c ->
-			//JSON.registerObjectMarshaller(AuthorizedContext) { c ->
 				[
 					//"id": c.id,
 					"requestId": c.requestId,
@@ -27,13 +26,32 @@ class JsonMarshallerRegistrar {
 					"filterValue": c.filterValue,
 					"description": c.description?:"description unavailable",
 					"username": c.username,
-					"clinicalNotesIndex": c.searchableClinicalNotesIndex(),
-					"microbiologyNotesIndex": c.searchableMicrobiologyNotesIndex(),
-					"searchableIndexes": c.searchableIndexes()
+					"searchableCorpora": c.annotatedCorpusTypes()
 				]
 			}
-		
-			//JSON.registerObjectMarshaller(Index) { i ->
+			cfg.registerObjectMarshaller (CorpusType) { ct ->
+				[
+					name: ct.name,
+					glyph: ct.glyph,
+					searchable: ct.searchable,
+					url: ct.url,
+					defaultSearchField: ct.defaultSearchField
+				]
+			}
+			
+			
+			/*
+			cfg.registerObjectMarshaller (Type) { t ->
+			[
+			 id: t.id,
+			 name: t.typeName,
+			 environment: t.environment,
+			 index: t.index
+			 ]
+			}
+			
+			
+			
 			cfg.registerObjectMarshaller (Index) { i ->
 				[
 					//"id": i.id,
@@ -41,11 +59,9 @@ class JsonMarshallerRegistrar {
 					"commonName": i.commonName,
 					"alias": i.alias,
 					"defaultSearchField": i.types[0].fields.find { it.defaultSearchField==true },
-					"cluser": i.cluster
+					"cluster": i.cluster
 				]
 			}
-		
-			//JSON.registerObjectMarshaller(Cluster) { c ->
 			cfg.registerObjectMarshaller (Cluster) { c ->
 				[
 					"id": c.id,
@@ -53,7 +69,6 @@ class JsonMarshallerRegistrar {
 					"commonName": c.commonName
 				]
 			}
-			
 			cfg.registerObjectMarshaller (Field) { f ->
 				[
 					"fieldName": f.fieldName,
@@ -61,14 +76,14 @@ class JsonMarshallerRegistrar {
 					"dataTypeName": f.dataTypeName,
 					"description": f.description
 				]
-			}
-				
+			}	*/
 		}//authorized.context
 		
 		JSON.createNamedConfig ('available.corpora') { DefaultConverterConfiguration<JSON> cfg ->
 			cfg.registerObjectMarshaller (Type) { t ->
 				[
 					id: t.id,
+					name: t.typeName,
 					environment: t.environment,
 					index: t.index
 				]
@@ -91,9 +106,12 @@ class JsonMarshallerRegistrar {
 		
 		JSON.registerObjectMarshaller(CorpusType) { cp ->
 			[ 
-				"id": cp.id,
-				"name": cp.name,
-				"description": cp.description
+				id: cp.id,
+				name: cp.name,
+				enabled: cp.enabled,
+				description: cp.description,
+				glyph: cp.glyph
+				
 			]
 		}
 		

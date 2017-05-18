@@ -26,7 +26,7 @@ class Type {
 	static constraints = {
     	typeName( unique:'index')
     	description(nullable:true)
-		corpusType()
+		corpusType( unique:'environment')
 		environment inList: ['development', 'test', 'production', 'deprecated']
 	}
 	
@@ -69,6 +69,11 @@ class Type {
 	String getSearchableField() {
 		def field = fields.find { it.defaultSearchField==true }
 		(field.fieldName)?:null
+	}
+	
+	String getCuiField() {
+		//similar to searchable field, look into putting cui field default on Field class
+		//TODO: how does this affect ConceptualSearch class and usage?
 	}
 	
 	

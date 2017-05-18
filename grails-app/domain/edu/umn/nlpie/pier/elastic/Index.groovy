@@ -17,7 +17,7 @@ class Index {
     	indexName unique:'cluster'
 		commonName()
 		description()
-		status inList:['Searchable', 'Disabled', 'In Progress'], nullable:false
+		status inList:['Available', 'Unavailable', 'In Progress'], nullable:false
 		alias (nullable:true)
 		conceptualSearch (nullable:true)
 		semanticRelatednessSearch (nullable:true)

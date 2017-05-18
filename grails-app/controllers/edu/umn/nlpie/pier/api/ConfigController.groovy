@@ -23,14 +23,15 @@ class ConfigController {
 		JSON.use ('authorized.context') {
 			respond contexts
 		}
+		//respond contexts
 	}
 	
 	//keep
 	def corpusTypes() {
-		respond CorpusType.list()
+		respond CorpusType.findAllByEnabled(true)
 	}
 	
-	//keep
+	//deprected
 	def corpora() {
 		def env = params.id
 		JSON.use("available.corpora") {
