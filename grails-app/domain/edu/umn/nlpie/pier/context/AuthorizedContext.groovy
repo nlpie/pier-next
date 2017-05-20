@@ -1,10 +1,7 @@
 package edu.umn.nlpie.pier.context
 
-import java.util.regex.Pattern.Ctype;
-
-import edu.umn.nlpie.pier.elastic.Type
+import edu.umn.nlpie.pier.QueryInfo
 import edu.umn.nlpie.pier.ui.CorpusType
-import grails.util.Environment
 
 
 class AuthorizedContext {
@@ -40,19 +37,7 @@ class AuthorizedContext {
 	String getFilterValue() {
 		this.filterValue.trim()
 	}
-	
-	/*Index searchableClinicalNotesIndex() {
-		def count = RequestSet.countByRequestIdAndIsNoteSetAndStatus(requestId,true,'Completed')
-		//return (count==1) ? true : false
-		return (count==1) ? Index.currentClinicalNotesIndex() : null
-	}
-	
-	Index searchableMicrobiologyNotesIndex() {
-		def count = RequestSet.countByRequestIdAndIsMicrobiologySetAndStatus(requestId,true,'Completed')
-		if ( label.startsWith("Melton-MeauxG-Req00277") ) count=1
-		//return (count==1) ? true : false
-		return (count==1) ? Index.currentMicrobiologyNotesIndex() : null
-	}*/
+
 	
 	/**
 	 * 
@@ -61,21 +46,13 @@ class AuthorizedContext {
 	def annotatedCorpusTypes() {
 		def corpusTypes = CorpusType.findAllByEnabled(true)
 		corpusTypes.each { ct ->
-			//SearchContext.findAllByCorpusTypeAndStatusAndRequestId(ct.name,"Completed",this.requestId).each { ct.searchable=true }
-			def type = Type.find("from Type as t where t.corpusType.id=? and environment=? and t.index.status=?", [ ct.id, Environment.current.name, 'Available' ])
-			//t.type = ty
-			//Type.where { corpusType.id in ( CorpusType.findAllByEnabled(true).collect{it.id} ) && environment==env }.list()
-			if ( type ) {
-				println "found ${type.typeName}"
-				ct.searchable = true
-				//ct.type = type
-				ct.url = "${type.index.cluster.uri}/${type.index.indexName}/${type.typeName}/_search"
-				ct.defaultSearchField = type.searchableField
+			def availableSearchContext = SearchContext.findByCorpusTypeAndStatusAndRequestId(ct.name,"Completed",this.requestId)
+			if ( availableSearchContext ) {
+				ct.queryInfo = new QueryInfo(ct)
 			} else { 
-				ct.searchable = false
+				ct.queryInfo = new QueryInfo( searchable:false, tooltip:"Excludes ${ct.name}" )
 			}
 		}
-		//Type.where { corpusType.id in ( CorpusType.findAllByEnabled(true).collect{it.id} ) && environment==Environment.current.name }.list()
 		corpusTypes
 	}
 

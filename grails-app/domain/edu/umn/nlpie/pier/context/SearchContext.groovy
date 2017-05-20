@@ -16,8 +16,6 @@ class SearchContext {
 	Long requestSetId
 	Long requestId
 	String requestName
-	//Boolean isNoteSet
-	//Boolean isMicrobiologySet
 	String description
 	String status
 	String corpusType

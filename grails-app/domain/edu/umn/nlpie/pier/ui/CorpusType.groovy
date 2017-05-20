@@ -1,7 +1,7 @@
 package edu.umn.nlpie.pier.ui
 
+import edu.umn.nlpie.pier.QueryInfo
 import edu.umn.nlpie.pier.elastic.Type
-import grails.util.Environment
 
 /**
  * 
@@ -23,7 +23,7 @@ class CorpusType {
 		
 	}
 	
-	static transients = [ 'searchable', 'type', 'url', 'defaultSearchField' ]
+	static transients = ['queryInfo']
 	
 	String name
 	String description
@@ -31,12 +31,7 @@ class CorpusType {
 	String glyph
 	
 	//transients
-	//TODO: move these to their own Groovy value object?
-	Boolean searchable
-	String url
-	String defaultSearchField
-	
-	Type type
+	QueryInfo queryInfo
 
 	Date dateCreated
 	Date lastUpdated

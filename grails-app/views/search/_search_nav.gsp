@@ -43,15 +43,11 @@
                             <li role="presentation" class="dropdown-header pull-left">Authorized Search Contexts</li>
                         	<li ng-repeat="c in sc.uiState.authorizedContexts track by $index" class="pull-left">
                         		<a ng-click="sc.uiState.changeContext($index)">
-		                        	<i class="fa fa-file-text-o pier-li-icon" 
-		                        		ng-style="(c.clinicalNotesIndex) ? {'color':'green'} : {'color': 'lightgray'}" 
-		                        		ng-attr-title="{{(c.clinicalNotesIndex) ? 'includes clinical notes' : 'excludes clinical notes'}}"></i>
-		                        	<i class="fa icon-i-imaging-root-category pier-li-left-padded-icon" 
-		                        		ng-style="(c.imagingNotesIndex) ? {'color':'green'} : {'color': 'lightgray'}" 
-		                        		ng-attr-title="{{(c.imagingNotesIndex) ? 'includes imaging notes' : 'excludes imaging notes'}}"></i>
-                        			<i class="icon-i-pathology pier-li-left-padded-icon" 
-										ng-style="(c.microbiologyNotesIndex) ? {'color':'green'} : {'color': 'lightgray'}" 
-		                        		ng-attr-title="{{(c.microbiologyNotesIndex) ? 'includes microbiology notes' : 'excludes microbiology notes'}}"></i>
+		                        	<i ng-repeat="ct in c.candidateCorpora track by $index" 
+		                        		class="fa {{ct.glyph}} pier-li-left-padded-icon"
+		                        		ng-style="(ct.queryInfo.searchable) ? {'color':'green'} : {'color': 'lightgray'}"
+		                        		ng-attr-title="{{ct.queryInfo.tooltip}}">
+		                        	</i> 
                         			<span class="pier-li-left-padded-content" ng-click="sc.uiState.changeContext(c)" title="{{c.description}}">{{c.label}}</span>
                         		</a>
                             </li>

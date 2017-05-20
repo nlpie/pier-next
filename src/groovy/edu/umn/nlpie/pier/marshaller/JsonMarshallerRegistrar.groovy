@@ -4,6 +4,7 @@ import javax.annotation.PostConstruct
 
 import org.codehaus.groovy.grails.web.converters.configuration.DefaultConverterConfiguration
 
+import edu.umn.nlpie.pier.QueryInfo
 import edu.umn.nlpie.pier.context.AuthorizedContext
 import edu.umn.nlpie.pier.elastic.Cluster
 import edu.umn.nlpie.pier.elastic.Field
@@ -26,16 +27,22 @@ class JsonMarshallerRegistrar {
 					"filterValue": c.filterValue,
 					"description": c.description?:"description unavailable",
 					"username": c.username,
-					"searchableCorpora": c.annotatedCorpusTypes()
+					"candidateCorpora": c.annotatedCorpusTypes()
 				]
 			}
 			cfg.registerObjectMarshaller (CorpusType) { ct ->
 				[
 					name: ct.name,
 					glyph: ct.glyph,
-					searchable: ct.searchable,
-					url: ct.url,
-					defaultSearchField: ct.defaultSearchField
+					queryInfo: ct.queryInfo
+				]
+			}
+			cfg.registerObjectMarshaller (QueryInfo) { qi ->
+				[
+					tooltip: qi.tooltip,
+					searchable: qi.searchable,
+					url: qi.url,
+					defaultSearchField: qi.defaultSearchField
 				]
 			}
 			
@@ -95,10 +102,10 @@ class JsonMarshallerRegistrar {
 					cluster: i.cluster
 				]
 			}
-			cfg.registerObjectMarshaller (Cluster) { c ->
+			cfg.registerObjectMarshaller (Cluster) { cl ->
 				[
-					id: c.id,
-					name: c.uri
+					id: cl.id,
+					name: cl.uri
 				]
 			}
 				
@@ -142,11 +149,11 @@ class JsonMarshallerRegistrar {
 			cfg.registerObjectMarshaller (Index) { Index index ->
 				
 				Map typesMap = [:]
-				index.types.each { t ->
-					typesMap.put( t.typeName, [
+				index.types.each { ty ->
+					typesMap.put( ty.typeName, [
 							"dynamic": "strict",
 							"_timestamp": [ "enabled": true ],
-							"properties": t
+							"properties": ty
 					] )
 				}
 				[
