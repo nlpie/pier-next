@@ -6,12 +6,11 @@ class UiState {
 
     constructor( uiService, searchService ) {
     	this.uiService = uiService;
-    	//this.searchService = searchService;
+    	this.searchService = searchService;
     	this.userInput = "heart OR valve";
     	this.authorizedContexts = undefined;
-    	this.previousSearches = undefined;
     	this.currentContext = undefined;
-    	//this.currentSearch = undefined;
+    	this.previousSearches = undefined;
     	this.pagination = undefined;
 		this.init();
     }
@@ -41,7 +40,7 @@ class UiState {
     	var me = this;
     	this.searchService.fetchResultsFromElastic( this.userInput, this.currentContext )
     		.then( function(response) {
-    			
+    			alert("response from elastic");
     		});
     }
     

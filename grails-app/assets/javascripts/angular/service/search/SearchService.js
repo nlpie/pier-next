@@ -9,9 +9,9 @@ class SearchService {
 	}
 	
 	fetchResultsFromElastic(userInput,searchContext) {
-		console.info("SearchService.fetchResultsFromElastic");
+		alert(searchContext.label);
 		//return the promise and let the client resolve it
-		return this.$http.post( APP.ROOT + '/search/elastic/' + index, JSON.stringify(searchObj) );
+		return this.$http.post( APP.ROOT + '/search/elastic/', JSON.stringify(searchContext) );
 	}
  
 	//based on https://appendto.com/2016/02/working-promises-angularjs-services/ (deferred technique)
