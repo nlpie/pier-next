@@ -71,6 +71,11 @@ class Type {
 		(field.fieldName)?:null
 	}
 	
+	String getContextFilterField() {
+		def field = fields.find { it.contextFilterField==true }
+		(field.fieldName)?:null
+	}
+	
 	String getCuiField() {
 		//similar to searchable field, look into putting cui field default on Field class
 		//TODO: how does this affect ConceptualSearch class and usage?

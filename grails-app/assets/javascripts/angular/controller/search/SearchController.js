@@ -1,6 +1,6 @@
 import SearchService from '../../service/search/SearchService';
 import UIService from '../../service/config/UIService';
-import UiState from '../../model/ui/UiState';
+import UIState from '../../model/ui/UIState';
 
 class SearchController {
 	

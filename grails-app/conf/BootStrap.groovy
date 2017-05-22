@@ -55,12 +55,13 @@ class BootStrap {
 			def mrn = Field.findByFieldName("mrn")?:new Field(fieldName:"mrn",dataTypeName:"NOT_ANALYZED_STRING", description:"Epic patient identifier")//.save(flush:true, failOnError:true)
 			def encounterId = Field.findByFieldName("encounter_id")?:new Field(fieldName:"encounter_id",dataTypeName:"LONG", description:"Epic visit number")//.save(flush:true, failOnError:true)
 			def text = Field.findByFieldName("text")?:new Field(fieldName:"text",dataTypeName:"SNOWBALL_ANALYZED_STRING", description:"document text", defaultSearchField:true)//.save(flush:true, failOnError:true)
-			//session.flush()
+			def contextFilter = Field.findByFieldName("search_context")?:new Field(fieldName:"search_context",dataTypeName:"NOT_ANALYZED_STRING", description:"Array of search contexts that include this note",contextFilterField:true )
 			
 			def noteType = Type.findByTypeName("note")?:new Type(typeName:"note", description:"CDR note", environment:"development", corpusType:clinicalCorpusType)//.save(flush:true, failOnError:true)
 			noteType.addToFields(mrn)//.save(flush:true, failOnError:true)
 			noteType.addToFields(encounterId)//.save(flush:true, failOnError:true)
 			noteType.addToFields(text)
+			noteType.addToFields(contextFilter)
 			noteType.fields.each { f ->
 				println "adding pref for ${f.fieldName}"
 				f.addToPreferences(new FieldPreference(user:app, label:PierUtils.labelFromUnderscore(f.fieldName), ontology:epicOntology, applicationDefault:true))

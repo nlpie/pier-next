@@ -24,7 +24,7 @@ class JsonMarshallerRegistrar {
 					//"id": c.id,
 					"requestId": c.requestId,
 					"label": c.label,
-					"filterValue": c.filterValue,
+					"contextFilterValue": c.filterValue,
 					"description": c.description?:"description unavailable",
 					"username": c.username,
 					"candidateCorpora": c.annotatedCorpusTypes()
@@ -42,7 +42,8 @@ class JsonMarshallerRegistrar {
 					tooltip: qi.tooltip,
 					searchable: qi.searchable,
 					url: qi.url,
-					defaultSearchField: qi.defaultSearchField
+					defaultSearchField: qi.defaultSearchField,
+					contextFilterField: qi.contextFilterField
 				]
 			}
 			

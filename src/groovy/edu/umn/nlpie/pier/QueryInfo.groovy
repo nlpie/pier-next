@@ -17,12 +17,14 @@ class QueryInfo {
 		this.searchable = true
 		this.url = "${type.index.cluster.uri}/${type.index.indexName}/${type.typeName}/_search"
 		this.defaultSearchField = type.searchableField
+		this.contextFilterField = type.contextFilterField
 		this.tooltip = "Includes ${ct.name}"
 	}
 	
 	Boolean searchable 
 	String url 
 	String defaultSearchField 
+	String contextFilterField
 	String tooltip 
 	
 }

@@ -8,8 +8,7 @@ class SearchService {
 		this.$q = $q;
 	}
 	
-	fetchResultsFromElastic(userInput,searchContext) {
-		alert(searchContext.label);
+	fetchResultsFromElastic( userInput, searchContext, corpus ) {
 		//return the promise and let the client resolve it
 		return this.$http.post( APP.ROOT + '/search/elastic/', JSON.stringify(searchContext) );
 	}

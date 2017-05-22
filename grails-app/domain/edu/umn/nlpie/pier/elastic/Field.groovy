@@ -41,7 +41,8 @@ class Field {
 	
 	
 	String fieldName
-	boolean defaultSearchField = false
+	Boolean defaultSearchField = false
+	Boolean contextFilterField = false
 	String dataTypeName
 	String description
 	List<FieldPreference> preferences

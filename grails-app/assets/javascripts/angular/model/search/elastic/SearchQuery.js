@@ -6,14 +6,22 @@ import MinAggregation from './MinAggregation';
 import MaxAggregation from './MaxAggregation';
 
 class SearchQuery {
-    constructor(userInput,notesPerPage,offset) {
+    constructor( userInput, notesPerPage, offset, highlightField ) {
     	this.query = new QuerystringQuery(userInput);
+    	
     	this.aggs = new Aggregations();
-    	this.highlight = new Highlight();
-    	//fields					//get fields from user settings OR just rely on _source (default)
+    	this.highlight = new Highlight(highlightField);
+
     	this.size = notesPerPage;
     	this.from = offset;
     	//filter
+/*    	
+1. generate/capture JS API query types [terms; terms+1filter; terms+2f; terms+nf1Catetory; terms+nf2C; NOT filter types]
+2. run query JS API query types, note hits returned
+3. devise strategy for keeping track of aggregate filters
+4. formulate JS API queries using objects - create unit/integration tests for these
+*/
+    	
     	
 /*    	"filter": {"and": {"filters": [
 2017-02-13_22:17:30.90671       {"terms": {
@@ -36,15 +44,16 @@ class SearchQuery {
 use bool query instead of filters (in filter block?)
 */		
     	//delete after development
-    	
+    	/*
     	this.aggs.add( "Service Date", new TermsAggregation("service_date",5) );
     	this.aggs.add( "Min Svc Date", new MinAggregation("service_date"));
     	this.aggs.add( "Max Svc Date", new MaxAggregation("service_date"));
 		this.aggs.add( "TOS", new TermsAggregation("tos",5) );
 		this.aggs.add( "MRN", new TermsAggregation("mrn",5) );
-    	alert(JSON.stringify(this));
-    	
+    	*/
     	//end delete
+    	
+    	alert(JSON.stringify(this));
     }
     
     clear() { 

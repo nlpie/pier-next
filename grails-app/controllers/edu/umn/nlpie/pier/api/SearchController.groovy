@@ -22,7 +22,7 @@ class SearchController {//extends RestfulController {
 		//lookup user
 		//verify user has access to index
 		//execute query
-		println request.JSON
+		println request.JSON.toString(2)
 		def map = ["good":"job"]
 		render(status: 200, text: '{"good":"job"}', contentType: "application/json") as JSON
 	}

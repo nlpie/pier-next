@@ -5,7 +5,7 @@ import SearchController from '../angular/controller/search/SearchController';
 //import UserService from '../angular/service/UserService';
 //import UserController from '../angular/controller/UserController';
 import UIService from '../angular/service/config/UIService';
-import UiState from '../angular/model/ui/UiState';
+import UIState from '../angular/model/ui/UIState';
 
 
 angular
@@ -13,7 +13,7 @@ angular
     //.service('userService', UserService)
     .service('searchService', SearchService)
     .service('uiService', UIService)
-    .service('uiState', UiState)
+    .service('uiState', UIState)
     /*.service('injectOn', ($injector) => {
 		  return (thisArg) => {
 		    if(!thisArg.constructor) {
