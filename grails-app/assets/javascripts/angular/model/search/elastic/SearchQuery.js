@@ -6,15 +6,43 @@ import MinAggregation from './MinAggregation';
 import MaxAggregation from './MaxAggregation';
 
 class SearchQuery {
-    constructor( userInput, notesPerPage, offset, highlightField ) {
-    	this.query = new QuerystringQuery(userInput);
+    constructor( contextFilter, defaultSearchField, userInput, pagination ) {
+    	this.query = {};
+    	this.query.bool = {};
+    	this.query.bool.must = {};
+    	this.query.bool.must = new QuerystringQuery(defaultSearchField, userInput);
+    	this.query.bool.filter = [];
+    	this.query.bool.filter.push(contextFilter);
     	
     	this.aggs = new Aggregations();
-    	this.highlight = new Highlight(highlightField);
+    	this.highlight = new Highlight(defaultSearchField);
 
-    	this.size = notesPerPage;
-    	this.from = offset;
-    	//filter
+    	this.size = pagination.notesPerPage;
+    	this.from = pagination.offset;
+    	/*    
+        {
+            "highlight": {
+              "fields": {"text": {
+                "number_of_fragments": 15,
+                "pre_tags": ["<span class='hl'>"],
+                "post_tags": ["<\/span>"],
+                "fragment_size": 300
+              }},
+              "encoder": "html"
+            },
+            "size": 5,
+            "query": {"bool": {
+              "filter": [{"term": {"mrn": "XYZ"}}],
+              "must": {"query_string": {
+                "default_operator": "AND",
+                "default_field": "text",
+                "query": "patient"
+              }}
+            }},
+            "from": 40,
+            "aggs": {}
+          }
+     */
 /*    	
 1. generate/capture JS API query types [terms; terms+1filter; terms+2f; terms+nf1Catetory; terms+nf2C; NOT filter types]
 2. run query JS API query types, note hits returned

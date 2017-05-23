@@ -4,13 +4,14 @@ class SearchService {
 	
 	//for some reason service constructors do not need inject annotation?
 	constructor( $http, $q ) {
+		//'ngInject';
 		this.$http = $http;
 		this.$q = $q;
 	}
 	
-	fetchResultsFromElastic( userInput, searchContext, corpus ) {
+	fetchResultsFromElastic( corpus, userInput, contextFilter ) {
 		//return the promise and let the client resolve it
-		return this.$http.post( APP.ROOT + '/search/elastic/', JSON.stringify(searchContext) );
+		return this.$http.post( APP.ROOT + '/search/elastic/', JSON.stringify(contextFilter) );
 	}
  
 	//based on https://appendto.com/2016/02/working-promises-angularjs-services/ (deferred technique)

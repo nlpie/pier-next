@@ -2,9 +2,9 @@ import Search from '../../model/search/Search';
 
 class UIState {
 
-    constructor( uiService ) {
+    constructor( uiService, currentSearch ) {
     	this.uiService = uiService;
-
+    	this.currentSearch = currentSearch;
     	
     	this.authorizedContexts = undefined;
     	this.currentContext = undefined;
@@ -16,7 +16,7 @@ class UIState {
     
     init() {
 		this.fetchContexts();
-		this.currentSearch = new Search();
+		//this.currentSearch = new Search(this.currentContext);
 		//= new Search(this.searchService, this.userInput, this.currentContext, this.pagination.notesPerPage, this.pagination.offset);
 	}
     
@@ -25,13 +25,16 @@ class UIState {
     	this.uiService.authorizedContexts()
 	    	.then( function(response) {
 	    		me.authorizedContexts = response.data;
-	    		me.currentContext = me.authorizedContexts[0];
+	    		me.currentSearch.setContext(me.authorizedContexts[0]);	//set to first in list
+	    		//me.currentContext = me.authorizedContexts[0];
+	    		//inject $http, searchService into Search.js, then search (as currentSearch) into uistate and set currentContext on uistate.currentSearch
 	    	});
     }
     
     changeContext(index) {
     	//	angular.copy(c,this.currentContext);	
-    	this.currentContext = this.authorizedContexts[index];	
+    	
+    	this.currentSearch.setContext(this.authorizedContexts[index]);	
 	}
     
     search() {
@@ -41,6 +44,6 @@ class UIState {
 
 }
 
-UIState.$inject = [ 'uiService' ];
+UIState.$inject = [ 'uiService', 'currentSearch' ];
 
 export default UIState;

@@ -36,7 +36,7 @@
        			<div class="input-group" style="display:table;">
 					<div class="input-group-btn" class="input-group-addon" style="width:1%;">
 						<button type="button" class="btn btn-default" data-toggle="dropdown" style="border-right:none">
-                            <span class="label-icon" title="{{sc.uiState.currentContext.description}}" >{{sc.uiState.currentContext.label}}</span>
+                            <span class="label-icon" title="{{sc.uiState.currentSearch.context.description}}" >{{sc.uiState.currentSearch.context.label}}</span>
                             <span class="caret"></span>
                         </button>
                         <ul class="dropdown-menu" role="menu">
@@ -55,7 +55,7 @@
                     </div>
 					<input type="text" name="query" class="form-control" 
 						placeholder="Search words and/or phrases anywhere in the note text" 
-						ng-model="sc.uiState.search.userInput"
+						ng-model="sc.uiState.currentSearch.userInput"
 						style="border-right:none;-webkit-box-shadow: none !important;-moz-box-shadow: none !important;box-shadow: none !important;"
 						ng-model-options="{
     						'updateOn': 'default blur',
@@ -82,7 +82,7 @@
 				          		<a href ng-click="">query n-2</a>
 							</li>
 						</ul>
-						<button class="btn btn-default" type="submit" ng-click="sc.uiState.search()">
+						<button class="btn btn-default" type="submit" ng-click="sc.uiState.currentSearch.execute()">
 							<i class="fa fa-search" aria-hidden="true"></i>
 						</button>
 					</div>

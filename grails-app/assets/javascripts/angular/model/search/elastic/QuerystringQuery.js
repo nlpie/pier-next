@@ -1,11 +1,11 @@
 
 class QuerystringQuery {
     
-	constructor(queryString) {
+	constructor(field, userInput) {
         this.query_string = {
-        	"default_field" : "text",
+        	"default_field" : field,
         	"default_operator": "AND",
-        	"query": queryString
+        	"query": userInput
         }
     }
     
