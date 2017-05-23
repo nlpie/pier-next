@@ -2,10 +2,10 @@ package edu.umn.nlpie.pier.api
 
 import grails.converters.JSON
 import grails.rest.RestfulController
+import grails.plugins.rest.client.RestBuilder
 
 class SearchController {//extends RestfulController {
-	
-	//static scaffold=true
+
 	def elasticService
 
     def index() { }
@@ -22,9 +22,14 @@ class SearchController {//extends RestfulController {
 		//lookup user
 		//verify user has access to index
 		//execute query
-		println request.JSON.toString(2)
-		def map = ["good":"job"]
-		render(status: 200, text: '{"good":"job"}', contentType: "application/json") as JSON
+		def url = request.JSON.url
+		def query = request.JSON.elasticQuery
+		def rest = new RestBuilder()
+		println query.toString(2)
+		def esResponse = rest.post(url) { json query.toString() }
+		println esResponse.json.toString(2)
+		//def map = ["good":"job"]
+		render(status: 200, text:esResponse.json, contentType: "application/json") as JSON
 	}
 	
 }

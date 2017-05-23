@@ -14,7 +14,7 @@ class Search {
     	
     	this.userInput = "blank set of terms";
     	this.context = undefined;
-    	this.contextFilter = undefined; //new ContextFilter(this.currentContext.contextFilterValue);
+    	//this.contextFilter = undefined; //new ContextFilter(this.currentContext.contextFilterValue);
     	
 		this.pagination = new Pagination();
     	
@@ -33,9 +33,7 @@ class Search {
     	if (!searchContext) return;	
     	//for some reason this function gets invoked with undefined searchContext on change of contexts dropdown; 
     	//this check and immediate return prevents console errors, otherwise the app appears to work as expected
-    	//alert("setting context: " + searchContext.label);
     	this.context = searchContext;
-    	//this.contextFilter = new ContextFilter(searchContext.filterValue);
     }
     
 /*    
@@ -72,7 +70,7 @@ class Search {
     	
     }
     
-    searchCorpus( corpus, contextFilter ) {
+    searchCorpus( corpus ) {
 		//return the promise and let the client resolve it
     	var url = corpus.queryInfo.url;
     	var contextFilter = new ContextFilter(corpus.queryInfo.contextFilterField, this.context.contextFilterValue);

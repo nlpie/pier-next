@@ -5,7 +5,7 @@ import UIState from '../../model/ui/UIState';
 class SearchController {
 	
 	constructor( $scope, searchService, uiState, uiService ) {
-		'ngInject';
+		//'ngInject';
 		this.searchService = searchService;
 		this.uiService = uiService;
 		this.uiState = uiState;
