@@ -1,20 +1,15 @@
-import Result from './Result';
+import SearchResponse from './SearchResponse';
 import SearchQuery from './elastic/SearchQuery';
 import Pagination from './Pagination';
 import ContextFilter from './elastic/ContextFilter';
-//import SearchService from '../../service/search/SearchService';
 import Service from '../../model/search/Search';
 
 class Search {
     constructor($http) {
-    	//'ngInject';
-    	//this.searchService = new SearchService();
     	this.$http = $http;
-    	//this.currentSearch = currentSearch;
     	
-    	this.userInput = "blank set of terms";
+    	this.userInput = "heart";
     	this.context = undefined;
-    	//this.contextFilter = undefined; //new ContextFilter(this.currentContext.contextFilterValue);
     	
 		this.pagination = new Pagination();
     	
@@ -26,7 +21,7 @@ class Search {
 		this.cuiExpansion = {};				//{ heart:[], valve:[] } or { enabled:false, expansionMap: { heart:[], valve:[] } }
 		this.relatednessExpansion = {}; 		//{ heart:[], valve:[] } or { enabled:false, expansionMap: { heart:[], valve:[] } }
 
-		this.results = [];	//Result[]
+		this.results = {};	//object containing key:SearchResponse{}
     }
     
     setContext(searchContext) {
@@ -59,11 +54,11 @@ class Search {
     	//pagination.notesPerPage and .offset come from this.pagination
     	var me = this;
     	for ( let corpus of this.context.candidateCorpora ) {
-			alert(JSON.stringify(corpus));
+			//alert(JSON.stringify(corpus));
 			if ( corpus.queryInfo.searchable ) {
 				this.searchCorpus( corpus )
 	    			.then( function(response) {
-	    				alert("response from elastic");
+	    				me.assignResults(corpus,response);
 	    			});
 			}
 		}
@@ -79,16 +74,11 @@ class Search {
 		return this.$http.post( APP.ROOT + '/search/elastic/', JSON.stringify( {"url":url, "elasticQuery": elasticQuery} ) );
 	}
     
-    assignResults(data) {
-    	//alert("populate results");
-    	this.currentSearch.result = new Result();
-    	this.currentSearch.result.notes = data;	
+    assignResults(corpus,response) {
+    	this.results[corpus.name] = new SearchResponse(response.data);
+    	console.info(JSON.stringify(this.results));
+    	console.info(JSON.stringify(this.results['Clinical Notes'].hits[0]._source.text));
     }
-    
-    /*execute() {
-    	console.info("Search.execute()");
-    	this.searchService.fetchResultsFromElastic("notes_v1",this.query).then();
-    }*/
     
     /*clear() { 
 		this.resetFilters();

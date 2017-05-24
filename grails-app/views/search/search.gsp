@@ -86,7 +86,7 @@
 					</ul>
 				</div>
 
-				<div class="col-xs-9">
+				<div class="col-xs-9" ng-controller="resultsController as rc">
 					<div class="pull-right">Search Results</div>
 					
 					<div class="btn-group" role="group" aria-label="...">
@@ -94,7 +94,7 @@
 							class="btn btn-default btn-result-action-on"
 							data-container="body" data-toggle="tooltip" data-placement="top"
 							data-html="true">
-							Notes <span style="font-size: 0.5em">19,850,345</span>
+							Notes <span style="font-size: 0.5em">{{rc.search.results['Clinical Notes'].total}}</span>
 						</button>
 						<button type="button" class="btn btn-default btn-result-action"
 							data-container="body" data-toggle="tooltip" data-placement="top"
@@ -107,12 +107,14 @@
 							Imaging <span style="font-size: 0.5em">16,499</span>
 						</button>
 					</div>
-
-					<div class="panel panel-default">
-						<div class="panel-body">Heart Another Heart Another Heart
-							ER - follow up - Abscess of skin or subcutaneous tissue, diabetes mellitus, type 2 <b>inflammatory bowel disease</b></div>
+					
+					
+					<div class="panel panel-default" ng-if="rc.search.results['Clinical Notes'].total>0" ng-repeat="doc in rc.search.results['Clinical Notes'].hits track by $index">
+						<div class="panel-body">
+							{{ doc._source.text }}
+						</div>
 					</div>
-
+<!-- 
 					<div class="panel panel-default">
 						<div class="panel-body">51 year old female with history of <b>inflammatory bowel disease</b>, presents with complaints of exacerbation of abdominal pain and diarrhea for several days. </div>
 					</div>
@@ -130,7 +132,7 @@
 					<div class="panel panel-default">
 						<div class="panel-body"> EMERGENCY DEPARTMENT COURSE AND MEDICAL DECISION MAKING: This is a 21-year-old female who comes in for concerns of abdominal pain. I think this is likely due to her <b>inflammatory bowel disease</b>. She has a nonsurgical abdomen. I do not think this represents perforation or abscess. White count slightly</div>
 					</div>
-
+-->
 				</div>
 			</div>
 		</div>

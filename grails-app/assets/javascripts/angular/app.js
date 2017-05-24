@@ -3,6 +3,7 @@ import * as angular from '../lib/angular.min.js';
 import SearchService from '../angular/service/search/SearchService';
 import Search from '../angular/model/search/Search';
 import SearchController from '../angular/controller/search/SearchController';
+import ResultsController from '../angular/controller/search/ResultsController';
 //import UserService from '../angular/service/UserService';
 //import UserController from '../angular/controller/UserController';
 import UIService from '../angular/service/config/UIService';
@@ -28,5 +29,5 @@ angular
 		    });
 		  };
 		})*/
-	//.controller('userController', UserController)
+	.controller('resultsController', ResultsController)
 	.controller('searchController', SearchController);

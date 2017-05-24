@@ -28,7 +28,6 @@ class SearchController {//extends RestfulController {
 		println query.toString(2)
 		def esResponse = rest.post(url) { json query.toString() }
 		println esResponse.json.toString(2)
-		//def map = ["good":"job"]
 		render(status: 200, text:esResponse.json, contentType: "application/json") as JSON
 	}
 	

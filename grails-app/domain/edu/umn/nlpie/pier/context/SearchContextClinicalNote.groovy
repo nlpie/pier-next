@@ -12,11 +12,11 @@ class SearchContextClinicalNote {
 		table name: "search_context_clinical_note", schema: "notes"
 		version false
 	}
-	
+
 	Long requestSetIdsId
 	Long requestId
 	Long requestSetId
-	String requestName
+	String label
 	String noteId
 	Long noteIdAsNumber
 	

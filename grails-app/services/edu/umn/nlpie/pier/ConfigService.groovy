@@ -20,8 +20,9 @@ class ConfigService {
     //keep
 	def getAuthorizedContexts() {
 		//get user from spring security service
-		def username = "gmelton"
-		AuthorizedContext.findAllByUsername(username)
+		//def username = "gmelton"
+		//AuthorizedContext.findAllByUsername('gmelton')
+		AuthorizedContext.list(sort:'label')
     }
 	
 	//discard

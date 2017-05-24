@@ -81,7 +81,7 @@ use bool query instead of filters (in filter block?)
     	*/
     	//end delete
     	
-    	alert(JSON.stringify(this));
+    	//alert(JSON.stringify(this));
     }
     
     clear() { 
