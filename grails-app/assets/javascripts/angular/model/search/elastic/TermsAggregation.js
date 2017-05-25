@@ -1,5 +1,6 @@
 
 class TermsAggregation {
+	
 	constructor(field,size) {
 		var notSpecified = "missing";	//display value for documents where value is not defined
 		if ( field=="service_date" || field=="filing_date" ) {

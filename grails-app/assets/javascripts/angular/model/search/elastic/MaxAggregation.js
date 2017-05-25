@@ -1,5 +1,6 @@
 
 class MaxAggregation {
+	
 	constructor(field) {	
 		this.max = {
 			"field": field

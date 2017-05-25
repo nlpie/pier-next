@@ -5,7 +5,7 @@ import TermsAggregation from './TermsAggregation';
 import MinAggregation from './MinAggregation';
 import MaxAggregation from './MaxAggregation';
 
-class SearchQuery {
+class DocumentQuery {
     constructor( contextFilter, defaultSearchField, userInput, pagination ) {
     	this.query = {};
     	this.query.bool = {};
@@ -89,4 +89,4 @@ use bool query instead of filters (in filter block?)
 	}
 }
 
-export default SearchQuery;
+export default DocumentQuery;

@@ -1,5 +1,6 @@
 
 class MinAggregation {
+	
 	constructor(field) {	
 		this.min = {
 			"field": field

@@ -1,5 +1,6 @@
 
 class Aggregations {
+	
 	constructor() {	}
 	
 	add(label,agg) {

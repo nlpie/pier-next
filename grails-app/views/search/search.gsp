@@ -89,27 +89,20 @@
 				<div class="col-xs-9" ng-controller="resultsController as rc">
 					<div class="pull-right">Search Results</div>
 					
-					<div class="btn-group" role="group" aria-label="...">
-						<button type="button"
-							class="btn btn-default btn-result-action-on"
-							data-container="body" data-toggle="tooltip" data-placement="top"
-							data-html="true">
-							Notes <span style="font-size: 0.5em">{{rc.search.results['Clinical Notes'].total}}</span>
-						</button>
-						<button type="button" class="btn btn-default btn-result-action"
-							data-container="body" data-toggle="tooltip" data-placement="top"
-							data-html="true">
-							Pathology <span style="font-size: 0.5em">50,345</span>
-						</button>
-						<button type="button"
-							class="btn btn-default btn-result-action btn-result-action"
-							data-container="body" data-toggle="tooltip" data-placement="top">
-							Imaging <span style="font-size: 0.5em">16,499</span>
-						</button>
+					<div class="btn-group" role="group">
+						<div ng-repeat="corpus in rc.search.context.candidateCorpora track by $index">
+							<button type="button"
+								ng-if="corpus.queryInfo.searchable"
+								class="btn btn-default btn-result-action-on"
+								data-container="body" data-toggle="tooltip" data-placement="top"
+								data-html="true">
+								{{corpus.name}} <span style="font-size: 0.5em">{{rc.search.results['Clinical Notes'].docs.total}}</span>
+							</button>
+						</div>
 					</div>
 					
 					
-					<div class="panel panel-default" ng-if="rc.search.results['Clinical Notes'].total>0" ng-repeat="doc in rc.search.results['Clinical Notes'].hits track by $index">
+					<div class="panel panel-default" ng-if="rc.search.results['Clinical Notes'].docs.total>0" ng-repeat="doc in rc.search.results['Clinical Notes'].docs.hits track by $index">
 						<div class="panel-body">
 							{{ doc._source.text }}
 						</div>

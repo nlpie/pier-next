@@ -22,7 +22,7 @@ class ConfigService {
 		//get user from spring security service
 		//def username = "gmelton"
 		//AuthorizedContext.findAllByUsername('gmelton')
-		AuthorizedContext.list(sort:'label')
+		AuthorizedContext.list(max:15,sort:'label',)
     }
 	
 	//discard

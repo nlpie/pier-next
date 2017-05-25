@@ -1,5 +1,6 @@
-import SearchResponse from './SearchResponse';
-import SearchQuery from './elastic/SearchQuery';
+import DocumentsResponse from './DocumentsResponse';
+import AggregationsResponse from './AggregationsResponse';
+import DocumentQuery from './elastic/DocumentQuery';
 import Pagination from './Pagination';
 import ContextFilter from './elastic/ContextFilter';
 import Service from '../../model/search/Search';
@@ -58,7 +59,7 @@ class Search {
 			if ( corpus.queryInfo.searchable ) {
 				this.searchCorpus( corpus )
 	    			.then( function(response) {
-	    				me.assignResults(corpus,response);
+	    				me.assignDocumentsResponse(corpus,response);
 	    			});
 			}
 		}
@@ -69,15 +70,27 @@ class Search {
 		//return the promise and let the client resolve it
     	var url = corpus.queryInfo.url;
     	var contextFilter = new ContextFilter(corpus.queryInfo.contextFilterField, this.context.contextFilterValue);
-    	var elasticQuery = new SearchQuery(contextFilter, corpus.queryInfo.defaultSearchField, this.userInput, this.pagination);
+    	var docsQuery = new DocumentQuery(contextFilter, corpus.queryInfo.defaultSearchField, this.userInput, this.pagination);
     	
-		return this.$http.post( APP.ROOT + '/search/elastic/', JSON.stringify( {"url":url, "elasticQuery": elasticQuery} ) );
+		return this.$http.post( APP.ROOT + '/search/elastic/', JSON.stringify( {"url":url, "elasticQuery": docsQuery} ) );
 	}
+    computeAggregations( corpus ) {
+    	//return the promise and let the client resolve it
+    	var url = corpus.queryInfo.url;
+    	var contextFilter = new ContextFilter(corpus.queryInfo.contextFilterField, this.context.contextFilterValue);
+    	var aggsQuery = new DocumentQuery(contextFilter, corpus.queryInfo.defaultSearchField, this.userInput, this.pagination);
+    	
+		return this.$http.post( APP.ROOT + '/search/elastic/', JSON.stringify( {"url":url, "elasticQuery": aggsQuery} ) );
+    }
     
-    assignResults(corpus,response) {
-    	this.results[corpus.name] = new SearchResponse(response.data);
-    	console.info(JSON.stringify(this.results));
-    	console.info(JSON.stringify(this.results['Clinical Notes'].hits[0]._source.text));
+    assignDocumentsResponse(corpus,response) {
+    	if ( !this.results[corpus.name] ) this.results[corpus.name] = {};
+    	this.results[corpus.name].docs = new DocumentsResponse(response.data);
+    	//console.info(JSON.stringify(this.results['Clinical Notes'].docs.hits[0]._source.text));
+    }
+    assignAggregationsResponse(corpus,response) {
+    	if ( !this.results[corpus.name] ) this.results[corpus.name] = {};
+    	this.results[corpus.name].aggs = new AggregationsResponse(response.data);
     }
     
     /*clear() { 

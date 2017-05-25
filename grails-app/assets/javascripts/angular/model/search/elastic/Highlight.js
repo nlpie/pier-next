@@ -1,5 +1,6 @@
 
 class Highlight {
+	
 	constructor(field) {	
 		this.encoder = "html";
 		this.fields = {};
