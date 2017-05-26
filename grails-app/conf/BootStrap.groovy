@@ -64,7 +64,9 @@ class BootStrap {
 			noteType.addToFields(contextFilter)
 			noteType.fields.each { f ->
 				println "adding pref for ${f.fieldName}"
-				f.addToPreferences(new FieldPreference(user:app, label:PierUtils.labelFromUnderscore(f.fieldName), ontology:epicOntology, applicationDefault:true))
+				def fp = new FieldPreference(user:app, label:PierUtils.labelFromUnderscore(f.fieldName), ontology:epicOntology, applicationDefault:true)
+				if ( f.contextFilterField || f.defaultSearchField ) fp.displayAsFilter=false
+				f.addToPreferences(fp)
 			}
 		
 			epic.addToTypes(noteType)
@@ -88,8 +90,9 @@ class BootStrap {
 			nlp02.addToIndexes(micro)
 			println nlp02.toString()
 			nlp02.save(failOnError:true)
-			
 			println "done populating elastic info"
+			configService.clonePreferences(User.findByUsername("rmcewan"))
+			println "preferences set for rmcewan"
 		}
 		
     }

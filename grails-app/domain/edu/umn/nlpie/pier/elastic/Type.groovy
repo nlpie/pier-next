@@ -81,8 +81,6 @@ class Type {
 		//TODO: how does this affect ConceptualSearch class and usage?
 	}
 	
-	
-	
 }
 
 //Index

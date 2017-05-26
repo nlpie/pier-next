@@ -1,7 +1,10 @@
 package edu.umn.nlpie.pier.poc
 
 import edu.umn.nlpie.pier.context.AuthorizedContext
+import edu.umn.nlpie.pier.elastic.Type
+import edu.umn.nlpie.pier.ui.FieldPreference
 import grails.plugins.rest.client.RestBuilder
+import grails.util.Environment
 import groovy.sql.Sql
 import groovyx.gpars.GParsPool
 
@@ -17,6 +20,25 @@ class PocController {
 			println "---"
 			//println "${it.label} \t\t\t\t\t\t\t ${ ( (it.hasClinicalNotes()==it.hasMicrobiologyNotes()) && it.hasMicrobiologyNotes() ) }"
 		}
+	}
+	
+	def defaultQueryFilters() {
+		def type = Type.find("from Type as t where t.corpusType.id=? and environment=? and t.index.status=?", [ 1.toLong(), Environment.current.name, 'Available' ])
+		def preferences = FieldPreference.where{ field.type.id==type.id && applicationDefault==true }.list()
+		//prefs.each {
+			//println "${it.label} ${it.ontology.name}"
+		//}
+		def ontologies = preferences.collect{ it.ontology }.unique()
+		ontologies.each {
+			println it.name
+		}
+		ontologies.each { o ->
+			def prefsByOntology = preferences.findAll{ it.ontology.id==o.id && it.displayAsFilter==true }
+			prefsByOntology.each {
+				println "\t${it.label}"
+			}
+		}
+		
 	}
 	
 	def contextAcl() {

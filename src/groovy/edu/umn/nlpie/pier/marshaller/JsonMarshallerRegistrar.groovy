@@ -4,13 +4,14 @@ import javax.annotation.PostConstruct
 
 import org.codehaus.groovy.grails.web.converters.configuration.DefaultConverterConfiguration
 
-import edu.umn.nlpie.pier.QueryInfo
+import edu.umn.nlpie.pier.api.QueryInfo
 import edu.umn.nlpie.pier.context.AuthorizedContext
 import edu.umn.nlpie.pier.elastic.Cluster
 import edu.umn.nlpie.pier.elastic.Field
 import edu.umn.nlpie.pier.elastic.Index
 import edu.umn.nlpie.pier.elastic.Type
 import edu.umn.nlpie.pier.ui.CorpusType
+import edu.umn.nlpie.pier.ui.FieldPreference
 import grails.converters.JSON
 
 class JsonMarshallerRegistrar {
@@ -18,6 +19,21 @@ class JsonMarshallerRegistrar {
 	@PostConstruct
 	void registerMarshallers() {
 		
+		JSON.registerObjectMarshaller(FieldPreference) { fpr ->
+			[
+				"id": fpr.id,
+				"label": fpr.label,
+				"fieldName": fpr.field.fieldName,
+				"fieldDescription": fpr.field.description,
+				"ontology": fpr.ontology.name,
+				"username": fpr.user.username,
+				"displayOrder": fpr.displayOrder,
+				"displayAsFilter": fpr.displayAsFilter,
+				"numberOfFilterOptions": fpr.numberOfFilterOptions,
+				"includeInExport": fpr.includeInExport
+			]
+		}
+			
 		JSON.createNamedConfig ('authorized.context') { DefaultConverterConfiguration<JSON> cfg ->
 			cfg.registerObjectMarshaller (AuthorizedContext) { c ->
 				[
@@ -32,9 +48,11 @@ class JsonMarshallerRegistrar {
 			}
 			cfg.registerObjectMarshaller (CorpusType) { ct ->
 				[
+					id: ct.id,
 					name: ct.name,
 					glyph: ct.glyph,
-					queryInfo: ct.queryInfo
+					queryInfo: ct.queryInfo,
+					queryFilters: null	//placeholder to be filled by subsequent, client-side initiated request
 				]
 			}
 			cfg.registerObjectMarshaller (QueryInfo) { qi ->
@@ -43,9 +61,21 @@ class JsonMarshallerRegistrar {
 					searchable: qi.searchable,
 					url: qi.url,
 					defaultSearchField: qi.defaultSearchField,
-					contextFilterField: qi.contextFilterField
+					contextFilterField: qi.contextFilterField,
 				]
 			}
+			
+			cfg.registerObjectMarshaller (Field) { f ->
+				[
+					"fieldName": f.fieldName,
+					"defaultSearchField": f.defaultSearchField,
+					"dataTypeName": f.dataTypeName,
+					"description": f.description,
+					"defaultFilter": f.defaultPreference
+				]
+			}
+			
+			
 			
 			
 			/*
@@ -77,14 +107,7 @@ class JsonMarshallerRegistrar {
 					"commonName": c.commonName
 				]
 			}
-			cfg.registerObjectMarshaller (Field) { f ->
-				[
-					"fieldName": f.fieldName,
-					"defaultSearchField": f.defaultSearchField,
-					"dataTypeName": f.dataTypeName,
-					"description": f.description
-				]
-			}	*/
+			*/
 		}//authorized.context
 		
 		JSON.createNamedConfig ('available.corpora') { DefaultConverterConfiguration<JSON> cfg ->

@@ -1,7 +1,7 @@
 package edu.umn.nlpie.pier.ui
 
-import edu.umn.nlpie.pier.QueryInfo
-import edu.umn.nlpie.pier.elastic.Type
+import edu.umn.nlpie.pier.api.QueryFilters
+import edu.umn.nlpie.pier.api.QueryInfo
 
 /**
  * 
@@ -23,7 +23,7 @@ class CorpusType {
 		
 	}
 	
-	static transients = ['queryInfo']
+	static transients = [ 'queryInfo', 'queryFilters' ]
 	
 	String name
 	String description
@@ -32,6 +32,7 @@ class CorpusType {
 	
 	//transients
 	QueryInfo queryInfo
+	QueryFilters queryFilters
 
 	Date dateCreated
 	Date lastUpdated

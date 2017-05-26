@@ -33,7 +33,6 @@ class UIState {
     
     changeContext(index) {
     	//	angular.copy(c,this.currentContext);	
-    	
     	this.currentSearch.setContext(this.authorizedContexts[index]);	
 	}
     

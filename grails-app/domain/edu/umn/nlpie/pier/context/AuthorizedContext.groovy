@@ -1,6 +1,6 @@
 package edu.umn.nlpie.pier.context
 
-import edu.umn.nlpie.pier.QueryInfo
+import edu.umn.nlpie.pier.api.QueryInfo;
 import edu.umn.nlpie.pier.ui.CorpusType
 
 
@@ -41,7 +41,9 @@ class AuthorizedContext {
 	
 	/**
 	 * 
-	 * @return List of annotated CorpusType instances. Annotations are transient fields: a flag indicating the CorpusType instance is searchable for this user and an Elastic Type instance from the environment specific cluster configuration detailing cluster, index, and type details for the CorpusType instance
+	 * @return List of annotated CorpusType instances. Annotations are transient fields: a flag indicating the CorpusType instance 
+	 * is searchable for this user and an Elastic Type instance from the environment specific cluster configuration detailing cluster, 
+	 * index, and type details for the CorpusType instance
 	 */
 	def annotatedCorpusTypes() {
 		def corpusTypes = CorpusType.findAllByEnabled(true)

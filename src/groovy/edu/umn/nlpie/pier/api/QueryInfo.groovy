@@ -1,8 +1,11 @@
 /**
  * 
  */
-package edu.umn.nlpie.pier
+package edu.umn.nlpie.pier.api
 
+import java.util.Collection;
+
+import edu.umn.nlpie.pier.elastic.Field
 import edu.umn.nlpie.pier.elastic.Type
 import edu.umn.nlpie.pier.ui.CorpusType
 import grails.util.Environment

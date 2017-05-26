@@ -11,7 +11,7 @@ class FieldPreference {
 		//field(unique:'user')
 		user()
 		label()
-		queryable()
+		//queryable()
 		displayOrder()
 		displayAsFilter()
 		/*ontology validator: { val, obj, errors ->
@@ -34,13 +34,13 @@ class FieldPreference {
     //Field field
     User user
 	String label
-    boolean queryable = true
+    //boolean queryable = true
     Integer displayOrder = 10
-    boolean displayAsFilter = true
+    Boolean displayAsFilter = true
 	Ontology ontology
 	Integer	numberOfFilterOptions = 10
-	boolean includeInExport = false
-	boolean applicationDefault = false
+	Boolean includeInExport = false
+	Boolean applicationDefault = false
 	
 	Date dateCreated
 	Date lastUpdated

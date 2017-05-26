@@ -19,11 +19,15 @@ class ConfigController {
 	//keep
 	def authorizedContexts() {
 		//with spring security in place can restrict the set of requests based on user allowed to invoke this method
-		def contexts = configService.authorizedContexts
 		JSON.use ('authorized.context') {
-			respond contexts
+			respond configService.authorizedContexts
 		}
-		//respond contexts
+		//respond configService.authorizedContexts
+	}
+	
+	def defaultFilters() {
+		def corpusTypeId = params.id
+		respond new QueryFilters(corpusTypeId).defaultFilters
 	}
 	
 	//keep

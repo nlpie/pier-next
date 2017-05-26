@@ -30,7 +30,22 @@ class Search {
     	//for some reason this function gets invoked with undefined searchContext on change of contexts dropdown; 
     	//this check and immediate return prevents console errors, otherwise the app appears to work as expected
     	this.context = searchContext;
+    	var me = this;
+    	for ( let corpus of this.context.candidateCorpora ) {
+    		if ( corpus.queryInfo.searchable ) {
+				this.fetchFilters( corpus )
+	    			.then( function(response) {
+	    				corpus.queryFilters = response.data;
+	    			});
+			}
+    	}
     }
+    
+    fetchFilters( corpus ) {
+    	alert (corpus.id)
+    	return this.$http.get( APP.ROOT + '/config/defaultFilters/' + corpus.id );
+    }
+    
     
 /*    
     GET _search
