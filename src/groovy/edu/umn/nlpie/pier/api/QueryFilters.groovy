@@ -32,13 +32,6 @@ class QueryFilters {
 	def defaultFilters = [:]
 	def userFilters = [:]
 	
-	/*def userFilters() {
-		
-	}
-	def getDefaultFilters() {
-		
-	}*/
-	
 	def populate(type) {
 		//def type = Type.find("from Type as t where t.corpusType.id=? and environment=? and t.index.status=?", [ 1.toLong(), Environment.current.name, 'Available' ])
 		def preferences = FieldPreference.where{ field.type.id==type.id && applicationDefault==true }.list()
@@ -52,15 +45,5 @@ class QueryFilters {
 		}
 		
 	}
-	
-	private distinctOntologies(Type t) {
-		than.where {
-			product.manufacturer.name == 'ACME'
-		}.list()
-		
-		[1, 2, 4, 9, 7, 10, 8, 6, 6, 5].unique { a, b -> a <=> b }
-	}
-	
-	
 	
 }
