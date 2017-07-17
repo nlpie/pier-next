@@ -53,10 +53,11 @@
                             </li>
                         </ul>
                     </div>
-					<input type="text" name="query" class="form-control" 
+					<input id="user-input" type="text" name="query" class="form-control" 
 						placeholder="Search words and/or phrases anywhere in the note text" 
 						ng-model="sc.uiState.currentSearch.userInput"
-						style="border-right:none;-webkit-box-shadow: none !important;-moz-box-shadow: none !important;box-shadow: none !important;"
+						style="border-right:none;-webkit-box-shadow: none !important;-moz-box-shadow: none !important;box-shadow: none !important;
+							position: relative;"
 						ng-model-options="{
     						'updateOn': 'default blur',
     						'debounce': {
@@ -90,6 +91,26 @@
 			</div>
 		</form>
 
+		<div class="btn-group pull-right" role="group" style="margin-right:160px">
+			<div>
+				<button ng-repeat="corpus in sc.uiState.currentSearch.context.candidateCorpora track by $index"
+					ng-if="sc.uiState.currentSearch.results[corpus.name]"
+					type="button"
+					ng-if="corpus.queryInfo.searchable"
+					class="btn btn-default btn-result-action"
+					ng-class="{ 'btn-result-action-on': corpus.selected }"
+					data-container="body" data-toggle="tooltip" data-placement="top"
+					data-html="true">
+					{{corpus.name}} <span style="font-size: 0.5em">{{sc.uiState.currentSearch.results[corpus.name].docs.total}}</span>
+				</button>
+				<button type="button"
+					class="btn btn-default btn-result-action"
+					data-container="body" data-toggle="tooltip" data-placement="top"
+					data-html="true">
+					Another <span style="font-size: 0.5em">54</span>
+				</button>
+			</div>
+		</div>
     </div><!-- /.navbar-collapse -->
   </div><!-- /.container-fluid -->
 </nav>

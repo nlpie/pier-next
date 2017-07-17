@@ -8,7 +8,8 @@ body {
 	font-family: 'Roboto', sans-serif;
 	padding-top: 49px;
 	line-height:1.25; 
-	overflow:hidden; /* prevents vert scroll bar from overlapping fixed top nav */
+	overflow:hidden;  prevents vert scroll bar from overlapping fixed top nav */
+	
 }
 
 .navbar-inverse-pier {
@@ -20,6 +21,7 @@ body {
 	margin-top: -20px;
 	overflow-y: scroll;
 }
+
 .dropdown-menu {
    max-height:300px;
    overflow-y: auto;
@@ -134,23 +136,31 @@ a {
 }
 
 
+
+.btn-result-action {
+	border-style:none;
+	border-radius:0px;
+	padding-left:10px;
+	padding-right:10px;
+	color: grey;
+	background-color: #e7e7e7;
+}
+.btn-result-action-on {
+	border-bottom-width: 2px;
+	border-bottom-style: solid;
+	border-bottom-color: #0090ff;
+}
+.btn-result-action:hover, .btn-result-action-on:hover {
+    cursor:hand;
+}
+
 .btn-search-action-on {
 	color:green;
 }
 
-.btn-result-action {
-	border-style:none;
-	padding-left:10px;
-	padding-right:10px;
-}
-.btn-result-action-on {
-	border-radius:0px;
-	border-style:none;
-	padding-left:10px;
-	padding-right:10px;
-	border-top-width: 2px;
-	border-top-style: solid;
-	border-top-color: #0090ff;
+.btn-search-action:hover, .btn-search-results:focus, .btn-search-results:active, .btn-search-results.active, .open>.dropdown-toggle.btn-search-results {
+    /*color: #fff;*/
+    background-color: lightgrey;
 }
 
 /* transparent buttons template http://stackoverflow.com/questions/25923623/change-hover-color-on-a-button-with-bootstrap-customization */

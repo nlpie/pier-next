@@ -6,128 +6,49 @@
 	</head>
 	<body>
 
-		<div class="container-fluid">
-			<div class="row main">
-				<div class="col-xs-3">
-					<div>
-						Care Setting <i class="fa fa-question-circle" aria-hidden="true"></i>
-					</div>
-					<ul class="pier-ul" style="color:gray">
-						<li><i class="fa fa-check-square-o" aria-hidden="true"></i>
-							7.b. Office (3,101)</li>
-						<li><i class="fa fa-square-o" aria-hidden="true"></i>
-							4. Inpatient Hospital (44) </li>
-						<li><i class="fa fa-check-square-o" aria-hidden="true"></i>
-							7.d. Urgent Care Center (13)</li>
-						<li><i class="fa fa-minus-square-o" aria-hidden="true"></i>
-							3. Emergency Department (3)</li>
-						<li><i class="fa fa-square-o" aria-hidden="true"></i>
-							7.c. Outpatient Hospital (1)</li>
-					</ul>
-
-					<ul class="pier-ul" style="color: grey">
-						<li><i class="fa fa-minus-square-o" aria-hidden="true"></i>
-							7.b. Office (9,207,305)</li>
-						<li><i class="fa fa-square" aria-hidden="true"></i> 4.
-							Inpatient Hospital (154,329)</li>
-						<li><i class="fa fa-check-square-o" aria-hidden="true"></i>
-							4. Inpatient Hospital (154,329)</li>
-						<li><i class="fa fa-minus-square" aria-hidden="true"></i>
-							7.b. Office (9,207,305)</li>
-						<li><i class="fa fa-square-o" aria-hidden="true"></i> 4.
-							Inpatient Hospital (154,329)</li>
-						<li><i class="fa fa-check-square" aria-hidden="true"></i> 4.
-							Inpatient Hospital (154,329)</li>
-					</ul>
-
-					<ul class="pier-ul" style="color: grey">
-						<li><i class="fa fa-minus-square-o" aria-hidden="true"></i>
-							7.b. Office (9,207,305)</li>
-						<li><i class="fa fa-square" aria-hidden="true"></i> 4.
-							Inpatient Hospital (154,329)</li>
-						<li><i class="fa fa-check-square-o" aria-hidden="true"></i>
-							4. Inpatient Hospital (154,329)</li>
-						<li><i class="fa fa-minus-square" aria-hidden="true"></i>
-							7.b. Office (9,207,305)</li>
-						<li><i class="fa fa-square-o" aria-hidden="true"></i> 4.
-							Inpatient Hospital (154,329)</li>
-						<li><i class="fa fa-check-square" aria-hidden="true"></i> 4.
-							Inpatient Hospital (154,329)</li>
-					</ul>
-
-					<ul class="pier-ul" style="color: grey">
-						<li><i class="fa fa-minus-square-o" aria-hidden="true"></i>
-							7.b. Office (9,207,305)</li>
-						<li><i class="fa fa-square" aria-hidden="true"></i> 4.
-							Inpatient Hospital (154,329)</li>
-						<li><i class="fa fa-check-square-o" aria-hidden="true"></i>
-							4. Inpatient Hospital (154,329)</li>
-						<li><i class="fa fa-minus-square" aria-hidden="true"></i>
-							7.b. Office (9,207,305)</li>
-						<li><i class="fa fa-square-o" aria-hidden="true"></i> 4.
-							Inpatient Hospital (154,329)</li>
-						<li><i class="fa fa-check-square" aria-hidden="true"></i> 4.
-							Inpatient Hospital (154,329)</li>
-					</ul>
-
-					<ul class="pier-ul" style="color: grey">
-						<li><i class="fa fa-minus-square-o" aria-hidden="true"></i>
-							7.b. Office (9,207,305)</li>
-						<li><i class="fa fa-square" aria-hidden="true"></i> 4.
-							Inpatient Hospital (154,329)</li>
-						<li><i class="fa fa-check-square-o" aria-hidden="true"></i>
-							4. Inpatient Hospital (154,329)</li>
-						<li><i class="fa fa-minus-square" aria-hidden="true"></i>
-							7.b. Office (9,207,305)</li>
-						<li><i class="fa fa-square-o" aria-hidden="true"></i> 4.
-							Inpatient Hospital (154,329)</li>
-						<li><i class="fa fa-check-square" aria-hidden="true"></i> 4.
-							Inpatient Hospital (154,329)</li>
-					</ul>
-				</div>
-
-				<div class="col-xs-9" ng-controller="resultsController as rc">
-					<div class="pull-right">Search Results</div>
-					
-					<div class="btn-group" role="group">
-						<div ng-repeat="corpus in rc.search.context.candidateCorpora track by $index">
-							<button type="button"
-								ng-if="corpus.queryInfo.searchable"
-								class="btn btn-default btn-result-action-on"
-								data-container="body" data-toggle="tooltip" data-placement="top"
-								data-html="true">
-								{{corpus.name}} <span style="font-size: 0.5em">{{rc.search.results['Clinical Notes'].docs.total}}</span>
-							</button>
+		<div class="container-fluid" ng-controller="resultsController as rc">
+			<div ng-repeat="corpus in rc.search.context.candidateCorpora track by $index">
+				<div class="row main">
+					<div class="col-xs-3" ng-if="rc.search.results[corpus.name]">
+						
+						<div ng-repeat="(category, categoryItems) in corpus.queryFilters track by $index">
+							{{category}} <i class="fa fa-question-circle" aria-hidden="true"></i>
+							<ul class="pier-ul" style="color:gray">
+								<li ng-repeat="field in categoryItems track by $index"><i class="fa fa-check-square-o" aria-hidden="true"></i>
+									{{field.label}} (3,101)</li>
+							</ul>
 						</div>
+						
+						
+						
+						<ul class="pier-ul" style="color:gray">
+							<li><i class="fa fa-check-square-o" aria-hidden="true"></i>
+								7.b. Office (3,101)</li>
+							<li><i class="fa fa-square-o" aria-hidden="true"></i>
+								4. Inpatient Hospital (44) </li>
+							<li><i class="fa fa-check-square-o" aria-hidden="true"></i>
+								7.d. Urgent Care Center (13)</li>
+							<li><i class="fa fa-minus-square-o" aria-hidden="true"></i>
+								3. Emergency Department (3)</li>
+							<li><i class="fa fa-square-o" aria-hidden="true"></i>
+								7.c. Outpatient Hospital (1)</li>
+						</ul>
+	
+						
 					</div>
-					
-					
-					<div class="panel panel-default" ng-if="rc.search.results['Clinical Notes'].docs.total>0" ng-repeat="doc in rc.search.results['Clinical Notes'].docs.hits track by $index">
-						<div class="panel-body">
-							{{ doc._source.text }}
+	
+					<div class="col-xs-9">
+						
+						<div class="panel panel-default" ng-if="rc.search.results[corpus.name]" ng-repeat="doc in rc.search.results[corpus.name].docs.hits track by $index">
+							<div class="panel-body">
+								{{ doc._source.text }}
+							</div>
 						</div>
+	
 					</div>
-<!-- 
-					<div class="panel panel-default">
-						<div class="panel-body">51 year old female with history of <b>inflammatory bowel disease</b>, presents with complaints of exacerbation of abdominal pain and diarrhea for several days. </div>
-					</div>
-
-					<div class="panel panel-default">
-						<div class="panel-body">other Heart Another Heart Another
-							Called re: flair of <b>inflammatory bowel disease</b> -steroid enemas given by GI -requests short term use of oral narcotics Rx sent to pharmacy, Vicodin
-						</div>
-					</div>
-
-					<div class="panel panel-default">
-						<div class="panel-body">Per Dr Doughlin, We do not have a firm diagnosis of Crohn's <b>disease</b>. Only a diagnosis of <b>inflammatory bowel</b>. Dr Doughlin directs pt acquire this letter from her gastroenterologist at Health Partners. Lisa Ritter, RN</div>
-					</div>
-
-					<div class="panel panel-default">
-						<div class="panel-body"> EMERGENCY DEPARTMENT COURSE AND MEDICAL DECISION MAKING: This is a 21-year-old female who comes in for concerns of abdominal pain. I think this is likely due to her <b>inflammatory bowel disease</b>. She has a nonsurgical abdomen. I do not think this represents perforation or abscess. White count slightly</div>
-					</div>
--->
 				</div>
 			</div>
 		</div>
+	
 </body>
 </html>

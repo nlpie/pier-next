@@ -69,6 +69,7 @@ class Search {
     execute() {
     	//pagination.notesPerPage and .offset come from this.pagination
     	var me = this;
+    	var defaultCorpusSet = false;
     	for ( let corpus of this.context.candidateCorpora ) {
 			if ( corpus.queryInfo.searchable ) {
 				
@@ -78,6 +79,14 @@ class Search {
 				var docs = this.searchCorpus( corpus, contextFilter )
 	    			.then( function(response) {
 	    				me.assignDocumentsResponse( corpus,response );
+	    				//client-side setting of default corpus
+	    				if ( !defaultCorpusSet ) {
+	    					//alert(corpus.name + " set as default");
+	    					corpus.selected = true;
+	    					defaultResultsSet = true;
+	    				} else {
+	    					corpus.selected = false;
+	    				}
 	    			})
 	    			.catch( console.log.bind(console) );
 				var aggs = this.computeAggregations( corpus, contextFilter )
@@ -108,6 +117,7 @@ class Search {
     assignDocumentsResponse(corpus,response) {
     	if ( !this.results[corpus.name] ) this.results[corpus.name] = {};
     	this.results[corpus.name].docs = new DocumentsResponse(response.data);
+    	
     }
     assignAggregationsResponse(corpus,response) {
     	if ( !this.results[corpus.name] ) this.results[corpus.name] = {};

@@ -80,7 +80,7 @@ class BootStrap {
 			nlp05.save(failOnError:true, flush:true)
 			//done with nlp05 config
 			
-			def nlp02 = Cluster.findByClusterName("nlp02")?:new Cluster(clusterName:"nlp02",uri:"http://nlp02.ahc.umn.edu:9200",environment:"PROD",description:"prod cluster (to be test)", commonName:"prod cluster")
+			def nlp02 = Cluster.findByClusterName("nlp02")?:new Cluster(clusterName:"nlp02",uri:"http://nlp02.ahc.umn.edu:9200",environment:"TEST",description:"prod cluster (to be test)", commonName:"prod cluster")
 			def micro = Index.findByCommonName("Microbiology Reports")?:new Index(commonName:"Microbiology Reports", indexName:"microbio_v1", status:"Available", description:"microbiology result reports", numberOfShards:6, numberOfReplicas:0)//.save(flush:true, failOnError:true)
 			def resultText = Field.findByFieldNameAndTypeIsNull("text")?:new Field(fieldName:"text",dataTypeName:"SNOWBALL_ANALYZED_STRING", description:"microbiology result text", defaultSearchField:true)//.save(flush:true, failOnError:true)
 			def resultType = Type.findByTypeName("result")?:new Type(typeName:"result", description:"CDR microbio results", environment:"development", corpusType:microbioCorpusType)//.save(flush:true, failOnError:true)
