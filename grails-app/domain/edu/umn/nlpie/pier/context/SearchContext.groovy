@@ -16,6 +16,7 @@ class SearchContext {
 	Long requestSetId
 	Long requestId
 	String label
+	String filterValue
 	String description
 	String status
 	String corpusType

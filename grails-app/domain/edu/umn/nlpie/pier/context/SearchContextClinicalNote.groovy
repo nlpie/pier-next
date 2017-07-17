@@ -17,6 +17,7 @@ class SearchContextClinicalNote {
 	Long requestId
 	Long requestSetId
 	String label
+	String filterValue
 	String noteId
 	Long noteIdAsNumber
 	

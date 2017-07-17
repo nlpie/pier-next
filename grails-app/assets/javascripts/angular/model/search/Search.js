@@ -1,6 +1,7 @@
 import DocumentsResponse from './DocumentsResponse';
 import AggregationsResponse from './AggregationsResponse';
 import DocumentQuery from './elastic/DocumentQuery';
+import AggregationQuery from './elastic/AggregationQuery';
 import Pagination from './Pagination';
 import ContextFilter from './elastic/ContextFilter';
 import Service from '../../model/search/Search';
@@ -42,7 +43,6 @@ class Search {
     }
     
     fetchFilters( corpus ) {
-    	alert (corpus.id)
     	return this.$http.get( APP.ROOT + '/config/defaultFilters/' + corpus.id );
     }
     
@@ -70,38 +70,44 @@ class Search {
     	//pagination.notesPerPage and .offset come from this.pagination
     	var me = this;
     	for ( let corpus of this.context.candidateCorpora ) {
-			//alert(JSON.stringify(corpus));
 			if ( corpus.queryInfo.searchable ) {
-				this.searchCorpus( corpus )
+				
+				alert(JSON.stringify(corpus, null, '\t'));
+				
+				var contextFilter = new ContextFilter(corpus.queryInfo.contextFilterField, this.context.contextFilterValue);
+				var docs = this.searchCorpus( corpus, contextFilter )
 	    			.then( function(response) {
-	    				me.assignDocumentsResponse(corpus,response);
-	    			});
+	    				me.assignDocumentsResponse( corpus,response );
+	    			})
+	    			.catch( console.log.bind(console) );
+				var aggs = this.computeAggregations( corpus, contextFilter )
+    				.then( function(response) {
+	    				me.assignAggregationsResponse( corpus,response );
+    				})
+    				.catch( console.log.bind(console) );
 			}
 		}
     	
     }
     
-    searchCorpus( corpus ) {
+    searchCorpus( corpus, contextFilter ) {
 		//return the promise and let the client resolve it
     	var url = corpus.queryInfo.url;
-    	var contextFilter = new ContextFilter(corpus.queryInfo.contextFilterField, this.context.contextFilterValue);
     	var docsQuery = new DocumentQuery(contextFilter, corpus.queryInfo.defaultSearchField, this.userInput, this.pagination);
-    	
+    	//alert(JSON.stringify(docsQuery));
 		return this.$http.post( APP.ROOT + '/search/elastic/', JSON.stringify( {"url":url, "elasticQuery": docsQuery} ) );
 	}
-    computeAggregations( corpus ) {
+    computeAggregations( corpus, contextFilter ) {
     	//return the promise and let the client resolve it
     	var url = corpus.queryInfo.url;
-    	var contextFilter = new ContextFilter(corpus.queryInfo.contextFilterField, this.context.contextFilterValue);
-    	var aggsQuery = new DocumentQuery(contextFilter, corpus.queryInfo.defaultSearchField, this.userInput, this.pagination);
-    	
+    	var aggsQuery = new AggregationQuery(contextFilter, corpus.queryInfo.defaultSearchField, this.userInput);
+    	//alert(JSON.stringify(aggsQuery));
 		return this.$http.post( APP.ROOT + '/search/elastic/', JSON.stringify( {"url":url, "elasticQuery": aggsQuery} ) );
     }
     
     assignDocumentsResponse(corpus,response) {
     	if ( !this.results[corpus.name] ) this.results[corpus.name] = {};
     	this.results[corpus.name].docs = new DocumentsResponse(response.data);
-    	//console.info(JSON.stringify(this.results['Clinical Notes'].docs.hits[0]._source.text));
     }
     assignAggregationsResponse(corpus,response) {
     	if ( !this.results[corpus.name] ) this.results[corpus.name] = {};

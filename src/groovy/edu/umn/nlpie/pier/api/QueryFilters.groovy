@@ -12,8 +12,8 @@ import groovy.transform.InheritConstructors
 /**
  * 
  * @author ${name:git_config(user.name)} and ${email:git_config(user.email)} (rmcewan) 
- * Collection of FieldPreference instances associated with a Type (CorpusType).
- * Organized by ontology, sorted by display order
+ * Collection of user-specific FieldPreference instances associated with a Type (CorpusType)
+ * Organized by ontology, sorted by display order.
  *
  */
 @InheritConstructors
@@ -27,6 +27,7 @@ class QueryFilters {
 	QueryFilters(String corpusTypeId) {
 		def type = Type.find("from Type as t where t.corpusType.id=? and environment=? and t.index.status=?", [ corpusTypeId.toLong(), Environment.current.name, 'Available' ])
 		this.populate(type)
+		println this.defaultFilters.toString()
 	}
 	
 	def defaultFilters = [:]

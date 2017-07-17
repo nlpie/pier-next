@@ -36,10 +36,10 @@ class UIState {
     	this.currentSearch.setContext(this.authorizedContexts[index]);	
 	}
     
-    search() {
+    /*search() {
     	alert (this.currentContext.toString());
     	this.currentSearch = new Search(this.currentContext);
-    }
+    }*/
 
 }
 

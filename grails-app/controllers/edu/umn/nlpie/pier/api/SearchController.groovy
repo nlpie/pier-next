@@ -27,7 +27,7 @@ class SearchController {//extends RestfulController {
 		def rest = new RestBuilder()
 		println query.toString(2)
 		def esResponse = rest.post(url) { json query.toString() }
-		println esResponse.json.toString(2)
+		//println esResponse.json.toString(2)
 		render(status: 200, text:esResponse.json, contentType: "application/json") as JSON
 	}
 	

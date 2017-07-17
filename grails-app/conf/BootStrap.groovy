@@ -49,23 +49,28 @@ class BootStrap {
 			def microbioCorpusType = CorpusType.findByName("Microbiology Notes")?: new CorpusType(name:"Microbiology Notes", description:"microbio results from CDR", enabled:true, glyph:"icon-i-pathology").save(flush:true, failOnError:true)
 			
 			def nlp05 = Cluster.findByClusterName("nlp05")?:new Cluster(clusterName:"nlp05",uri:"http://nlp05.ahc.umn.edu:9200",environment:"TEST",description:"test cluster (to be prod)", commonName:"test cluster")
-			def epic = Index.findByCommonName("Epic Notes")?:		new Index(commonName:"Epic Notes", 		  indexName:"notes_v2",  status:"Available", description:"clinical epic notes", 	numberOfShards:6, numberOfReplicas:0)//.save(flush:true, failOnError:true)
+			def epic = Index.findByCommonName("Epic Notes")?:		new Index(commonName:"Epic Notes", 		  indexName:"notes_v3",  status:"Available", description:"clinical epic notes", 	numberOfShards:6, numberOfReplicas:0)//.save(flush:true, failOnError:true)
 			
 			
 			def mrn = Field.findByFieldName("mrn")?:new Field(fieldName:"mrn",dataTypeName:"NOT_ANALYZED_STRING", description:"Epic patient identifier")//.save(flush:true, failOnError:true)
 			def encounterId = Field.findByFieldName("encounter_id")?:new Field(fieldName:"encounter_id",dataTypeName:"LONG", description:"Epic visit number")//.save(flush:true, failOnError:true)
+			def kos = Field.findByFieldName("kos")?:new Field(fieldName:"kos",dataTypeName:"NOT_ANALYZED_STRING", description:"kind of service")//.save(flush:true, failOnError:true)
+			def smd = Field.findByFieldName("smd")?:new Field(fieldName:"smd",dataTypeName:"NOT_ANALYZED_STRING", description:"subject matter domain")//.save(flush:true, failOnError:true)
 			def text = Field.findByFieldName("text")?:new Field(fieldName:"text",dataTypeName:"SNOWBALL_ANALYZED_STRING", description:"document text", defaultSearchField:true)//.save(flush:true, failOnError:true)
-			def contextFilter = Field.findByFieldName("search_context")?:new Field(fieldName:"search_context",dataTypeName:"NOT_ANALYZED_STRING", description:"Array of search contexts that include this note",contextFilterField:true )
+			def contextFilter = Field.findByFieldName("authorized_context_filter_value")?:new Field(fieldName:"authorized_context_filter_value",dataTypeName:"NOT_ANALYZED_STRING", description:"Array of search contexts that include this note",contextFilterField:true )
 			
 			def noteType = Type.findByTypeName("note")?:new Type(typeName:"note", description:"CDR note", environment:"development", corpusType:clinicalCorpusType)//.save(flush:true, failOnError:true)
-			noteType.addToFields(mrn)//.save(flush:true, failOnError:true)
-			noteType.addToFields(encounterId)//.save(flush:true, failOnError:true)
+			noteType.addToFields(mrn)
+			noteType.addToFields(encounterId)
+			noteType.addToFields(kos)
+			noteType.addToFields(smd)
 			noteType.addToFields(text)
 			noteType.addToFields(contextFilter)
 			noteType.fields.each { f ->
 				println "adding pref for ${f.fieldName}"
 				def fp = new FieldPreference(user:app, label:PierUtils.labelFromUnderscore(f.fieldName), ontology:epicOntology, applicationDefault:true)
 				if ( f.contextFilterField || f.defaultSearchField ) fp.displayAsFilter=false
+				if ( f.fieldName=="kos" || f.fieldName=="smd") fp.ontology=epicHL7LoincOntology
 				f.addToPreferences(fp)
 			}
 		
@@ -74,8 +79,6 @@ class BootStrap {
 			println nlp05.toString()
 			nlp05.save(failOnError:true, flush:true)
 			//done with nlp05 config
-			
-			
 			
 			def nlp02 = Cluster.findByClusterName("nlp02")?:new Cluster(clusterName:"nlp02",uri:"http://nlp02.ahc.umn.edu:9200",environment:"PROD",description:"prod cluster (to be test)", commonName:"prod cluster")
 			def micro = Index.findByCommonName("Microbiology Reports")?:new Index(commonName:"Microbiology Reports", indexName:"microbio_v1", status:"Available", description:"microbiology result reports", numberOfShards:6, numberOfReplicas:0)//.save(flush:true, failOnError:true)

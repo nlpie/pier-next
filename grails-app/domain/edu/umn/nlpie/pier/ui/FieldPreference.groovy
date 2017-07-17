@@ -47,7 +47,8 @@ class FieldPreference {
 	
 	String toString() {
 		if ( id==null ) return ""
-		( id!=null && applicationDefault ) ? "${label} (DEFAULT)" : "${label} (${user.username})"
+		//( applicationDefault ) ? "${label} (DEFAULT)" : "${label} (${user.username})"
+		"${label}"
 	}
 	
 }
