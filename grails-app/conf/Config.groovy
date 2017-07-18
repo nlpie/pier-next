@@ -7,7 +7,8 @@ import grails.util.Environment
 grails.config.locations = [
 	"file:/usr/share/tomcat-notes/app-config/ds_${Environment.current.name}.groovy",
 	"file:/usr/share/tomcat-notes_test/app-config/ds_${Environment.current.name}.groovy", 
-	"file:/Users/rmcewan/nlppier/ds_${Environment.current.name}.groovy"]
+	"file:/Users/rmcewan/nlppier/ds_${Environment.current.name}.groovy"
+]
 println "env: ${Environment.current.name} "
 
 ENV = Environment.current.name.toString()
@@ -98,24 +99,19 @@ grails.hibernate.osiv.readonly = false
 environments {
     development {
         grails.logging.jul.usebridge = true
-		elasticSearch.client.mode = 'transport'
+		
+		/*elasticSearch.client.mode = 'transport'
 		elasticSearch.client.hosts = [
 			   [host:'nlp05.ahc.umn.edu', port:9300]
-			   /*,
-			   [host:'nlp06.ahc.umn.edu', port:9300],
-			   [host:'nlp07.ahc.umn.edu', port:9300],
-			   [host:'nlp08.ahc.umn.edu', port:9300],
-			   [host:'nlp09.ahc.umn.edu', port:9300],
-			   [host:'nlp10.ahc.umn.edu', port:9300]*/
 		]
 		elasticSearch.migration.strategy = 'none'
 		elasticSearch.bulkIndexOnStartup=false
 		elasticSearch.cluster.name = 'green'
 		elasticSearch.index.name = 'pier.next.gen'
-		elasticSearch.datastoreImpl="hibernateDatastore"
+		elasticSearch.datastoreImpl="hibernateDatastore"*/
     }
 	test {
-		def elasticsearchVersion = '1.0.1'
+		/*def elasticsearchVersion = '1.0.1'
 		ext['elasticsearch.version'] = elasticsearchVersion
 		elasticSearch.client.mode = 'transport'
 		elasticSearch.client.hosts = [
@@ -124,7 +120,10 @@ environments {
 		elasticSearch.migration.strategy = 'alias'
 		//elasticSearch.cluster.name = 'green'
 		//elasticSearch.index.name = 'pier.next.gen'
-		elasticSearch.datastoreImpl="hibernateDatastore"
+		elasticSearch.datastoreImpl="hibernateDatastore"*/
+		grails.serverURL = "https://nlp01.ahc.umn.edu/notes_test"
+		grails.assets.minifyJs = false
+		grails.assets.minifyCss = false
 	}
     production {
         grails.logging.jul.usebridge = false

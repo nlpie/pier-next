@@ -80,7 +80,7 @@ environments {
 			dialect = "org.hibernate.dialect.MySQL5InnoDBDialect"
 			username = ""	//see config in ds.groovy
 			password = ""	//see config in ds.groovy
-			url = "jdbc:mysql://nlpql.ahc.umn.edu:3306/notes_next?autoReconnect=true"
+			url = "jdbc:mysql://nlpql.ahc.umn.edu:3306/notes_test?autoReconnect=true"
 			properties {
 				validationQuery="SELECT 1"
 			}

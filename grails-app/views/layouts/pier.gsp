@@ -18,22 +18,18 @@
 		    <![endif]-->
 		    
 	<asset:javascript src="lib/jquery.min.js" />
-	<!-- <asset:stylesheet src="lib/xeditable.min.css" /> -->
 	<asset:stylesheet src="lib/bootstrap.min.css" />
 	<asset:stylesheet src="lib/admin.css" />
 	<asset:stylesheet src="lib/dashboard.js" />
-	<!--  <asset:stylesheet src="lib/sticky-footer.js" />
-	<asset:javascript src="lib/angular.min.js" />
-	<asset:javascript src="lib/xeditable.min.js" /> -->
-	<!--<asset:javascript src="lib/angular.min.js" />  -->
+
 	<asset:javascript src="lib/bootstrap.min.js" />
 	<asset:stylesheet src="lib/font-awesome.min.css" />
 	<asset:stylesheet src="lib/wfmi-style.css" />
 	
-	<link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
-	<script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
+	<asset:stylesheet src="lib/bootstrap-toggle.min.css" />
+	<asset:javascript src="lib/bootstrap-toggle.min.js" />
 	
-	<link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+	<asset:stylesheet src="lib/Roboto.css" />
 	
 	<g:javascript>
 		//fill in global values using Grails-provided objects
@@ -45,8 +41,8 @@
 		};
 	</g:javascript>
 	 
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/systemjs/0.18.4/system.js"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.25/browser.js"></script>
+	<asset:javascript src="lib/system.js" />
+	<asset:javascript src="lib/browser.js" />
 
 	<g:layoutHead />
 </head>

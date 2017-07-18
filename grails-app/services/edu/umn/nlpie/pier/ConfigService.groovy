@@ -1,7 +1,8 @@
 package edu.umn.nlpie.pier
 
+import org.apache.commons.lang.RandomStringUtils
+
 import edu.umn.nlpie.pier.context.AuthorizedContext
-import edu.umn.nlpie.pier.elastic.Cluster
 import edu.umn.nlpie.pier.elastic.Field
 import edu.umn.nlpie.pier.elastic.Index
 import edu.umn.nlpie.pier.elastic.Type
@@ -53,9 +54,7 @@ class ConfigService {
 	
 	//TODO check if this is used - think not
 	def generatePassword() {
-		def rest = new RestBuilder()
-		def resp = rest.get("https://www.random.org/strings/?num=1&len=20&digits=on&upperalpha=off&loweralpha=on&unique=on&format=plain&rnd=new")
-		resp.text
+		RandomStringUtils.randomAlphanumeric(20)
 	}
 	
 	def prefs() {
