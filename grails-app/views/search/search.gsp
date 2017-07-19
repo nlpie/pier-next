@@ -9,17 +9,21 @@
 		<div class="container-fluid" ng-controller="resultsController as rc">
 			<div ng-repeat="corpus in rc.search.context.candidateCorpora track by $index">
 				<div class="row main">
-					<div class="col-xs-3" ng-if="rc.search.results[corpus.name]">
+					<div class="col-xs-3" ng-if="rc.search.results[corpus.name].aggs.aggs">
 						
 						<div ng-repeat="(category, categoryItems) in corpus.queryFilters track by $index">
-							{{category}} <i class="fa fa-question-circle" aria-hidden="true"></i>
+							{{category}} <i class="fa fa-question-circle"></i>
 							<ul class="pier-ul" style="color:gray">
-								<li ng-repeat="field in categoryItems track by $index"><i class="fa fa-check-square-o" aria-hidden="true"></i>
-									{{field.label}} (3,101)</li>
+								<li ng-repeat="field in categoryItems track by $index">
+									<i class="fa fa-check-square-o"></i>
+									{{field.label}} <br>
+									<div ng-repeat="bucket in rc.search.results[corpus.name].aggs.aggs[field.label].buckets track by $index">
+										{{bucket.key}} ({{bucket.doc_count}})<br>
+									</div>
+									<div>&nbsp</div>
+								</li>
 							</ul>
 						</div>
-						
-						
 						
 						<ul class="pier-ul" style="color:gray">
 							<li><i class="fa fa-check-square-o" aria-hidden="true"></i>
@@ -34,7 +38,6 @@
 								7.c. Outpatient Hospital (1)</li>
 						</ul>
 	
-						
 					</div>
 	
 					<div class="col-xs-9">

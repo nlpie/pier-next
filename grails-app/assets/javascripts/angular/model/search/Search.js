@@ -2,6 +2,7 @@ import DocumentsResponse from './DocumentsResponse';
 import AggregationsResponse from './AggregationsResponse';
 import DocumentQuery from './elastic/DocumentQuery';
 import AggregationQuery from './elastic/AggregationQuery';
+import TermsAggregation from './elastic/TermsAggregation';
 import Pagination from './Pagination';
 import ContextFilter from './elastic/ContextFilter';
 import Service from '../../model/search/Search';
@@ -31,6 +32,7 @@ class Search {
     	//for some reason this function gets invoked with undefined searchContext on change of contexts dropdown; 
     	//this check and immediate return prevents console errors, otherwise the app appears to work as expected
     	this.context = searchContext;
+    	this.results = {};
     	var me = this;
     	for ( let corpus of this.context.candidateCorpora ) {
     		if ( corpus.queryInfo.searchable ) {
@@ -43,6 +45,7 @@ class Search {
     }
     
     fetchFilters( corpus ) {
+    	//gets aggregation filters based on user prefs
     	return this.$http.get( APP.ROOT + '/config/defaultFilters/' + corpus.id );
     }
     
@@ -71,25 +74,24 @@ class Search {
     	var me = this;
     	var defaultCorpusSet = false;
     	for ( let corpus of this.context.candidateCorpora ) {
-			if ( corpus.queryInfo.searchable ) {
+    		if ( corpus.queryInfo.searchable ) {
+    			
+    			//alert(JSON.stringify(corpus,null,'\t'));
 				
-				alert(JSON.stringify(corpus, null, '\t'));
-				
-				var contextFilter = new ContextFilter(corpus.queryInfo.contextFilterField, this.context.contextFilterValue);
+    			var contextFilter = new ContextFilter(corpus.queryInfo.contextFilterField, this.context.contextFilterValue);
 				var docs = this.searchCorpus( corpus, contextFilter )
 	    			.then( function(response) {
 	    				me.assignDocumentsResponse( corpus,response );
 	    				//client-side setting of default corpus
 	    				if ( !defaultCorpusSet ) {
-	    					//alert(corpus.name + " set as default");
 	    					corpus.selected = true;
-	    					defaultResultsSet = true;
+	    					defaultCorpusSet = true;
 	    				} else {
 	    					corpus.selected = false;
 	    				}
 	    			})
 	    			.catch( console.log.bind(console) );
-				var aggs = this.computeAggregations( corpus, contextFilter )
+				var aggs = this.fetchAggregations( corpus, contextFilter )
     				.then( function(response) {
 	    				me.assignAggregationsResponse( corpus,response );
     				})
@@ -106,17 +108,26 @@ class Search {
     	//alert(JSON.stringify(docsQuery));
 		return this.$http.post( APP.ROOT + '/search/elastic/', JSON.stringify( {"url":url, "elasticQuery": docsQuery} ) );
 	}
-    computeAggregations( corpus, contextFilter ) {
+    fetchAggregations( corpus, contextFilter ) {
     	//return the promise and let the client resolve it
     	var url = corpus.queryInfo.url;
     	var aggsQuery = new AggregationQuery(contextFilter, corpus.queryInfo.defaultSearchField, this.userInput);
-    	//alert(JSON.stringify(aggsQuery));
+    	//use defaultFilters.filter.label for now as the name of th aggregation
+    	aggsQuery.aggs.add("Mrn", new TermsAggregation("mrn",10));
+    	aggsQuery.aggs.add("Encounter Id", new TermsAggregation("encounter_id",10));
+    	aggsQuery.aggs.add("Service Date", new TermsAggregation("service_date",10));
+    	//alert(JSON.stringify(aggsQuery,null,'\t'));
 		return this.$http.post( APP.ROOT + '/search/elastic/', JSON.stringify( {"url":url, "elasticQuery": aggsQuery} ) );
     }
     
     assignDocumentsResponse(corpus,response) {
     	if ( !this.results[corpus.name] ) this.results[corpus.name] = {};
     	this.results[corpus.name].docs = new DocumentsResponse(response.data);
+    	
+    	/*{"_shards":{"total":6,"failed":0,"successful":6},"hits":{"hits":[],"total":128,"max_score":0.0},"took"
+    		:613,"timed_out":false,"aggregations":{"KoD":{"doc_count_error_upper_bound":0,"sum_other_doc_count":0
+    		,"buckets":[{"doc_count":128,"key":"7. Note"}]}}}
+    	*/
     	
     }
     assignAggregationsResponse(corpus,response) {

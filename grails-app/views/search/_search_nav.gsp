@@ -101,7 +101,7 @@
 					ng-class="{ 'btn-result-action-on': corpus.selected }"
 					data-container="body" data-toggle="tooltip" data-placement="top"
 					data-html="true">
-					{{corpus.name}} <span style="font-size: 0.5em">{{sc.uiState.currentSearch.results[corpus.name].docs.total}}</span>
+					{{corpus.name}} <span style="font-size: 0.5em">{{sc.uiState.currentSearch.results[corpus.name].docs.total | number}}</span>
 				</button>
 				<button type="button"
 					class="btn btn-default btn-result-action"

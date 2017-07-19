@@ -1,10 +1,13 @@
 
-class SearchResponse {
+class AggregationsResponse {
     constructor(data) {	//look into constructing from a data structure passed to constructor
-    	this.hits = data.hits.hits;
     	this.total = data.hits.total;
     	this.took = data.took/1000 + "s";
+    	console.info("aggs took " + this.took);
     	this.timedOut = data.timed_out;
+    	if ( this.total>0 ) {	//do not set if results
+    		this.aggs = data.aggregations;
+    	}
     }
     
     clear() { 
@@ -12,4 +15,4 @@ class SearchResponse {
 	}
 }
 
-export default SearchResponse;
+export default AggregationsResponse;

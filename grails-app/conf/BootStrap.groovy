@@ -52,8 +52,10 @@ class BootStrap {
 			def epic = Index.findByCommonName("Epic Notes")?:		new Index(commonName:"Epic Notes", 		  indexName:"notes_v3",  status:"Available", description:"clinical epic notes", 	numberOfShards:6, numberOfReplicas:0)//.save(flush:true, failOnError:true)
 			
 			
-			def mrn = Field.findByFieldName("mrn")?:new Field(fieldName:"mrn",dataTypeName:"NOT_ANALYZED_STRING", description:"Epic patient identifier")//.save(flush:true, failOnError:true)
-			def encounterId = Field.findByFieldName("encounter_id")?:new Field(fieldName:"encounter_id",dataTypeName:"LONG", description:"Epic visit number")//.save(flush:true, failOnError:true)
+			def mrn = Field.findByFieldName("mrn")?:new Field(fieldName:"mrn",dataTypeName:"NOT_ANALYZED_STRING", description:"Epic patient identifier")
+			def encounterId = Field.findByFieldName("encounter_id")?:new Field(fieldName:"encounter_id",dataTypeName:"LONG", description:"Epic visit number")
+			def serviceDate = Field.findByFieldName("service_date")?:new Field(fieldName:"service_date",dataTypeName:"DATE", description:"Date of Servie")
+			
 			def kos = Field.findByFieldName("kos")?:new Field(fieldName:"kos",dataTypeName:"NOT_ANALYZED_STRING", description:"kind of service")//.save(flush:true, failOnError:true)
 			def smd = Field.findByFieldName("smd")?:new Field(fieldName:"smd",dataTypeName:"NOT_ANALYZED_STRING", description:"subject matter domain")//.save(flush:true, failOnError:true)
 			def text = Field.findByFieldName("text")?:new Field(fieldName:"text",dataTypeName:"SNOWBALL_ANALYZED_STRING", description:"document text", defaultSearchField:true)//.save(flush:true, failOnError:true)
@@ -62,6 +64,7 @@ class BootStrap {
 			def noteType = Type.findByTypeName("note")?:new Type(typeName:"note", description:"CDR note", environment:Environment.current.name, corpusType:clinicalCorpusType)//.save(flush:true, failOnError:true)
 			noteType.addToFields(mrn)
 			noteType.addToFields(encounterId)
+			noteType.addToFields(serviceDate)
 			noteType.addToFields(kos)
 			noteType.addToFields(smd)
 			noteType.addToFields(text)
