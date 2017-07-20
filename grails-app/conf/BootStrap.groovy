@@ -56,7 +56,7 @@ class BootStrap {
 			def encounterId = Field.findByFieldName("encounter_id")?:new Field(fieldName:"encounter_id",dataTypeName:"LONG", description:"Epic visit number")
 			def serviceDate = Field.findByFieldName("service_date")?:new Field(fieldName:"service_date",dataTypeName:"DATE", description:"Date of Servie")
 			
-			def kos = Field.findByFieldName("kos")?:new Field(fieldName:"kos",dataTypeName:"NOT_ANALYZED_STRING", description:"kind of service")//.save(flush:true, failOnError:true)
+			def kod = Field.findByFieldName("kod")?:new Field(fieldName:"kod",dataTypeName:"NOT_ANALYZED_STRING", description:"kind of document")//.save(flush:true, failOnError:true)
 			def smd = Field.findByFieldName("smd")?:new Field(fieldName:"smd",dataTypeName:"NOT_ANALYZED_STRING", description:"subject matter domain")//.save(flush:true, failOnError:true)
 			def text = Field.findByFieldName("text")?:new Field(fieldName:"text",dataTypeName:"SNOWBALL_ANALYZED_STRING", description:"document text", defaultSearchField:true)//.save(flush:true, failOnError:true)
 			def contextFilter = Field.findByFieldName("authorized_context_filter_value")?:new Field(fieldName:"authorized_context_filter_value",dataTypeName:"NOT_ANALYZED_STRING", description:"Array of search contexts that include this note",contextFilterField:true )
@@ -65,7 +65,7 @@ class BootStrap {
 			noteType.addToFields(mrn)
 			noteType.addToFields(encounterId)
 			noteType.addToFields(serviceDate)
-			noteType.addToFields(kos)
+			noteType.addToFields(kod)
 			noteType.addToFields(smd)
 			noteType.addToFields(text)
 			noteType.addToFields(contextFilter)
@@ -73,7 +73,7 @@ class BootStrap {
 				println "adding pref for ${f.fieldName}"
 				def fp = new FieldPreference(user:app, label:PierUtils.labelFromUnderscore(f.fieldName), ontology:epicOntology, applicationDefault:true)
 				if ( f.contextFilterField || f.defaultSearchField ) fp.displayAsFilter=false
-				if ( f.fieldName=="kos" || f.fieldName=="smd") fp.ontology=epicHL7LoincOntology
+				if ( f.fieldName=="kod" || f.fieldName=="smd") fp.ontology=epicHL7LoincOntology
 				f.addToPreferences(fp)
 			}
 		

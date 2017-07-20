@@ -2,6 +2,7 @@ package edu.umn.nlpie.pier
 
 import org.apache.commons.lang.RandomStringUtils
 
+import edu.umn.nlpie.pier.api.QueryFilters
 import edu.umn.nlpie.pier.context.AuthorizedContext
 import edu.umn.nlpie.pier.elastic.Field
 import edu.umn.nlpie.pier.elastic.Index
@@ -20,11 +21,16 @@ class ConfigService {
 
     //keep
 	def getAuthorizedContexts() {
-		//get user from spring security service
+		//TODO get user from spring security service
 		//def username = "gmelton"
 		//AuthorizedContext.findAllByUsername('gmelton')
-		AuthorizedContext.list(max:200,sort:'label')
+		def contexts = AuthorizedContext.list(sort:'label')
     }
+	
+	
+	def getCorpusFilters(corpusTypeId) {
+		new QueryFilters(corpusTypeId).defaultFilters
+	}
 	
 	//discard
 	def getAvailableCorpora(env) {

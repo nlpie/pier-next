@@ -20,7 +20,8 @@
 	<asset:javascript src="lib/jquery.min.js" />
 	<asset:stylesheet src="lib/bootstrap.min.css" />
 	<asset:stylesheet src="lib/admin.css" />
-	<asset:stylesheet src="lib/dashboard.js" />
+
+	
 
 	<asset:javascript src="lib/bootstrap.min.js" />
 	<asset:stylesheet src="lib/font-awesome.min.css" />
@@ -43,6 +44,7 @@
 	 
 	<asset:javascript src="lib/system.js" />
 	<asset:javascript src="lib/browser.js" />
+
 
 	<g:layoutHead />
 </head>
@@ -132,6 +134,11 @@
 			var height = $(window).height() - 75;
 			$(".main").height(height);
 		};
+
+		function sleep (time) {
+			return new Promise((resolve) => setTimeout(resolve, time));
+		}
+					
 	</script>
 	
 </body>

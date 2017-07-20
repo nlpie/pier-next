@@ -1,4 +1,3 @@
-//import UIState from '../../model/ui/UIState';
 import Search from '../../model/search/Search';
 
 class ResultsController {
@@ -9,6 +8,6 @@ class ResultsController {
 	
 }
 
-ResultsController.$inject = [ '$scope', 'currentSearch'];
+ResultsController.$inject = [ '$scope', 'currentSearch' ];
 
 export default ResultsController;

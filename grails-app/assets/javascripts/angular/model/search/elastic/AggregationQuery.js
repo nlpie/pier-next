@@ -17,7 +17,7 @@ class AggregationQuery {
     	this.aggs = new Aggregations();
 
     	this.size = 0;
-    	this.from = 0;
+    	//this.from = 0;
     	
     	/*    
         {

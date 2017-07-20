@@ -8,7 +8,7 @@ import ContextFilter from './elastic/ContextFilter';
 import Service from '../../model/search/Search';
 
 class Search {
-    constructor($http) {
+    constructor( $http ) {
     	this.$http = $http;
     	
     	this.userInput = "heart";
@@ -18,17 +18,22 @@ class Search {
     	
     	this.error = undefined;
         this.dirty = false;
+        this.status = {
+        	dirty: false,
+        	searchingDocs: false,
+        	computingAggs: false
+        }
         
         this.cuiExpansionEnabled = false;				
 		this.similarityExpansionEnabled = false; 
 		this.cuiExpansion = {};				//{ heart:[], valve:[] } or { enabled:false, expansionMap: { heart:[], valve:[] } }
 		this.relatednessExpansion = {}; 		//{ heart:[], valve:[] } or { enabled:false, expansionMap: { heart:[], valve:[] } }
-
+		
 		this.results = {};	//object containing key:SearchResponse{}
     }
     
     setContext(searchContext) {
-    	if (!searchContext) return;	
+    	//if (!searchContext) return;	
     	//for some reason this function gets invoked with undefined searchContext on change of contexts dropdown; 
     	//this check and immediate return prevents console errors, otherwise the app appears to work as expected
     	this.context = searchContext;
@@ -45,8 +50,13 @@ class Search {
     }
     
     fetchFilters( corpus ) {
-    	//gets aggregation filters based on user prefs
-    	return this.$http.get( APP.ROOT + '/config/defaultFilters/' + corpus.id );
+    	//alert ( JSON.stringify(corpus) );
+    	//gets aggregation filters based on user prefs 
+    	if ( localStorage.getItem(corpus.name+" filters") ) {
+    		return new Promise
+    	}
+    	return this.$http.get( APP.ROOT + '/config/corpusFiltersByType/' + corpus.id, { cache:false } );
+    	//https://coderwall.com/p/40axlq/power-up-angular-s-http-service-with-caching
     }
     
     
@@ -73,11 +83,12 @@ class Search {
     	//pagination.notesPerPage and .offset come from this.pagination
     	var me = this;
     	var defaultCorpusSet = false;
+    	this.status.computingAggs = true;
+    	this.status.searchingDocs = true;
     	for ( let corpus of this.context.candidateCorpora ) {
     		if ( corpus.queryInfo.searchable ) {
     			
     			//alert(JSON.stringify(corpus,null,'\t'));
-				
     			var contextFilter = new ContextFilter(corpus.queryInfo.contextFilterField, this.context.contextFilterValue);
 				var docs = this.searchCorpus( corpus, contextFilter )
 	    			.then( function(response) {
@@ -89,11 +100,14 @@ class Search {
 	    				} else {
 	    					corpus.selected = false;
 	    				}
+	    				me.status.searchingDocs = false;
 	    			})
 	    			.catch( console.log.bind(console) );
 				var aggs = this.fetchAggregations( corpus, contextFilter )
     				.then( function(response) {
 	    				me.assignAggregationsResponse( corpus,response );
+	    				//sleep(3000).then( () => { } );
+	    				me.status.computingAggs = false;
     				})
     				.catch( console.log.bind(console) );
 			}
@@ -116,6 +130,7 @@ class Search {
     	aggsQuery.aggs.add("Mrn", new TermsAggregation("mrn",10));
     	aggsQuery.aggs.add("Encounter Id", new TermsAggregation("encounter_id",10));
     	aggsQuery.aggs.add("Service Date", new TermsAggregation("service_date",10));
+    	aggsQuery.aggs.add("Kod", new TermsAggregation("kod",10));
     	//alert(JSON.stringify(aggsQuery,null,'\t'));
 		return this.$http.post( APP.ROOT + '/search/elastic/', JSON.stringify( {"url":url, "elasticQuery": aggsQuery} ) );
     }

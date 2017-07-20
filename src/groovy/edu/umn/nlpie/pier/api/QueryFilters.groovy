@@ -36,9 +36,6 @@ class QueryFilters {
 	def populate(type) {
 		//def type = Type.find("from Type as t where t.corpusType.id=? and environment=? and t.index.status=?", [ 1.toLong(), Environment.current.name, 'Available' ])
 		def preferences = FieldPreference.where{ field.type.id==type.id && applicationDefault==true }.list()
-		//prefs.each {
-			//println "${it.label} ${it.ontology.name}"
-		//}
 		def ontologies = preferences.collect{ it.ontology }.unique()
 		ontologies.each { o ->
 			def prefsByOntology = preferences.findAll{ it.ontology.id==o.id && it.displayAsFilter==true }

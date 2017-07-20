@@ -30,7 +30,9 @@ class JsonMarshallerRegistrar {
 				"displayOrder": fpr.displayOrder,
 				"displayAsFilter": fpr.displayAsFilter,
 				"numberOfFilterOptions": fpr.numberOfFilterOptions,
-				"includeInExport": fpr.includeInExport
+				"includeInExport": fpr.includeInExport,
+				"isTemporal": ["DATE","DATETIME"].contains(fpr.field.dataTypeName) ? true: false,
+				"isNumeric": ["LONG","INTEGER"].contains(fpr.field.dataTypeName) ? true: false
 			]
 		}
 			
@@ -74,40 +76,6 @@ class JsonMarshallerRegistrar {
 					"defaultFilter": f.defaultPreference
 				]
 			}
-			
-			
-			
-			
-			/*
-			cfg.registerObjectMarshaller (Type) { t ->
-			[
-			 id: t.id,
-			 name: t.typeName,
-			 environment: t.environment,
-			 index: t.index
-			 ]
-			}
-			
-			
-			
-			cfg.registerObjectMarshaller (Index) { i ->
-				[
-					//"id": i.id,
-					"name": i.indexName,
-					"commonName": i.commonName,
-					"alias": i.alias,
-					"defaultSearchField": i.types[0].fields.find { it.defaultSearchField==true },
-					"cluster": i.cluster
-				]
-			}
-			cfg.registerObjectMarshaller (Cluster) { c ->
-				[
-					"id": c.id,
-					"uri": c.uri,
-					"commonName": c.commonName
-				]
-			}
-			*/
 		}//authorized.context
 		
 		JSON.createNamedConfig ('available.corpora') { DefaultConverterConfiguration<JSON> cfg ->

@@ -19,15 +19,36 @@ class ConfigController {
 	//keep
 	def authorizedContexts() {
 		//with spring security in place can restrict the set of requests based on user allowed to invoke this method
-		JSON.use ('authorized.context') {
-			respond configService.authorizedContexts
+		def cached = session["authorized-contexts"]
+		def contexts
+		if ( cached ) {
+			println " returning cached contexts"
+			contexts = cached
+		} else {
+			println "constructing contexts"
+			contexts = configService.authorizedContexts
+			println "caching contexts"
+			session["authorized-contexts"] = contexts	//TODO scope cached object to user, using username, e.g. rmcewan-authorized-contexts
 		}
-		//respond configService.authorizedContexts
+		JSON.use ('authorized.context') {
+			respond contexts
+		}
 	}
 	
-	def defaultFilters() {
+	def corpusFiltersByType() {
 		def corpusTypeId = params.id
-		respond new QueryFilters(corpusTypeId).defaultFilters
+		def cached = session["corpus-filters-${corpusTypeId}"]
+		def filters
+		if ( cached ) {
+			filters = cached
+			println " returning cached filters"
+		} else {
+			println "constructing filters"
+			filters = configService.getCorpusFilters(corpusTypeId)
+			println "caching filters"
+			session["corpus-filters-${corpusTypeId}"] = filters	//TODO scope cached object to user, using username, e.g. rmcewan-corpus-filters-1
+		}
+		respond filters
 	}
 	
 	//keep
