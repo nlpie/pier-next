@@ -54,7 +54,8 @@ class BootStrap {
 			
 			def mrn = Field.findByFieldName("mrn")?:new Field(fieldName:"mrn",dataTypeName:"NOT_ANALYZED_STRING", description:"Epic patient identifier")
 			def encounterId = Field.findByFieldName("encounter_id")?:new Field(fieldName:"encounter_id",dataTypeName:"LONG", description:"Epic visit number")
-			def serviceDate = Field.findByFieldName("service_date")?:new Field(fieldName:"service_date",dataTypeName:"DATE", description:"Date of Servie")
+			def serviceDate = Field.findByFieldName("service_date")?:new Field(fieldName:"service_date",dataTypeName:"DATE", description:"Date of Service")
+			def filingDatetime = Field.findByFieldName("filing_datetime")?:new Field(fieldName:"filing_datetime",dataTypeName:"DATETIME", description:"When note was filed")
 			
 			def kod = Field.findByFieldName("kod")?:new Field(fieldName:"kod",dataTypeName:"NOT_ANALYZED_STRING", description:"kind of document")//.save(flush:true, failOnError:true)
 			def smd = Field.findByFieldName("smd")?:new Field(fieldName:"smd",dataTypeName:"NOT_ANALYZED_STRING", description:"subject matter domain")//.save(flush:true, failOnError:true)
@@ -65,6 +66,7 @@ class BootStrap {
 			noteType.addToFields(mrn)
 			noteType.addToFields(encounterId)
 			noteType.addToFields(serviceDate)
+			noteType.addToFields(filingDatetime)
 			noteType.addToFields(kod)
 			noteType.addToFields(smd)
 			noteType.addToFields(text)

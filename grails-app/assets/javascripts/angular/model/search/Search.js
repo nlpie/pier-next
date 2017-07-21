@@ -8,9 +8,9 @@ import ContextFilter from './elastic/ContextFilter';
 import Service from '../../model/search/Search';
 
 class Search {
-    constructor( $http ) {
+    constructor( $http, growl ) {
     	this.$http = $http;
-    	
+    	this.growl = growl;
     	this.userInput = "heart";
     	this.context = undefined;
     	
@@ -33,7 +33,7 @@ class Search {
     }
     
     setContext(searchContext) {
-    	//if (!searchContext) return;	
+    	if (!searchContext) return;	
     	//for some reason this function gets invoked with undefined searchContext on change of contexts dropdown; 
     	//this check and immediate return prevents console errors, otherwise the app appears to work as expected
     	this.context = searchContext;
@@ -52,9 +52,6 @@ class Search {
     fetchFilters( corpus ) {
     	//alert ( JSON.stringify(corpus) );
     	//gets aggregation filters based on user prefs 
-    	if ( localStorage.getItem(corpus.name+" filters") ) {
-    		return new Promise
-    	}
     	return this.$http.get( APP.ROOT + '/config/corpusFiltersByType/' + corpus.id, { cache:false } );
     	//https://coderwall.com/p/40axlq/power-up-angular-s-http-service-with-caching
     }
@@ -90,29 +87,51 @@ class Search {
     			
     			//alert(JSON.stringify(corpus,null,'\t'));
     			var contextFilter = new ContextFilter(corpus.queryInfo.contextFilterField, this.context.contextFilterValue);
-				var docs = this.searchCorpus( corpus, contextFilter )
+				
+    			this.searchCorpus( corpus, contextFilter )
 	    			.then( function(response) {
 	    				me.assignDocumentsResponse( corpus,response );
-	    				//client-side setting of default corpus
+	    				//client-side setting of default corpus, probably should be a property of corpus type
 	    				if ( !defaultCorpusSet ) {
 	    					corpus.selected = true;
 	    					defaultCorpusSet = true;
 	    				} else {
 	    					corpus.selected = false;
 	    				}
-	    				me.status.searchingDocs = false;
 	    			})
-	    			.catch( console.log.bind(console) );
-				var aggs = this.fetchAggregations( corpus, contextFilter )
+	    			.catch( function(e) {
+    					//catches non-200 status errors in this object
+    					//alert(JSON.stringify(e,null,'\t'));
+    					me.growlError("full",e);
+    					//me.growl.error( e.statusText + "[ " + e.data.error.root_cause[0].reason + "]", {referenceId: "docs"} );
+    				})
+					.finally( function() {
+						me.status.searchingDocs = false;
+					});//error msg to user
+				
+				this.fetchAggregations( corpus, contextFilter )
     				.then( function(response) {
+    					//alert(response.status);
+	    				if ( response.status!=200 ) throw response.data.type;
 	    				me.assignAggregationsResponse( corpus,response );
 	    				//sleep(3000).then( () => { } );
-	    				me.status.computingAggs = false;
     				})
-    				.catch( console.log.bind(console) );
+    				.catch( function(e) {
+    					//catches non-200 status errors in this object
+    					me.growlError("full",e);
+    				})
+					.finally( function() {
+    					me.status.computingAggs = false;
+    				});//error msg to user
+    				
 			}
 		}
     	
+    }
+    
+    growlError( div,e ) {
+    	//alert(JSON.stringify(e,null,'\t'));
+    	this.growl.error( e.statusText + " (" + e.status + ") <<  " + e.data.error.root_cause[0].type + "::" + e.data.error.root_cause[0].reason, {ttl:5000, referenceId:div} );
     }
     
     searchCorpus( corpus, contextFilter ) {
@@ -126,12 +145,7 @@ class Search {
     	//return the promise and let the client resolve it
     	var url = corpus.queryInfo.url;
     	var aggsQuery = new AggregationQuery(contextFilter, corpus.queryInfo.defaultSearchField, this.userInput);
-    	//use defaultFilters.filter.label for now as the name of th aggregation
-    	aggsQuery.aggs.add("Mrn", new TermsAggregation("mrn",10));
-    	aggsQuery.aggs.add("Encounter Id", new TermsAggregation("encounter_id",10));
-    	aggsQuery.aggs.add("Service Date", new TermsAggregation("service_date",10));
-    	aggsQuery.aggs.add("Kod", new TermsAggregation("kod",10));
-    	//alert(JSON.stringify(aggsQuery,null,'\t'));
+    	aggsQuery = this.addAggregations(aggsQuery,corpus);
 		return this.$http.post( APP.ROOT + '/search/elastic/', JSON.stringify( {"url":url, "elasticQuery": aggsQuery} ) );
     }
     
@@ -150,6 +164,18 @@ class Search {
     	this.results[corpus.name].aggs = new AggregationsResponse(response.data);
     }
     
+    addAggregations(aggsQuery,corpus) {
+    	var queryFilters = corpus.queryFilters;
+    	Object.keys(queryFilters).map( function(key,index) {
+    		var categoryFilters = queryFilters[key];
+    		for (const filter of categoryFilters) {
+    			//alert(JSON.stringify(filter,null,'\t'));
+    			aggsQuery.aggs.add(filter.label, new TermsAggregation(filter.fieldName,	filter.numberOfFilterOptions));
+    		}
+    		
+    	} );
+    	return aggsQuery
+    }
     /*clear() { 
 		this.resetFilters();
 		this.resetQuery();
@@ -164,6 +190,6 @@ class Search {
     
 }
 
-Search.$inject = [ '$http' ];
+Search.$inject = [ '$http', 'growl' ];
 
 export default Search;

@@ -2,7 +2,7 @@ import Search from '../../model/search/Search';
 
 class ResultsController {
 	
-	constructor( $scope, currentSearch ) {
+	constructor( $scope, currentSearch, growl ) {
 		this.search = currentSearch;
 	}
 	
