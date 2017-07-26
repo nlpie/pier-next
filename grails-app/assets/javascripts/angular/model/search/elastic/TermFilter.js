@@ -1,10 +1,10 @@
-//TODO: rename to TermFilter
-class ContextFilter {
+
+class TermFilter {
     
 	//instances of this class are pushed onto the filter array +/- scalar filters in the filter clause of an elastic query (see example in Search.js
-	constructor(contextFilterField, contextFilterValue) {
+	constructor(field, value) {
 		var filter = {};
-		filter[contextFilterField] = contextFilterValue;
+		filter[field] = value;
     	this.term = filter;
     }
 
@@ -13,4 +13,4 @@ class ContextFilter {
 /*
 { "term": {"authorized_context": "Melton-MeauxG-Req00277" }}	//was search_context
 */
-export default ContextFilter;
+export default TermFilter;

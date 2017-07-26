@@ -10,25 +10,27 @@
 			<div growl limit-messages="1" reference="full"></div>
 			<div ng-repeat="corpus in rc.search.context.candidateCorpora track by $index">
 				<div class="row main">
-					<div class="col-xs-3">
+					<div id="aggs" class="col-xs-3">
 						<div growl reference="aggs"></div>
 						<div ng-show="rc.search.status.computingAggs" id="aggs-spinner" style="padding-top:25px">
-							<asset:image src="ajax-loader.gif" alt="Loading..." /> computing filters...
+							<asset:image src="ajax-loader.gif" alt="Loading..." /> computing aggregations...
 						</div>
-						<div ng-if="rc.search.results[corpus.name].aggs.aggs && !rc.search.status.computingAggs" ng-repeat="(category, categoryItems) in corpus.queryFilters track by $index">
-							{{category}} <i class="fa fa-question-circle"></i>
-							<ul class="pier-ul" style="color:gray">
-								<li ng-repeat="qf in categoryItems track by $index">
-									<i class="fa fa-check-square-o"></i>
-									{{qf.label}} <i class="fa fa-question-circle"></i><br>
-									<div ng-repeat="bucket in rc.search.results[corpus.name].aggs.aggs[qf.label].buckets track by $index">
-										{{ qf.isTemporal ? bucket.key_as_string : bucket.key}} 
-										<span style="font-size:0.5em">({{bucket.doc_count | number}})</span>
-									</div>
-									<div>&nbsp</div>
-								</li>
-							</ul>
-						</div>
+						<ul ng-if="corpus.results.aggs.aggs && !rc.search.status.computingAggs" 
+							ng-repeat="(ontology, aggregations) in corpus.metadata.aggregations track by $index">
+							<li class="pier-li-ontology">{{ontology}} <i class="fa fa-question-circle"></i>
+								<ul>
+									<li class="pier-li-aggregation" ng-repeat="aggregation in aggregations track by $index">
+										<i class="fa fa-check-square-o"></i> {{aggregation.label}} <i class="fa fa-question-circle"></i><br>
+										<ul>
+											<li class="pier-li-filter" ng-repeat="bucket in corpus.results.aggs.aggs[aggregation.label].buckets track by $index">
+												<span ng-click="rc.search.addFilter( corpus, aggregation, bucket.key )" style="cursor:pointer">{{ aggregation.isTemporal ? bucket.key_as_string : bucket.key}}</span>
+												<span style="font-size:0.5em">({{bucket.doc_count | number}})</span>
+											</li>
+										</ul>
+									</li>
+								</ul>
+							</li>
+						</ul>
 						<!-- 
 						<ul class="pier-ul" style="color:gray">
 							<li><i class="fa fa-check-square-o" aria-hidden="true"></i>
@@ -45,13 +47,13 @@
 						 -->
 					</div>
 	
-					<div class="col-xs-9">
+					<div class="col-xs-9" ng-style="corpus.opacity">
 						<div growl reference="docs"></div>
 						<div ng-show="rc.search.status.searchingDocs" id="docs-spinner" style="padding-top:25px">
 							<asset:image src="ajax-loader.gif" alt="Loading..." /> searching corpora...
 						</div>
 						
-						<div class="panel panel-default" ng-if="rc.search.results[corpus.name].docs" ng-repeat="doc in rc.search.results[corpus.name].docs.hits track by $index">
+						<div class="panel panel-default" ng-if="corpus.results.docs && !rc.search.status.searchingDocs" ng-repeat="doc in corpus.results.docs.hits track by $index">
 							<div class="panel-body">
 								{{ doc._source.text }}
 							</div>
@@ -59,6 +61,13 @@
 	
 					</div>
 				</div>
+				
+				<div class="row main">
+					<div id="docs" class="col-xs-12">
+						some centered stuff here
+					</div>
+				</div>
+				
 			</div>
 		</div>
 	

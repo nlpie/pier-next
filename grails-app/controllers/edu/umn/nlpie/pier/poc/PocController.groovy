@@ -26,7 +26,7 @@ class PocController {
 		}
 	}
 	
-	def defaultQueryFilters() {
+	def defaultAggregationsFilters() {
 		def type = Type.find("from Type as t where t.corpusType.id=? and environment=? and t.index.status=?", [ 1.toLong(), Environment.current.name, 'Available' ])
 		def preferences = FieldPreference.where{ field.type.id==type.id && applicationDefault==true }.list()
 		//prefs.each {
@@ -120,9 +120,10 @@ class PocController {
 			create table REQ_${requestSetId} as
 			select cn.note_id, listagg(trim(cn.filter_value),'", "') within group (order by cn.filter_value) as contexts, mod(cn.note_id,100) as batch
 			from search_context_clinical_note cn
-			where cn.note_id in ( select note_id from search_context_clinical_note where request_set_id=${requestSetId} )
+			where cn.note_id in ( select note_id from search_context_clinical_note where request_set_id=${requestSetId}  )
 			group by cn.note_id
 		"""
+
 		def sql = Sql.newInstance(dataSource_notes)
 		sql.withTransaction {
 			try {
@@ -147,8 +148,10 @@ class PocController {
 	}
 	
 	def complete() {
-		createAclTable(15500)
-		updateContextFilters(15500)
+		def requestSetId = params.id.toLong()
+		if ( !requestSetId ) throw new RuntimeException("missing request set id")
+		createAclTable(requestSetId)	//15500 for 7.5M notes
+		updateContextFilters(requestSetId)
 	}
 	
 	def fb() {
@@ -205,5 +208,9 @@ class PocController {
 		refreshResp = refreshRest.put("http://nlp05.ahc.umn.edu:9200/notes_v3/_settings") { json enableRefreshJson.toString() }
 		println "refresh on: ${refreshResp.status}"
 		println "\ttook: ${((new Date().time)-s)/1000} sec"
+	}
+	
+	def angularpoc() {
+		
 	}
 }

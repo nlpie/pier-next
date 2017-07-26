@@ -6,19 +6,38 @@ import MinAggregation from './MinAggregation';
 import MaxAggregation from './MaxAggregation';
 
 class DocumentQuery {
-    constructor( contextFilter, defaultSearchField, userInput, pagination ) {
+    constructor( corpus, userInput, pagination ) {
     	this.query = {};
     	this.query.bool = {};
     	this.query.bool.must = {};
-    	this.query.bool.must = new QuerystringQuery(defaultSearchField, userInput);
+    	this.query.bool.must = new QuerystringQuery(corpus.defaultSearchField, userInput);
     	this.query.bool.filter = [];
-    	this.query.bool.filter.push(contextFilter);
-    	
-    	this.aggs = new Aggregations();
-    	this.highlight = new Highlight(defaultSearchField);
+    	this.addFilters(corpus);
+    	//this.aggs = new Aggregations();
+    	this.highlight = new Highlight(corpus.defaultSearchField);
 
-    	this.size = pagination.notesPerPage;
-    	this.from = pagination.offset;
+    	this.size = corpus.pagination.notesPerPage;
+    	this.from = corpus.pagination.offset;
+    }
+    
+    addFilters(corpus) {	//TODO move to abstract superclass
+    	this.query.bool.filter.push( corpus.contextFilter ); 
+    	var me = this;
+    	Object.keys(corpus.appliedFilters).map( function(key,index) {
+	    		alert(JSON.stringify(me));
+    		for (let filter of corpus.appliedFilters[key] ) {
+        		me.query.bool.filter.push( filter );
+        		//TODO get more sophisticated here with should clause, NOT filter
+        	}
+    	});
+    }
+    
+    clear() { 
+		
+	}
+}
+
+export default DocumentQuery;
     	/*    
         {
             "highlight": {
@@ -82,11 +101,4 @@ use bool query instead of filters (in filter block?)
     	//end delete
     	
     	//alert(JSON.stringify(this));
-    }
     
-    clear() { 
-		
-	}
-}
-
-export default DocumentQuery;

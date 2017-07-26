@@ -13,10 +13,9 @@ import groovy.transform.InheritConstructors
 
 
 @InheritConstructors
-@Deprecated
-class QueryInfo {
+class CorpusMetadata {
 	
-	QueryInfo(CorpusType ct) {
+	CorpusMetadata(CorpusType ct) {
 		//this constructor causes issues when type is not found
 		def type = Type.find("from Type as t where t.corpusType.id=? and environment=? and t.index.status=?", [ ct.id, Environment.current.name, 'Available' ])
 		this.searchable = true

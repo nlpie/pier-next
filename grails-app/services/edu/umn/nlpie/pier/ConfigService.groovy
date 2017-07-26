@@ -2,7 +2,7 @@ package edu.umn.nlpie.pier
 
 import org.apache.commons.lang.RandomStringUtils
 
-import edu.umn.nlpie.pier.api.QueryFilters
+import edu.umn.nlpie.pier.api.AvailableAggregations
 import edu.umn.nlpie.pier.context.AuthorizedContext
 import edu.umn.nlpie.pier.elastic.Field
 import edu.umn.nlpie.pier.elastic.Index
@@ -24,12 +24,12 @@ class ConfigService {
 		//TODO get user from spring security service
 		//def username = "gmelton"
 		//AuthorizedContext.findAllByUsername('gmelton')
-		def contexts = AuthorizedContext.list(sort:'label')
+		def contexts = AuthorizedContext.list(max:2,sort:'label')
     }
 	
 	
-	def getCorpusFilters(corpusTypeId) {
-		new QueryFilters(corpusTypeId).defaultFilters
+	def getCorpusAggregations(corpusTypeId) {
+		new AvailableAggregations(corpusTypeId).aggregations
 	}
 	
 	//discard

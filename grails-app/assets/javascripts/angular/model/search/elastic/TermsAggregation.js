@@ -8,13 +8,17 @@ class TermsAggregation {
 		} else if ( field=="encounter_id" ) {
 			notSpecified = null
 		}
-			
+		
 		this.terms = {
 			"field": field,
 	        "size": size//,
 	        //"missing": notSpecified	
 		}
     }
+	
+	valueForMissing(field) {
+		
+	}
 }
 
 export default TermsAggregation;

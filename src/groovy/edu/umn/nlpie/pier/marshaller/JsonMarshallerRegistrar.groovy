@@ -4,7 +4,7 @@ import javax.annotation.PostConstruct
 
 import org.codehaus.groovy.grails.web.converters.configuration.DefaultConverterConfiguration
 
-import edu.umn.nlpie.pier.api.QueryInfo
+import edu.umn.nlpie.pier.api.CorpusMetadata
 import edu.umn.nlpie.pier.context.AuthorizedContext
 import edu.umn.nlpie.pier.elastic.Cluster
 import edu.umn.nlpie.pier.elastic.Field
@@ -53,17 +53,19 @@ class JsonMarshallerRegistrar {
 					id: ct.id,
 					name: ct.name,
 					glyph: ct.glyph,
-					queryInfo: ct.queryInfo,
-					queryFilters: null	//placeholder to be filled by subsequent, client-side initiated request
+					metadata: ct.metadata
+					//queryInfo: ct.queryInfo
+					//aggregations: null,	//placeholder to be filled by subsequent, client-side initiated request; alias for default or userConfigured filter set
+					//appliedFilters: null//placeholder for user-specified filters to be used in a search of this corpus 
 				]
 			}
-			cfg.registerObjectMarshaller (QueryInfo) { qi ->
+			cfg.registerObjectMarshaller (CorpusMetadata) { cm ->
 				[
-					tooltip: qi.tooltip,
-					searchable: qi.searchable,
-					url: qi.url,
-					defaultSearchField: qi.defaultSearchField,
-					contextFilterField: qi.contextFilterField,
+					tooltip: cm.tooltip,
+					searchable: cm.searchable,
+					url: cm.url,
+					defaultSearchField: cm.defaultSearchField,
+					contextFilterField: cm.contextFilterField
 				]
 			}
 			

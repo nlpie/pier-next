@@ -1,10 +1,11 @@
 package edu.umn.nlpie.pier.ui
 
-import edu.umn.nlpie.pier.api.QueryFilters
+import edu.umn.nlpie.pier.api.CorpusMetadata
+import edu.umn.nlpie.pier.api.AvailableAggregations
 import edu.umn.nlpie.pier.api.QueryInfo
 
 /**
- * 
+ * Ï
  * @author (rmcewan) 
  * 
  * CorpusType qualifies the Type class
@@ -23,7 +24,7 @@ class CorpusType {
 		
 	}
 	
-	static transients = [ 'queryInfo', 'queryFilters' ]
+	static transients = [ 'metadata' ]
 	
 	String name
 	String description
@@ -31,8 +32,9 @@ class CorpusType {
 	String glyph
 	
 	//transients
-	QueryInfo queryInfo
-	QueryFilters queryFilters
+	//QueryInfo queryInfo
+	//DocumentFilters documentFilters
+	CorpusMetadata metadata
 
 	Date dateCreated
 	Date lastUpdated

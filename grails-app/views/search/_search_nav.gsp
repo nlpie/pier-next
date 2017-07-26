@@ -45,8 +45,8 @@
                         		<a ng-click="sc.uiState.changeContext($index)">
 		                        	<i ng-repeat="ct in c.candidateCorpora track by $index" 
 		                        		class="fa {{ct.glyph}} pier-li-left-padded-icon"
-		                        		ng-style="(ct.queryInfo.searchable) ? {'color':'green'} : {'color': 'lightgray'}"
-		                        		ng-attr-title="{{ct.queryInfo.tooltip}}">
+		                        		ng-style="(ct.metadata.searchable) ? {'color':'green'} : {'color': 'lightgray'}"
+		                        		ng-attr-title="{{ct.metadata.tooltip}}">
 		                        	</i> 
                         			<span class="pier-li-left-padded-content" ng-click="sc.uiState.changeContext(c)" title="{{c.description}}">{{c.label}}</span>
                         		</a>
@@ -56,6 +56,7 @@
 					<input id="user-input" type="text" name="query" class="form-control" 
 						placeholder="Search words and/or phrases anywhere in the note text" 
 						ng-model="sc.uiState.currentSearch.userInput"
+						ng-change="sc.uiState.currentSearch.dirty()"
 						style="border-right:none;-webkit-box-shadow: none !important;-moz-box-shadow: none !important;box-shadow: none !important;
 							position: relative;"
 						ng-model-options="{
@@ -84,31 +85,31 @@
 							</li>
 						</ul>
 						<button class="btn btn-default" type="submit" ng-click="sc.uiState.currentSearch.execute()">
-							<i class="fa fa-search" aria-hidden="true"></i>
+							<i ng-class="sc.uiState.currentSearch.searchIconClass" aria-hidden="true"></i>
 						</button>
 					</div>
 				</div>
 			</div>
 		</form>
 
-		<div class="btn-group pull-right" role="group" style="margin-right:160px">
+		<div ng-repeat="corpus in sc.uiState.currentSearch.context.candidateCorpora track by $index"
+					ng-if="corpus.results.docs" class="btn-group pull-right" role="group" style="margin-right:170px">
 			<div>
-				<button ng-repeat="corpus in sc.uiState.currentSearch.context.candidateCorpora track by $index"
-					ng-if="sc.uiState.currentSearch.results[corpus.name]"
+				<button type="button" class="btn btn-default btn-result-pagination"><i class="fa fa-angle-double-left"></i></button>
+				<button type="button" class="btn btn-default btn-result-pagination"><i class="fa fa-angle-left"></i></button>
+				<button 
 					type="button"
-					ng-if="corpus.queryInfo.searchable"
+					ng-if="corpus.metadata.searchable"
 					class="btn btn-default btn-result-action"
 					ng-class="{ 'btn-result-action-on': corpus.selected }"
 					data-container="body" data-toggle="tooltip" data-placement="top"
-					data-html="true">
-					{{corpus.name}} <span style="font-size: 0.5em">{{sc.uiState.currentSearch.results[corpus.name].docs.total | number}}</span>
+					data-html="true">	
+					{{corpus.name}} 
+					<span style="font-size: 0.5em">{{corpus.results.docs.total | number}}</span>
 				</button>
-				<button type="button"
-					class="btn btn-default btn-result-action"
-					data-container="body" data-toggle="tooltip" data-placement="top"
-					data-html="true">
-					Another <span style="font-size: 0.5em">54</span>
-				</button>
+				<button type="button" class="btn btn-default btn-result-pagination"><i class="fa fa-angle-right"></i></button>
+				<button type="button" class="btn btn-default btn-result-pagination"><i class="fa fa-angle-double-right"></i></button>
+				
 			</div>
 		</div>
     </div><!-- /.navbar-collapse -->

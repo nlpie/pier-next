@@ -22,12 +22,12 @@ class ConfigController {
 		def cached = session["authorized-contexts"]
 		def contexts
 		if ( cached ) {
-			println " returning cached contexts"
+			//println " returning cached contexts"
 			contexts = cached
 		} else {
-			println "constructing contexts"
+			//println "constructing contexts"
 			contexts = configService.authorizedContexts
-			println "caching contexts"
+			//println "caching contexts"
 			session["authorized-contexts"] = contexts	//TODO scope cached object to user, using username, e.g. rmcewan-authorized-contexts
 		}
 		JSON.use ('authorized.context') {
@@ -35,7 +35,7 @@ class ConfigController {
 		}
 	}
 	
-	def corpusFiltersByType() {
+	def corpusAggregationsByType() {
 		def corpusTypeId = params.id
 		def cached = session["corpus-filters-${corpusTypeId}"]
 		def filters
@@ -44,7 +44,7 @@ class ConfigController {
 			println " returning cached filters"
 		} else {
 			println "constructing filters"
-			filters = configService.getCorpusFilters(corpusTypeId)
+			filters = configService.getCorpusAggregations(corpusTypeId)
 			println "caching filters"
 			session["corpus-filters-${corpusTypeId}"] = filters	//TODO scope cached object to user, using username, e.g. rmcewan-corpus-filters-1
 		}

@@ -1,6 +1,6 @@
 package edu.umn.nlpie.pier.context
 
-import edu.umn.nlpie.pier.api.QueryInfo;
+import edu.umn.nlpie.pier.api.CorpusMetadata;
 import edu.umn.nlpie.pier.ui.CorpusType
 
 
@@ -50,9 +50,9 @@ class AuthorizedContext {
 		corpusTypes.each { ct ->
 			def availableSearchContext = SearchContext.findByCorpusTypeAndStatusAndRequestId(ct.name,"Completed",this.requestId)
 			if ( availableSearchContext ) {
-				ct.queryInfo = new QueryInfo(ct)
+				ct.metadata = new CorpusMetadata(ct)
 			} else { 
-				ct.queryInfo = new QueryInfo( searchable:false, tooltip:"Excludes ${ct.name}" )
+				ct.metadata = new CorpusMetadata( searchable:false, tooltip:"Excludes ${ct.name}" )
 			}
 		}
 		corpusTypes

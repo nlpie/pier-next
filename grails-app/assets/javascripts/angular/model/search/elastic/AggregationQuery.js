@@ -6,17 +6,37 @@ import MinAggregation from './MinAggregation';
 import MaxAggregation from './MaxAggregation';
 
 class AggregationQuery {
-    constructor( contextFilter, defaultSearchField, userInput ) {
+    constructor( corpus, userInput ) {
     	this.query = {};
     	this.query.bool = {};
     	this.query.bool.must = {};
-    	this.query.bool.must = new QuerystringQuery(defaultSearchField, userInput);
+    	this.query.bool.must = new QuerystringQuery(corpus.defaultSearchField, userInput);
     	this.query.bool.filter = [];
-    	this.query.bool.filter.push(contextFilter);
+    	this.addFilters( corpus );
     	
     	this.aggs = new Aggregations();
-
     	this.size = 0;
+    	
+    }
+
+    addFilters(corpus) {	//TODO move to abstract superclass
+    	this.query.bool.filter.push( corpus.contextFilter ); 
+    	var me = this;
+    	Object.keys(corpus.appliedFilters).map( function(key,index) {
+	    		alert(JSON.stringify(me));
+    		for (let filter of corpus.appliedFilters[key] ) {
+        		me.query.bool.filter.push( filter );
+        		//TODO get more sophisticated here with should clause, NOT filter
+        	}
+    	});
+    }
+    
+    clear() { 
+		
+	}
+}
+
+export default AggregationQuery;
     	//this.from = 0;
     	
     	/*    
@@ -82,11 +102,4 @@ use bool query instead of filters (in filter block?)
     	//end delete
     	
     	//alert(JSON.stringify(this));
-    }
     
-    clear() { 
-		
-	}
-}
-
-export default AggregationQuery;

@@ -13,33 +13,39 @@ import groovy.transform.InheritConstructors
  * 
  * @author ${name:git_config(user.name)} and ${email:git_config(user.email)} (rmcewan) 
  * Collection of user-specific FieldPreference instances associated with a Type (CorpusType)
- * Organized by ontology, sorted by display order.
- *
+ * Organized by ontology, sorted by display order. 
+ * Scope of filter set is: 
+ * 		default - application level default, 
+ * 		user-configured - user-specified set of available  filters (usu subset of default set, or could be the same),
+ * 		applied - user-selected filters for a specific search of a corpus
+ * 
  */
 @InheritConstructors
-class QueryFilters {
+class AvailableAggregations {
 	
-	QueryFilters(CorpusType ct) {
+	AvailableAggregations(CorpusType ct) {
 		def type = Type.find("from Type as t where t.corpusType.id=? and environment=? and t.index.status=?", [ ct.id, Environment.current.name, 'Available' ])
 		this.populate(type)
 	}
 	
-	QueryFilters(String corpusTypeId) {
+	AvailableAggregations(String corpusTypeId) {
 		def type = Type.find("from Type as t where t.corpusType.id=? and environment=? and t.index.status=?", [ corpusTypeId.toLong(), Environment.current.name, 'Available' ])
 		this.populate(type)
-		println this.defaultFilters.toString()
+		println this.aggregations.toString()
 	}
 	
-	def defaultFilters = [:]
-	def userFilters = [:]
+	private defaultAggregations = [:]
+	private userConfiguredAggregations = [:]
+	def aggregations = [:]
 	
+	//TODO refactor to pull either default set or user-configured set if configured
 	def populate(type) {
 		//def type = Type.find("from Type as t where t.corpusType.id=? and environment=? and t.index.status=?", [ 1.toLong(), Environment.current.name, 'Available' ])
 		def preferences = FieldPreference.where{ field.type.id==type.id && applicationDefault==true }.list()
 		def ontologies = preferences.collect{ it.ontology }.unique()
 		ontologies.each { o ->
 			def prefsByOntology = preferences.findAll{ it.ontology.id==o.id && it.displayAsFilter==true }
-			defaultFilters.put(o.name, prefsByOntology)
+			aggregations.put(o.name, prefsByOntology)
 		}
 		
 	}
