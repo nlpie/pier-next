@@ -45,6 +45,8 @@ class BootStrap {
 			
 			def epicOntology = Ontology.findByName('Epic Categories')?:new Ontology(name:'Epic Categories', description:"what shows in Epic").save(flush:true, failOnError:true)
 			def epicHL7LoincOntology = Ontology.findByName('HL7 LOINC')?:new Ontology(name:'HL7 LOINC', description:"DO Axis values").save(flush:true, failOnError:true)
+			def biomedicus = Ontology.findByName('BioMedICUS NLP Annotations')?:new Ontology(name:'BioMedICUS NLP Annotations', description:"NLP annotations").save(flush:true, failOnError:true)
+			
 			def clinicalCorpusType = CorpusType.findByName("Clinical Notes")?: new CorpusType(name:"Clinical Notes", description:"notes from Epic", enabled:true, glyph:"fa-file-text-o").save(flush:true, failOnError:true)
 			def microbioCorpusType = CorpusType.findByName("Microbiology Notes")?: new CorpusType(name:"Microbiology Notes", description:"microbio results from CDR", enabled:true, glyph:"icon-i-pathology").save(flush:true, failOnError:true)
 			
@@ -62,6 +64,9 @@ class BootStrap {
 			def text = Field.findByFieldName("text")?:new Field(fieldName:"text",dataTypeName:"SNOWBALL_ANALYZED_STRING", description:"document text", defaultSearchField:true)//.save(flush:true, failOnError:true)
 			def contextFilter = Field.findByFieldName("authorized_context_filter_value")?:new Field(fieldName:"authorized_context_filter_value",dataTypeName:"NOT_ANALYZED_STRING", description:"Array of search contexts that include this note",contextFilterField:true )
 			
+			def cui = Field.findByFieldName("cuis")?:new Field(fieldName:"cuis", dataTypeName:"NOT_ANALYZED_STRING", description:"UMLS CUIs identified by BioMedICUS NLP pipeline")//.save(flush:true, failOnError:true)
+			
+			
 			def noteType = Type.findByTypeName("note")?:new Type(typeName:"note", description:"CDR note", environment:Environment.current.name, corpusType:clinicalCorpusType)//.save(flush:true, failOnError:true)
 			noteType.addToFields(mrn)
 			noteType.addToFields(encounterId)
@@ -71,11 +76,17 @@ class BootStrap {
 			noteType.addToFields(smd)
 			noteType.addToFields(text)
 			noteType.addToFields(contextFilter)
+			noteType.addToFields(cui)
 			noteType.fields.each { f ->
 				println "adding pref for ${f.fieldName}"
 				def fp = new FieldPreference(user:app, label:PierUtils.labelFromUnderscore(f.fieldName), ontology:epicOntology, applicationDefault:true)
 				if ( f.contextFilterField || f.defaultSearchField ) fp.displayAsFilter=false
 				if ( f.fieldName=="kod" || f.fieldName=="smd") fp.ontology=epicHL7LoincOntology
+				if ( f.fieldName=="cuis" ) {
+					fp.ontology=biomedicus
+					fp.label = "UMLS CUI"
+					fp.numberOfFilterOptions = 300
+				}
 				f.addToPreferences(fp)
 			}
 		
