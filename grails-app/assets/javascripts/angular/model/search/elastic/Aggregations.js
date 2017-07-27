@@ -1,11 +1,27 @@
+import TermsAggregation from './TermsAggregation'; 
 
 class Aggregations {
 	
-	constructor() {	}
+	constructor( corpus ) {
+		this.addAggregations( corpus );
+	}
 	
 	add(label,agg) {
 		this[label] = agg;
 	}
+	
+	addAggregations( corpus ) {
+		var me = this;
+    	var aggregations = corpus.metadata.aggregations;
+    	Object.keys(aggregations).map( function(key,index) {
+    		var aggregationCategory = corpus.metadata.aggregations[key];
+    		for (const aggregation of aggregationCategory) {
+    			//alert(JSON.stringify(aggregation,null,'\t'));
+    			me.add( aggregation.label, new TermsAggregation(aggregation.fieldName,	aggregation.numberOfFilterOptions) );
+    		}
+    		
+    	} );
+    }
 }
 
 export default Aggregations;

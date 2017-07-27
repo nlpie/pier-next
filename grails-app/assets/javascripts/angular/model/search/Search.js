@@ -60,7 +60,7 @@ class Search {
     	}
     	corpus.appliedFilters[aggregation.label].push( new TermFilter(aggregation.fieldName,value) );
     	this.dirty(corpus);
-    	alert(JSON.stringify(corpus.appliedFilters));
+    	//alert(JSON.stringify(corpus.appliedFilters));
     }
 
     setContext(searchContext) {
@@ -93,6 +93,10 @@ class Search {
     	//gets aggregation filters based on user prefs 
     	return this.$http.get( APP.ROOT + '/config/corpusAggregationsByType/' + corpus.id, { cache:false } );
     	//https://coderwall.com/p/40axlq/power-up-angular-s-http-service-with-caching
+    }
+    
+    clearResults() {
+    	this.results = {};
     }
     
     
@@ -136,20 +140,20 @@ class Search {
 		    			})
 		    			.catch( function(e) {
 	    					//catches non-200 status errors
-	    					me.remoteError("full",e);
+	    					me.remoteError("docs",e);
 	    				})
 						.finally( function() {
 							me.status.searchingDocs = false;
 						});
 					
+					console.log("fetching aggs....");
 					this.fetchAggregations( corpus )
 	    				.then( function(response) {
-		    				if ( response.status!=200 ) throw response.data.type;
 		    				me.assignAggregationsResponse( corpus,response );
 	    				})
 	    				.catch( function(e) {
 	    					//catches non-200 status errors
-	    					me.remoteError("full",e);
+	    					me.remoteError("aggs",e);
 	    				})
 						.finally( function() {
 	    					me.status.computingAggs = false;
@@ -160,7 +164,7 @@ class Search {
 				}
 			}
 		}
-    	
+    	this.clean()
     }
     
     error( div,e ) {
@@ -184,18 +188,12 @@ class Search {
     	this.status.computingAggs = true;
     	var url = corpus.metadata.url;
     	var aggsQuery = new AggregationQuery(corpus, this.userInput);
-    	aggsQuery = this.addAggregations(aggsQuery,corpus);
     	//alert(JSON.stringify(aggsQuery));
 		return this.$http.post( APP.ROOT + '/search/elastic/', JSON.stringify( {"url":url, "elasticQuery": aggsQuery} ) );
     }
     
     assignDocumentsResponse(corpus,response) {
-    	//if ( !this.results[corpus.name] ) this.results[corpus.name] = {};
-    	//this.results[corpus.name].docs = 
     	corpus.results.docs = new DocumentsResponse(response.data);
-    	corpus.opacity = this.resultsOpacity.bright;
-    	this.searchIconClass = "fa fa-search";
-    	//corpus.dirty = true;
     	/*{"_shards":{"total":6,"failed":0,"successful":6},"hits":{"hits":[],"total":128,"max_score":0.0},"took"
     		:613,"timed_out":false,"aggregations":{"KoD":{"doc_count_error_upper_bound":0,"sum_other_doc_count":0
     		,"buckets":[{"doc_count":128,"key":"7. Note"}]}}}
@@ -203,26 +201,9 @@ class Search {
     	
     }
     assignAggregationsResponse(corpus,response) {
-    	//if ( !this.results[corpus.name] ) this.results[corpus.name] = {};
-    	//this.results[corpus.name].aggs = new AggregationsResponse(response.data);
+    	console.log("assigning aggs");
     	corpus.results.aggs = new AggregationsResponse(response.data);
-    }
-    
-    addAggregations(aggsQuery,corpus) {
-    	var aggregations = corpus.metadata.aggregations;
-    	Object.keys(aggregations).map( function(key,index) {
-    		var aggregationCategory = corpus.metadata.aggregations[key];
-    		for (const aggregation of aggregationCategory) {
-    			//alert(JSON.stringify(aggregation,null,'\t'));
-    			aggsQuery.aggs.add( aggregation.label, new TermsAggregation(aggregation.fieldName,	aggregation.numberOfFilterOptions) );
-    		}
-    		
-    	} );
-    	return aggsQuery
-    }
-    
-    clearResults() {
-    	this.results = {};
+    	console.log("agg assigned");
     }
     
 }
