@@ -5,3 +5,4 @@ import groovy.transform.InheritConstructors
 class NotFoundException extends PierApiException {
 	int status = 404
 }
+

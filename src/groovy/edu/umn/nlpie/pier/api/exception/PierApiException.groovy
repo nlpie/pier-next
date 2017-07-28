@@ -10,3 +10,4 @@ class PierApiException extends RuntimeException {
 		error				//meant to provide same behavior as Exception.getMessage()
 	}
 }
+
