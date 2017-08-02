@@ -44,7 +44,7 @@ class AvailableAggregations {
 		def preferences = FieldPreference.where{ field.type.id==type.id && applicationDefault==true }.list()
 		def ontologies = preferences.collect{ it.ontology }.unique()
 		ontologies.each { o ->
-			def prefsByOntology = preferences.findAll{ it.ontology.id==o.id && it.displayAsFilter==true }
+			def prefsByOntology = preferences.findAll{ it.ontology.id==o.id && it.aggregate==true }
 			aggregations.put(o.name, prefsByOntology)
 		}
 		

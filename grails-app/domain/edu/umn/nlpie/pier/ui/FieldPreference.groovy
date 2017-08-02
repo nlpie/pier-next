@@ -13,7 +13,7 @@ class FieldPreference {
 		label()
 		//queryable()
 		displayOrder()
-		displayAsFilter()
+		aggregate()
 		/*ontology validator: { val, obj, errors ->
 			if ( !(Ontology.findAllByIndex(obj.property.type.index).collect{it.id}.contains(val)) ) errors.rejectValue('ontology', 'Ontology must be associated with the parent corpus of the field being edited')
 		}*/
@@ -36,7 +36,7 @@ class FieldPreference {
 	String label
     //boolean queryable = true
     Integer displayOrder = 10
-    Boolean displayAsFilter = true
+    Boolean aggregate = true
 	Ontology ontology
 	Integer	numberOfFilterOptions = 10
 	Boolean includeInExport = false

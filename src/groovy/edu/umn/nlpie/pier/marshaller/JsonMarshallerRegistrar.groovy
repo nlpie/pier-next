@@ -28,7 +28,7 @@ class JsonMarshallerRegistrar {
 				"ontology": fpr.ontology.name,
 				"username": fpr.user.username,
 				"displayOrder": fpr.displayOrder,
-				"displayAsFilter": fpr.displayAsFilter,
+				"aggregate": fpr.aggregate,
 				"numberOfFilterOptions": fpr.numberOfFilterOptions,
 				"includeInExport": fpr.includeInExport,
 				"isTemporal": ["DATE","DATETIME"].contains(fpr.field.dataTypeName) ? true: false,

@@ -80,12 +80,13 @@ class BootStrap {
 			noteType.fields.each { f ->
 				println "adding pref for ${f.fieldName}"
 				def fp = new FieldPreference(user:app, label:PierUtils.labelFromUnderscore(f.fieldName), ontology:epicOntology, applicationDefault:true)
-				if ( f.contextFilterField || f.defaultSearchField ) fp.displayAsFilter=false
+				if ( f.contextFilterField || f.defaultSearchField ) fp.aggregate=false
+				if ( f.fieldName=="text") fp.aggregate=false
 				if ( f.fieldName=="kod" || f.fieldName=="smd") fp.ontology=epicHL7LoincOntology
 				if ( f.fieldName=="cuis" ) {
 					fp.ontology=biomedicus
 					fp.label = "UMLS CUI"
-					fp.numberOfFilterOptions = 300
+					fp.numberOfFilterOptions = 200
 				}
 				f.addToPreferences(fp)
 			}
@@ -103,7 +104,7 @@ class BootStrap {
 			resultType.addToFields(resultText)
 			resultType.fields.each { f ->
 				println "adding pref for ${f.fieldName}"
-				f.addToPreferences(new FieldPreference(user:app, label:PierUtils.labelFromUnderscore(f.fieldName), ontology:epicHL7LoincOntology, applicationDefault:true))
+				f.addToPreferences(new FieldPreference(user:app, label:PierUtils.labelFromUnderscore(f.fieldName), ontology:epicHL7LoincOntology, applicationDefault:true, aggregate:false))
 			}
 			micro.addToTypes(resultType)
 			nlp02.addToIndexes(micro)

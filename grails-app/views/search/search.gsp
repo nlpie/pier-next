@@ -15,22 +15,20 @@
 						<div ng-show="rc.search.status.computingAggs" id="aggs-spinner" style="padding-top:25px">
 							<asset:image src="ajax-loader.gif" alt="Loading..." /> computing aggregations...
 						</div>
-						<ul ng-if="corpus.results.aggs.aggs && !rc.search.status.computingAggs" 
+						<div class="pier-ontology"
+							ng-if="corpus.results.aggs.aggs && !rc.search.status.computingAggs" 
 							ng-repeat="(ontology, aggregations) in corpus.metadata.aggregations track by $index">
-							<li class="pier-li-ontology">{{ontology}} <i class="fa fa-question-circle"></i>
-								<ul>
-									<li class="pier-li-aggregation" ng-repeat="aggregation in aggregations track by $index">
-										<i class="fa fa-check-square-o"></i> {{aggregation.label}} <i class="fa fa-question-circle"></i><br>
-										<ul>
-											<li class="pier-li-filter" ng-repeat="bucket in corpus.results.aggs.aggs[aggregation.label].buckets track by $index">
-												<span ng-click="rc.search.addFilter( corpus, aggregation, bucket.key )" style="cursor:pointer">{{ aggregation.isTemporal ? bucket.key_as_string : bucket.key}}</span>
-												<span style="font-size:0.5em">({{bucket.doc_count | number}})</span>
-											</li>
-										</ul>
-									</li>
-								</ul>
-							</li>
-						</ul>
+							<label class="pier-ontology-label">{{ontology}} <i class="fa fa-question-circle"></i></label>
+							<div class="pier-aggregate" ng-repeat="aggregation in aggregations track by $index">
+								<label>{{aggregation.label}} <i class="fa fa-question-circle"></i></label>
+								<div class="pier-filter" ng-repeat="bucket in corpus.results.aggs.aggs[aggregation.label].buckets track by $index">
+									<i class="fa fa-check-square-o"></i> 
+									<span ng-click="rc.search.addFilter( corpus, aggregation, bucket.key )" style="cursor:pointer">{{ aggregation.isTemporal ? bucket.key_as_string : bucket.key}}</span>
+									<span style="font-size:0.5em">({{bucket.doc_count | number}})</span>
+								</div>
+								<hr>
+							</div>
+						</div>
 						<!-- 
 						<ul class="pier-ul" style="color:gray">
 							<li><i class="fa fa-check-square-o" aria-hidden="true"></i>
