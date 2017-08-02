@@ -13,6 +13,7 @@ class Search {
     	this.growl = growl;
     	this.userInput = "heart";
     	this.context = undefined;
+    	this.registration = undefined;
     	
 		this.resultsOpacity = {
 			dimmed: { 'opacity': 0.2 },
@@ -24,7 +25,8 @@ class Search {
         	error: undefined,
         	dirty: false,
         	searchingDocs: false,
-        	computingAggs: false
+        	computingAggs: false,
+        	uuid: undefined
         }
         this.cuiExpansionEnabled = false;				
 		this.similarityExpansionEnabled = false; 
@@ -72,7 +74,7 @@ class Search {
     	var me = this;
     	for ( let corpus of this.context.candidateCorpora ) {
     		if ( corpus.metadata.searchable ) {
-    			corpus.contextFilter = new TermFilter(corpus.metadata.contextFilterField, this.context.contextFilterValue);	//contextFilter specifi to each searchable corpus
+    			corpus.contextFilter = new TermFilter(corpus.metadata.contextFilterField, this.context.contextFilterValue);	//contextFilter specific to each searchable corpus
     			if ( !corpus.appliedFilters ) {
     				corpus.appliedFilters = {};
     				corpus.opacity = this.resultsOpacity.bright;
@@ -88,6 +90,23 @@ class Search {
 			}
     	}
     }
+    
+    /*newUuid() {
+    	return this.$http.post( APP.ROOT + '/config/uuid' );
+    }
+    assignUuid() {
+    	//alert(JSON.stringify(response));
+    	var me = this;
+    	this.newUuid()
+    		.then( function(response) { 
+    			//alert(JSON.stringify(response));
+    			me.status.uuid = response.data.uuid; 
+    		})
+    		.catch( function(e) {
+    			me.remoteError("full",e);
+    		});
+    }
+    */
     
     availableAggregations( corpus ) {
     	//gets aggregation filters based on user prefs 
@@ -117,7 +136,14 @@ class Search {
       }
     }
 */
-    
+    conduct() {
+    	var me = this;
+    	this.register()
+    		.then( function(response) {
+    			me.assignRegistration(response.data);
+    			me.execute();
+    		});
+    }
     
     execute() {
     	//pagination.notesPerPage and .offset come from this.pagination
@@ -146,7 +172,6 @@ class Search {
 							me.status.searchingDocs = false;
 						});
 					
-					console.log("fetching aggs....");
 					this.fetchAggregations( corpus )
 	    				.then( function(response) {
 		    				me.assignAggregationsResponse( corpus,response );
@@ -160,6 +185,7 @@ class Search {
 	    				});	
 					
     			} catch(e) {
+    				//need  better return from controller, json response if !=200
 					me.error("full",e);
 				}
 			}
@@ -172,8 +198,17 @@ class Search {
     	this.growl.error( e.toString(), {ttl:5000, referenceId:div} );
     }
     remoteError( div,e ) {
-    	//alert(JSON.stringify(e,null,'\t'));
-    	this.growl.error( e.statusText + " (" + e.status + ") <<  " + e.data.error.root_cause[0].type + "::" + e.data.error.root_cause[0].reason, {ttl:5000, referenceId:div} );
+    	console.log(JSON.stringify(e,null,'\t'));
+    	//this.growl.error( e.statusText + " (" + e.status + ") <<  " + e.data.error.root_cause[0].type + "::" + e.data.error.root_cause[0].reason, {ttl:5000, referenceId:div} );
+    	//TODO ensure bad elastic queries are captured
+    	this.growl.error( e.statusText + " (" + e.status + ") - " + e.data.message, {ttl:10000, referenceId:div} );
+    }
+    
+    register() {
+    	return this.$http.post( APP.ROOT + '/audit/register/', JSON.stringify( { "authorizedContext":this.context.label } ) );
+    }
+    assignRegistration(data) {
+    	this.registration = data; 	//TODO fluff up a RegistrationResponse object
     }
     
     searchCorpus( corpus ) {
@@ -181,7 +216,7 @@ class Search {
     	this.status.searchingDocs = true;
     	var url = corpus.metadata.url;
     	var docsQuery = new DocumentQuery(corpus, this.userInput, this.pagination);
-		return this.$http.post( APP.ROOT + '/search/elastic/', JSON.stringify( {"url":url, "elasticQuery": docsQuery} ) );
+		return this.$http.post( APP.ROOT + '/search/elastic/', JSON.stringify( {"queryLog.id":this.registration.id, "type":"document", "url":url, "query": docsQuery} ) );
 	}
     fetchAggregations( corpus ) {
     	//return promise and let the client resolve it
@@ -189,7 +224,7 @@ class Search {
     	var url = corpus.metadata.url;
     	var aggsQuery = new AggregationQuery(corpus, this.userInput);
     	//alert(JSON.stringify(aggsQuery));
-		return this.$http.post( APP.ROOT + '/search/elastic/', JSON.stringify( {"url":url, "elasticQuery": aggsQuery} ) );
+		return this.$http.post( APP.ROOT + '/search/elastic/', JSON.stringify( {"queryLog.id":this.registration.id, "type":"aggregation", "url":url, "query": aggsQuery} ) );
     }
     
     assignDocumentsResponse(corpus,response) {
@@ -201,9 +236,7 @@ class Search {
     	
     }
     assignAggregationsResponse(corpus,response) {
-    	console.log("assigning aggs");
     	corpus.results.aggs = new AggregationsResponse(response.data);
-    	console.log("agg assigned");
     }
     
 }

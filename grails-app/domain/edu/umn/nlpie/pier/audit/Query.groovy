@@ -14,7 +14,7 @@ class Query {
 		version false
 	}
 	
-	static belongsTo = [ queryLog:SearchRegistration ]	//client passes in queryLog.id
+	static belongsTo = [ searchRegistration:SearchRegistration ]	//client passes in queryLog.id
 	
 	//TODO add override/inherit constructor that takes request.JSON, looks up user, tests for necesseary JSON properties and throws exceptions. this will simplify the controllers/services
 	

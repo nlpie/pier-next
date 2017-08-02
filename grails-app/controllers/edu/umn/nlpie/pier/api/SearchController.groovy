@@ -37,14 +37,14 @@ class SearchController {//extends RestfulController {
 			//if ( request.method!="POST" ) throw new HttpMethodNotAllowedException(message:"issue GET instead")
 			def postBody = request.JSON
 			println postBody.toString(2)
-			auditService.record(postBody)
+			def query = auditService.record( postBody )
 			def elasticResponse = elasticService.search( postBody.url, postBody.query )
 			def status = elasticResponse.status
 			if ( status==400 ) {
-				//println elasticResponse.json.toString(2)
 				throw new BadElasticRequestException( "Malformed query - check your syntax" )
 			}
-			render elasticResponse.json 
+			auditService.update( query,elasticResponse.json )
+			respond elasticResponse.json 
 		} catch( PierApiException e) {
 			respondWithException(e)
 		} catch( ValidationException e) {

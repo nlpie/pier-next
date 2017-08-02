@@ -21,7 +21,7 @@ class BaseQuery {
         		//TODO get more sophisticated here with should clause, NOT filter
         	}
     	});
-    	alert(JSON.stringify(me));
+    	//alert(JSON.stringify(me));
     }
 }
 
