@@ -56,6 +56,11 @@ class ConfigController {
 		respond CorpusType.findAllByEnabled(true)
 	}
 	
+	//TODO refactor to superclass
+	private renderException(Exception e) {
+		render(status: e.status, text: '{"message":"'+ e.message +'"}', contentType: "application/json") as JSON
+	}
+	
 	//deprected
 	def corpora() {
 		def env = params.id
@@ -107,10 +112,10 @@ class ConfigController {
 		//path query reutrns guide.id, guide.title, guide.shape, guide.publisher, abstract, audience 
 		//indiv guide request returns the whole guide; request body contains array of field guide ids 
 		try {
-			if ( request.method!="POST" ) throw new HttpMethodNotAllowedException(error:"${request.method} request not allowed, issue POST instead")
+			if ( request.method!="POST" ) throw new HttpMethodNotAllowedException(message:"${request.method} request not allowed, issue POST instead")
 			def p = request.JSON
-			if ( !p ) throw new BadRequestException(error:"empty POST request body")
-			if ( !p.shape ) throw new BadRequestException(error:"shape attribute missing in POST request body")
+			if ( !p ) throw new BadRequestException(message:"empty POST request body")
+			if ( !p.shape ) throw new BadRequestException(message:"shape attribute missing in POST request body")
 			def shape = p.shape
 			println "Guide: ${shape}"
 						
@@ -123,21 +128,21 @@ class ConfigController {
 		} catch (PierApiException e) {
 			render(status: e.status, text: '{"message":"'+ e.message +'"}') as JSON
 		} catch (Exception e) {
-			def apiEx = new PierApiException(error:e.message)
+			def apiEx = new PierApiException(message:e.message)
 			render(status: apiEx.status, text: '{"message":"'+ apiEx.message +'"}') as JSON
 		}
 	}
 	
 	def all() {
 		try {
-			if ( request.method!="GET" ) throw new HttpMethodNotAllowedException(error:"${request.method} method not allowed, issue GET instead")
+			if ( request.method!="GET" ) throw new HttpMethodNotAllowedException(message:"${request.method} method not allowed, issue GET instead")
 			JSON.use ('FieldGuideLite') {
 				respond fieldGuideService.allGuides()
 			}
 		} catch (PierApiException e) {
 			render(status: e.status, text: '{"message":"'+ e.message +'"}') as JSON
 		} catch (Exception e) {
-			def apiEx = new PierApiException(error:e.message)
+			def apiEx = new PierApiException(message:e.message)
 			render(status: apiEx.status, text: '{"message":"'+ apiEx.message +'"}') as JSON
 		} 
 	}

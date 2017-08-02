@@ -1,38 +1,57 @@
 package edu.umn.nlpie.pier.api
 
-import grails.converters.JSON
-import grails.rest.RestfulController
-import grails.plugins.rest.client.RestBuilder
+import edu.umn.nlpie.pier.api.exception.BadElasticRequestException
+import edu.umn.nlpie.pier.api.exception.HttpMethodNotAllowedException
+import edu.umn.nlpie.pier.api.exception.PierApiException
+import edu.umn.nlpie.pier.audit.Query
+import edu.umn.nlpie.pier.audit.SearchRegistration
+import grails.validation.ValidationException
 
 class SearchController {//extends RestfulController {
-
+	
+	static responseFormats = ['json']
+	//static allowedMethods = ["elastic": "GET", "find": "POST"]
+	
 	def elasticService
-
-    def index() { }
+	def searchService
+	def auditService
+	
+	//TODO refactor to superclass
+	private respondWithException(Exception e) {
+		def msg = e.message.replace('\n',' ')	//\n causes problems when client parses returned JSON
+		respond ( e, status:e.status )
+		//render(status: e.status, text: '{"message":"'+ msg +'"}', contentType: "application/json") as JSON
+	}
 	
 	def search() { }
 	
-	def d3() { }
-	
-	def json() {
+	def postBody() {
 		params.each { println it }
 	}
 	
-	def elastic() { 
-		//lookup user
-		//verify user has access to index
-		//execute query
-		def url = request.JSON.url
-		def query = request.JSON.elasticQuery
-		def rest = new RestBuilder()
-		println query.toString(2)
-		def esResponse = rest.post(url) { json query.toString() }
-		println esResponse.status
-		println esResponse.json.toString()
-		def status = esResponse.status
-		render(status:status, text:esResponse.json, contentType: "application/json") as JSON
-		//println esResponse.json.toString(2)
-		//render(status: 200, text:esResponse.json, contentType: "application/json") as JSON
+	def elastic() {
+		//println request.JSON.toString(2)
+		
+		//TODO refactor this to elasticservice and auditservice
+		try {
+			//if ( request.method!="POST" ) throw new HttpMethodNotAllowedException(message:"issue GET instead")
+			def postBody = request.JSON
+			println postBody.toString(2)
+			auditService.record(postBody)
+			def elasticResponse = elasticService.search( postBody.url, postBody.query )
+			def status = elasticResponse.status
+			if ( status==400 ) {
+				//println elasticResponse.json.toString(2)
+				throw new BadElasticRequestException( "Malformed query - check your syntax" )
+			}
+			render elasticResponse.json 
+		} catch( PierApiException e) {
+			respondWithException(e)
+		} catch( ValidationException e) {
+			respondWithException( new PierApiException( message:e.message ) )
+		} catch( Exception e) {
+			respondWithException( new PierApiException( message:e.message ) ) 
+		}
 	}
 	
 }
