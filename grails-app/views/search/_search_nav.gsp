@@ -84,7 +84,7 @@
 				          		<a href ng-click="">query n-2</a>
 							</li>
 						</ul>
-						<button class="btn btn-default" type="submit" ng-click="sc.uiState.currentSearch.execute()">
+						<button class="btn btn-default" type="submit" ng-click="sc.uiState.currentSearch.conduct()">
 							<i ng-class="sc.uiState.currentSearch.searchIconClass" aria-hidden="true"></i>
 						</button>
 					</div>
