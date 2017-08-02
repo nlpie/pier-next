@@ -37,7 +37,7 @@ class PocController {
 			println it.name
 		}
 		ontologies.each { o ->
-			def prefsByOntology = preferences.findAll{ it.ontology.id==o.id && it.displayAsFilter==true }
+			def prefsByOntology = preferences.findAll{ it.ontology.id==o.id && it.aggregate==true }
 			prefsByOntology.each {
 				println "\t${it.label}"
 			}
