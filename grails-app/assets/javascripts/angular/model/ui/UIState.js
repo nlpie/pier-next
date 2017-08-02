@@ -35,11 +35,6 @@ class UIState {
     	//	angular.copy(c,this.currentContext);	
     	this.currentSearch.setContext(this.authorizedContexts[index]);	
 	}
-    
-    /*search() {
-    	alert (this.currentContext.toString());
-    	this.currentSearch = new Search(this.currentContext);
-    }*/
 
 }
 
