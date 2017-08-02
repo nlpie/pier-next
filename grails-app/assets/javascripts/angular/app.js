@@ -18,19 +18,5 @@ angular.module( 'app', ['angular-growl'] )
     .service('currentSearch', Search)
     .service('uiService', UIService)
     .service('uiState', UIState)
-    //.service('spinnerService', spinners.spinnerService)
-    /*.service('injectOn', ($injector) => {
-		  return (thisArg) => {
-		    if(!thisArg.constructor) {
-		      throw new Error('Constructor method not found.');
-		    }
-		   $injector.annotate(thisArg.constructor).map(name => {
-		      if(name !== 'injectOn' && name !== '$scope') {
-		        thisArg[name] = $injector.get(name);
-		      }
-		    });
-		  };
-		})*/
-    //.controller('angularPocController', AngularPocController)
 	.controller('resultsController', ResultsController)
 	.controller('searchController', SearchController);
