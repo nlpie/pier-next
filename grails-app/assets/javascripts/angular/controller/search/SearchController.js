@@ -9,7 +9,6 @@ class SearchController {
 		this.searchService = searchService;
 		this.uiService = uiService;
 		this.uiState = uiState;
-		//alert("SearchController constructor");
 	}
 	
 }
