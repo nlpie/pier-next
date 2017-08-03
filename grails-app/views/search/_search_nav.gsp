@@ -69,23 +69,23 @@
 					
 					<div class="input-group-btn" class="input-group-addon" style="width:1%;">
 						
-						<button type="button" class="btn btn-default recent-queries" data-toggle="dropdown" style="border-left:none" title="query history">
+						<button type="button" class="btn btn-default recent-queries" data-toggle="dropdown" style="border-left:none" title="search history">
 							<i class="fa fa-caret-down recent-queries" aria-hidden="true"></i>
 						</button>
 						<ul class="dropdown-menu pull-right">
-							<li role="presentation" class="dropdown-header">Query History</li>
-							<li>
-				          		<a href ng-click="">query n</a>
-							</li>
-							<li>
-				          		<a href ng-click="">query n-1</a>
-							</li>
-							<li>
-				          		<a href ng-click="">query n-2</a>
-							</li>
-						</ul>
+                            <li role="presentation" class="dropdown-header pull-right">Recent Searches</li>
+                        	<li ng-repeat="q in sc.searchService.searchHistory track by $index">
+								<a ng-click="sc.uiState.executeRecentSearch(q)">
+                        			<div ng-click="sc.uiState.executeRecentSearch(q)" title="replace me">
+                        			<sup>{{q.registration.authorizedContext}}</sup>
+                        			<br>
+                        			{{q.label}}
+                        			</div>
+                        		</a>
+                            </li>
+                        </ul>
 						<button class="btn btn-default" type="submit" ng-click="sc.uiState.currentSearch.conduct()">
-							<i ng-class="sc.uiState.currentSearch.searchIconClass" aria-hidden="true"></i>
+							<i class="fa fa-search" ng-class="sc.uiState.currentSearch.searchIconClass" aria-hidden="true"></i>
 						</button>
 					</div>
 				</div>

@@ -5,6 +5,8 @@ import javax.annotation.PostConstruct
 import org.codehaus.groovy.grails.web.converters.configuration.DefaultConverterConfiguration
 
 import edu.umn.nlpie.pier.api.CorpusMetadata
+import edu.umn.nlpie.pier.audit.Query
+import edu.umn.nlpie.pier.audit.SearchRegistration
 import edu.umn.nlpie.pier.context.AuthorizedContext
 import edu.umn.nlpie.pier.elastic.Cluster
 import edu.umn.nlpie.pier.elastic.Field
@@ -104,6 +106,23 @@ class JsonMarshallerRegistrar {
 			}
 				
 		}//available.corpora
+		
+		JSON.createNamedConfig ('history.summary') { DefaultConverterConfiguration<JSON> cfg ->
+			cfg.registerObjectMarshaller (Query) { q ->
+				[
+					id: q.id,
+					type: q.type,
+					label: q.label,
+					registration: q.registration
+				]
+			}
+			cfg.registerObjectMarshaller (SearchRegistration) { sr ->
+				[
+					id: sr.id,
+					authorizedContext: sr.authorizedContext
+				]
+			}	
+		}//history summary
 		
 		JSON.registerObjectMarshaller(CorpusType) { cp ->
 			[ 

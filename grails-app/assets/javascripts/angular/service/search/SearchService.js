@@ -7,11 +7,23 @@ class SearchService {
 		//'ngInject';
 		this.$http = $http;
 		this.$q = $q;
+		this.searchHistory = undefined;
 	}
 	
 	fetchResultsFromElastic( corpus, userInput, contextFilter ) {
 		//return the promise and let the client resolve it
 		return this.$http.post( APP.ROOT + '/search/elastic/', JSON.stringify(contextFilter) );
+	}
+	
+	fetchHistory( excludeCurrentSearch ) {
+    	var me = this;	
+    	this.historySummary( excludeCurrentSearch )
+	    	.then( function(response) {
+	    		me.searchHistory = response.data;
+	    	});
+    }
+	historySummary( excludeMostRecent ) {
+		return this.$http.post( APP.ROOT + '/search/historySummary', { "excludeMostRecent":excludeMostRecent } );
 	}
  
 	//based on https://appendto.com/2016/02/working-promises-angularjs-services/ (deferred technique)

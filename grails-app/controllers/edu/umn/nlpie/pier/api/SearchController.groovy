@@ -5,6 +5,7 @@ import edu.umn.nlpie.pier.api.exception.HttpMethodNotAllowedException
 import edu.umn.nlpie.pier.api.exception.PierApiException
 import edu.umn.nlpie.pier.audit.Query
 import edu.umn.nlpie.pier.audit.SearchRegistration
+import grails.converters.JSON
 import grails.validation.ValidationException
 
 class SearchController {//extends RestfulController {
@@ -23,34 +24,42 @@ class SearchController {//extends RestfulController {
 		//render(status: e.status, text: '{"message":"'+ msg +'"}', contentType: "application/json") as JSON
 	}
 	
-	def search() { }
-	
-	def postBody() {
-		params.each { println it }
-	}
+	def search() { }	//default search view 
 	
 	def elastic() {
 		//println request.JSON.toString(2)
-		
-		//TODO refactor this to elasticservice and auditservice
+		def postBody = request.JSON
+		def elasticResponse
 		try {
-			//if ( request.method!="POST" ) throw new HttpMethodNotAllowedException(message:"issue GET instead")
-			def postBody = request.JSON
+			if ( request.method!="POST" ) throw new HttpMethodNotAllowedException(message:"issue GET instead")
+			//TODO sanity check on request.JSON - needs query, url, searchRequest.id, etc
 			println postBody.toString(2)
-			def query = auditService.record( postBody )
-			def elasticResponse = elasticService.search( postBody.url, postBody.query )
+			elasticResponse = elasticService.search( postBody.url, postBody.query )
 			def status = elasticResponse.status
 			if ( status==400 ) {
-				throw new BadElasticRequestException( "Malformed query - check your syntax" )
+				throw new BadElasticRequestException( message:"Malformed query - check your syntax" )
 			}
-			auditService.update( query,elasticResponse.json )
+			auditService.logQueryAndResponse( postBody, elasticResponse )
 			respond elasticResponse.json 
 		} catch( PierApiException e) {
+			auditService.logException ( postBody, elasticResponse, e )
 			respondWithException(e)
 		} catch( ValidationException e) {
-			respondWithException( new PierApiException( message:e.message ) )
+			auditService.logException ( postBody, e )
+			respondWithException( new PierApiException( postBody, elasticResponse, e ) )
 		} catch( Exception e) {
+			auditService.logException ( postBody, elasticResponse, e )
 			respondWithException( new PierApiException( message:e.message ) ) 
+		} finally {
+		
+		}
+	}
+	
+	def historySummary( ) {
+		def jsonBody = request.JSON
+		//TODO put exception handling in place
+		JSON.use ('history.summary') {
+			respond searchService.searchHistory( jsonBody.excludeMostRecent )
 		}
 	}
 	

@@ -1,23 +1,21 @@
-import Search from '../../model/search/Search';
+//import Search from '../../model/search/Search';
 
 class UIState {
 
-    constructor( uiService, currentSearch ) {
+    constructor( uiService, searchService, currentSearch ) {
     	this.uiService = uiService;
+    	this.searchService = searchService;
     	this.currentSearch = currentSearch;
     	
     	this.authorizedContexts = undefined;
     	this.currentContext = undefined;
     	
-    	this.previousSearches = undefined;
-		
     	this.init();
     }
     
     init() {
 		this.fetchContexts();
-		//this.currentSearch = new Search(this.currentContext);
-		//= new Search(this.searchService, this.userInput, this.currentContext, this.pagination.notesPerPage, this.pagination.offset);
+		this.searchService.fetchHistory( false );
 	}
     
     fetchContexts() {
@@ -35,9 +33,13 @@ class UIState {
     	//	angular.copy(c,this.currentContext);	
     	this.currentSearch.setContext(this.authorizedContexts[index]);	
 	}
+    
+    executeRecentSearch(registeredSearch) {
+    	console.log("recent");
+    }
 
 }
 
-UIState.$inject = [ 'uiService', 'currentSearch' ];
+UIState.$inject = [ 'uiService', 'searchService', 'currentSearch' ];
 
 export default UIState;

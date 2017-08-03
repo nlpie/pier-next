@@ -5,12 +5,12 @@ import AggregationQuery from './elastic/AggregationQuery';
 import TermsAggregation from './elastic/TermsAggregation';
 import Pagination from './Pagination';
 import TermFilter from './elastic/TermFilter';
-import Service from '../../model/search/Search';
 
 class Search {
-    constructor( $http, growl ) {
+    constructor( $http, growl, searchService ) {
     	this.$http = $http;
     	this.growl = growl;
+    	this.searchService = searchService;
     	this.userInput = "heart";
     	this.context = undefined;
     	this.registration = undefined;
@@ -89,24 +89,8 @@ class Search {
 				corpus.metadata.appliedFilters = [];	//array to hold user-selected Term filter objects used to refine query results 
 			}
     	}
+    	this.searchService.fetchHistory( false );
     }
-    
-    /*newUuid() {
-    	return this.$http.post( APP.ROOT + '/config/uuid' );
-    }
-    assignUuid() {
-    	//alert(JSON.stringify(response));
-    	var me = this;
-    	this.newUuid()
-    		.then( function(response) { 
-    			//alert(JSON.stringify(response));
-    			me.status.uuid = response.data.uuid; 
-    		})
-    		.catch( function(e) {
-    			me.remoteError("full",e);
-    		});
-    }
-    */
     
     availableAggregations( corpus ) {
     	//gets aggregation filters based on user prefs 
@@ -190,7 +174,8 @@ class Search {
 				}
 			}
 		}
-    	this.clean()
+    	this.clean();
+    	this.searchService.fetchHistory( true );
     }
     
     error( div,e ) {
@@ -216,7 +201,7 @@ class Search {
     	this.status.searchingDocs = true;
     	var url = corpus.metadata.url;
     	var docsQuery = new DocumentQuery(corpus, this.userInput, this.pagination);
-		return this.$http.post( APP.ROOT + '/search/elastic/', JSON.stringify( {"queryLog.id":this.registration.id, "type":"document", "url":url, "query": docsQuery} ) );
+		return this.$http.post( APP.ROOT + '/search/elastic/', JSON.stringify( {"registration.id":this.registration.id, "type":"document", "url":url, "query": docsQuery} ) );
 	}
     fetchAggregations( corpus ) {
     	//return promise and let the client resolve it
@@ -224,7 +209,7 @@ class Search {
     	var url = corpus.metadata.url;
     	var aggsQuery = new AggregationQuery(corpus, this.userInput);
     	//alert(JSON.stringify(aggsQuery));
-		return this.$http.post( APP.ROOT + '/search/elastic/', JSON.stringify( {"queryLog.id":this.registration.id, "type":"aggregation", "url":url, "query": aggsQuery} ) );
+		return this.$http.post( APP.ROOT + '/search/elastic/', JSON.stringify( {"registration.id":this.registration.id, "type":"aggregation", "url":url, "query": aggsQuery} ) );
     }
     
     assignDocumentsResponse(corpus,response) {
@@ -241,6 +226,6 @@ class Search {
     
 }
 
-Search.$inject = [ '$http', 'growl' ];
+Search.$inject = [ '$http', 'growl', 'searchService' ];
 
 export default Search;
