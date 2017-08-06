@@ -74,12 +74,12 @@
 						</button>
 						<ul class="dropdown-menu pull-right">
                             <li role="presentation" class="dropdown-header pull-right">Recent Searches</li>
-                        	<li ng-repeat="q in sc.searchService.searchHistory track by $index">
-								<a ng-click="sc.uiState.executeRecentSearch(q)">
-                        			<div ng-click="sc.uiState.executeRecentSearch(q)" title="replace me">
-                        			<sup>{{q.registration.authorizedContext}}</sup>
+                        	<li ng-repeat="sh in sc.searchService.searchHistory track by $index">
+								<a ng-click="sc.uiState.currentSearch.conductPastSearch(sh.registration.id)">
+                        			<div title="replace me">
+                        			<sup>{{sh.registration.authorizedContext}}</sup>
                         			<br>
-                        			{{q.label}}
+                        			{{sh.query.label}}
                         			</div>
                         		</a>
                             </li>

@@ -22,12 +22,12 @@ class Query {
 	}
 	
 	static belongsTo = [ registration:SearchRegistration ]	//client passes in queryLog.id
-	
 	//TODO add override/inherit constructor that takes request.JSON, looks up user, tests for necesseary JSON properties and throws exceptions. this will simplify the controllers/services
 	
 	//passed from client
 	String url
-	String type 
+	String corpus
+	String type
 	String query
 	
 	//returned from elastic

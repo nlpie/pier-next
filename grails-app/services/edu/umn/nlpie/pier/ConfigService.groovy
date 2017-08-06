@@ -22,10 +22,13 @@ class ConfigService {
     //keep
 	def getAuthorizedContexts() {
 		//TODO get user from spring security service
-		//def username = "gmelton"
-		//AuthorizedContext.findAllByUsername('gmelton')
-		def contexts = AuthorizedContext.list(max:2,sort:'label')
+		AuthorizedContext.list(max:2,sort:'label')
     }
+	
+	def authorizedContextByLabel( label ) {
+		//TODO get user from spring security service
+		AuthorizedContext.findByLabel( label );
+	}
 	
 	
 	def getCorpusAggregations(corpusTypeId) {

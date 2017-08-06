@@ -1,6 +1,3 @@
-//import Pagination from '../../model/ui/Pagination';
-//import Search from '../../model/search/Search';
-//import Result from '../../model/search/Result';
 
 class UIService {
 
@@ -13,6 +10,10 @@ class UIService {
 		//return the promise and let the client resolve it
 		return this.$http.get( APP.ROOT + '/config/authorizedContexts' );
 	}
+    
+    fetchAuthorizedContextByLabel( label ) {
+    	return this.$http.post( APP.ROOT + '/config/authorizedContextByLabel/', { "label": label } );
+    }
 
 }
 

@@ -7,10 +7,12 @@ import Pagination from './Pagination';
 import TermFilter from './elastic/TermFilter';
 
 class Search {
-    constructor( $http, growl, searchService ) {
+	    constructor( $http, growl, searchService, uiService ) {
     	this.$http = $http;
     	this.growl = growl;
     	this.searchService = searchService;
+    	this.uiService = uiService;
+    	
     	this.userInput = "heart";
     	this.context = undefined;
     	this.registration = undefined;
@@ -56,7 +58,8 @@ class Search {
 		}
 	}
     
-    addFilter(corpus, aggregation, value) {
+    //adds filters to corpus.appliedFilters object (not array)
+	addFilter(corpus, aggregation, value) {
     	if ( !corpus.appliedFilters[aggregation.label] ){
     		corpus.appliedFilters[aggregation.label] = [];
     	}
@@ -85,10 +88,16 @@ class Search {
 				this.availableAggregations( corpus )
 	    			.then( function(response) {
 	    				corpus.metadata.aggregations = response.data;
-	    			});
-				corpus.metadata.appliedFilters = [];	//array to hold user-selected Term filter objects used to refine query results 
+	    			})
+	    			.then( function() {
+	    				//console.log("Search.js " + JSON.stringify(searchContext,null,'\t'));
+	    			})
+	    			.then( function() {
+	    				console.log("DONE");
+	    			}); 
 			}
     	}
+    	
     	this.searchService.fetchHistory( false );
     }
     
@@ -99,6 +108,7 @@ class Search {
     }
     
     clearResults() {
+    	this.searchIconClass = "fa fa-search";
     	this.results = {};
     }
     
@@ -122,6 +132,7 @@ class Search {
 */
     conduct() {
     	var me = this;
+    	this.clearResults();
     	this.register()
     		.then( function(response) {
     			me.assignRegistration(response.data);
@@ -129,9 +140,39 @@ class Search {
     		});
     }
     
-    execute() {
-    	//pagination.notesPerPage and .offset come from this.pagination
+    conductPastSearch( registrationId ) {
+    	//use registrationId to lookup registration to get the auth context label
+    	var me = this;
     	this.clearResults();
+    	this.searchService.fetchRegisteredSearch( registrationId )
+    		.then( function( response ) { 
+    			var registeredSearch = response.data;	//temp assignment hold return for use in the next  couple of .thens
+    			me.uiService.fetchAuthorizedContextByLabel( registeredSearch.authorizedContext )
+    				.then( function( response ) { 
+    					me.setContext( response.data );
+    					me.parsePastSearchRegistration( registeredSearch );
+    					me.register()
+    		    			.then( function(response) {
+    		    				me.assignRegistration(response.data);
+    		    			});
+    					me.reExecute( registeredSearch );
+    			});
+    		});
+    }
+    
+    parsePastSearchRegistration( searchRegistration ) {
+    	
+    	var elasticQuery = JSON.parse( searchRegistration.queries[0].query ); 	//doesn't matter which query, all will have used the same querystring query
+    	console.log(elasticQuery);
+    	this.userInput = elasticQuery.query.bool.must.query_string.query;
+    	var filters = elasticQuery.query.bool.filter;	//returns an array
+    	console.log(filters);
+    	//this.prepareCorpora();//find corpus and put filters on it (corpus.appliedFilters=?)
+    	//assign parsed query here
+    }
+    
+    execute() {
+    	//pagination.notesPerPage and .offset are set in DocumentQuery.js
     	var me = this;
     	var defaultCorpusSet = false;
     	for ( let corpus of this.context.candidateCorpora ) {
@@ -149,7 +190,6 @@ class Search {
 		    				}
 		    			})
 		    			.catch( function(e) {
-	    					//catches non-200 status errors
 	    					me.remoteError("docs",e);
 	    				})
 						.finally( function() {
@@ -178,9 +218,64 @@ class Search {
     	this.searchService.fetchHistory( true );
     }
     
+    reExecute( searchRegistration ) {
+    	//notesPerPage [and .offset] need to be parsed from searchRegistration and put on uiState
+    	var me = this;
+    	var defaultCorpusSet = false;
+    	for ( let corpus of this.context.candidateCorpora ) {
+    		if ( corpus.metadata.searchable ) {}
+    			for ( let q of searchRegistration.queries )	{
+    				if ( q.corpus==corpus.name && q.type=="document" ) {
+		    			try {
+		    				this.$http.post( APP.ROOT + '/search/elastic/', JSON.stringify( {"registration.id":this.registration.id, "corpus": corpus.name, "type":"document", "url":corpus.metadata.url, "query": JSON.parse(q.query) } ) ) 
+				    			.then( function(response) {
+				    				me.assignDocumentsResponse( corpus,response );
+				    				//client-side setting of default corpus, probably should be a property of corpus type
+				    				if ( !defaultCorpusSet ) {
+				    					corpus.selected = true;
+				    					defaultCorpusSet = true;
+				    				} else {
+				    					corpus.selected = false;
+				    				}
+				    			})
+				    			.catch( function(e) {
+			    					//catches non-200 status errors
+			    					me.remoteError("docs",e);
+			    				})
+								.finally( function() {
+									me.status.searchingDocs = false;
+								});
+		    			} catch(e) {
+		    				//need  better return from controller, json response if !=200
+							me.error("full",e);
+						}
+    				} else if ( q.corpus==corpus.name && q.type=="aggregation" ) {
+    					try {
+		    				this.$http.post( APP.ROOT + '/search/elastic/', JSON.stringify( {"registration.id":this.registration.id, "corpus": corpus.name, "type":"aggregation", "url":corpus.metadata.url, "query": JSON.parse(q.query) } ) ) 
+			    				.then( function(response) {
+				    				me.assignAggregationsResponse( corpus,response );
+			    				})
+			    				.catch( function(e) {
+			    					//catches non-200 status errors
+			    					me.remoteError("aggs",e);
+			    				})
+								.finally( function() {
+			    					me.status.computingAggs = false;
+			    				});	
+		    			} catch(e) {
+		    				//need  better return from controller, json response if !=200
+							me.error("full",e);
+						}
+    				}
+    			}
+			}
+    	this.clean();
+    	this.searchService.fetchHistory( true );
+    }
+    
     error( div,e ) {
     	//alert(e.toString());
-    	this.growl.error( e.toString(), {ttl:5000, referenceId:div} );
+    	this.growl.error( e.toString(), {ttl:10000, referenceId:div} );
     }
     remoteError( div,e ) {
     	console.log(JSON.stringify(e,null,'\t'));
@@ -198,10 +293,11 @@ class Search {
     
     searchCorpus( corpus ) {
 		//return promise and let the client resolve it
+    	//console.log(JSON.stringify(corpus,null,'\t'));
     	this.status.searchingDocs = true;
     	var url = corpus.metadata.url;
     	var docsQuery = new DocumentQuery(corpus, this.userInput, this.pagination);
-		return this.$http.post( APP.ROOT + '/search/elastic/', JSON.stringify( {"registration.id":this.registration.id, "type":"document", "url":url, "query": docsQuery} ) );
+		return this.$http.post( APP.ROOT + '/search/elastic/', JSON.stringify( {"registration.id":this.registration.id, "corpus": corpus.name, "type":"document", "url":url, "query": docsQuery} ) );
 	}
     fetchAggregations( corpus ) {
     	//return promise and let the client resolve it
@@ -209,7 +305,7 @@ class Search {
     	var url = corpus.metadata.url;
     	var aggsQuery = new AggregationQuery(corpus, this.userInput);
     	//alert(JSON.stringify(aggsQuery));
-		return this.$http.post( APP.ROOT + '/search/elastic/', JSON.stringify( {"registration.id":this.registration.id, "type":"aggregation", "url":url, "query": aggsQuery} ) );
+		return this.$http.post( APP.ROOT + '/search/elastic/', JSON.stringify( {"registration.id":this.registration.id, "corpus": corpus.name, "type":"aggregation", "url":url, "query": aggsQuery} ) );
     }
     
     assignDocumentsResponse(corpus,response) {
@@ -226,6 +322,6 @@ class Search {
     
 }
 
-Search.$inject = [ '$http', 'growl', 'searchService' ];
+Search.$inject = [ '$http', 'growl', 'searchService', 'uiService' ];
 
 export default Search;

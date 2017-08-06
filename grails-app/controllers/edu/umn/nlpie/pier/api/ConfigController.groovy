@@ -18,36 +18,44 @@ class ConfigController {
 		
 	//keep
 	def authorizedContexts() {
-		//with spring security in place can restrict the set of requests based on user allowed to invoke this method
-		def cached = session["authorized-contexts"]
-		def contexts
-		if ( cached ) {
+		//TODO with spring security in place can restrict the set of requests based on user allowed to invoke this method
+		//def cached = session["authorized-contexts"]
+		//def contexts
+		//if ( cached ) {
 			//println " returning cached contexts"
-			contexts = cached
-		} else {
+		//	contexts = cached
+		//} else {
 			//println "constructing contexts"
-			contexts = configService.authorizedContexts
+			def contexts = configService.authorizedContexts
 			//println "caching contexts"
-			session["authorized-contexts"] = contexts	//TODO scope cached object to user, using username, e.g. rmcewan-authorized-contexts
-		}
+			//session["authorized-contexts"] = contexts	//TODO scope cached object to user, using username, e.g. rmcewan-authorized-contexts
+		//}
 		JSON.use ('authorized.context') {
 			respond contexts
 		}
 	}
 	
+	def authorizedContextByLabel() {
+		//TODO with spring security in place can restrict the set of requests based on user allowed to invoke this method
+		JSON.use ('authorized.context') {
+			//println request.JSON
+			respond configService.authorizedContextByLabel(request.JSON.label)
+		}
+	}
+	
 	def corpusAggregationsByType() {
 		def corpusTypeId = params.id
-		def cached = session["corpus-filters-${corpusTypeId}"]
+		//def cached = session["corpus-filters-${corpusTypeId}"]
 		def filters
-		if ( cached ) {
+		/*if ( cached ) {
 			filters = cached
 			println " returning cached filters"
 		} else {
-			println "constructing filters"
+			println "constructing filters"*/
 			filters = configService.getCorpusAggregations(corpusTypeId)
-			println "caching filters"
-			session["corpus-filters-${corpusTypeId}"] = filters	//TODO scope cached object to user, using username, e.g. rmcewan-corpus-filters-1
-		}
+			//println "caching filters"
+			//session["corpus-filters-${corpusTypeId}"] = filters	//TODO scope cached object to user, using username, e.g. rmcewan-corpus-filters-1
+		//}
 		respond filters
 	}
 	

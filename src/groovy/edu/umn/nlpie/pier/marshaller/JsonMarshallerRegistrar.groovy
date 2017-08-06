@@ -5,6 +5,7 @@ import javax.annotation.PostConstruct
 import org.codehaus.groovy.grails.web.converters.configuration.DefaultConverterConfiguration
 
 import edu.umn.nlpie.pier.api.CorpusMetadata
+import edu.umn.nlpie.pier.api.HistorySummaryDTO
 import edu.umn.nlpie.pier.audit.Query
 import edu.umn.nlpie.pier.audit.SearchRegistration
 import edu.umn.nlpie.pier.context.AuthorizedContext
@@ -107,7 +108,7 @@ class JsonMarshallerRegistrar {
 				
 		}//available.corpora
 		
-		JSON.createNamedConfig ('history.summary') { DefaultConverterConfiguration<JSON> cfg ->
+		/*JSON.createNamedConfig ('history.summary0') { DefaultConverterConfiguration<JSON> cfg ->
 			cfg.registerObjectMarshaller (Query) { q ->
 				[
 					id: q.id,
@@ -123,6 +124,38 @@ class JsonMarshallerRegistrar {
 				]
 			}	
 		}//history summary
+		
+		JSON.createNamedConfig ('history.summary') { DefaultConverterConfiguration<JSON> cfg ->
+			//ArrayList<Object> is a list of arrays, each of which is a row of scalar values from the db representing the summary of recent query
+			//each row is of the form [1, heart, AfrinL-Req00674 Iteration-1]
+			cfg.registerObjectMarshaller (HistorySummaryDTO) { o ->
+				[
+					"registration": [ "id":o[0], "authorizationContext":o[2] ],
+					"query": [ "label":o[1] ]
+				]
+			}
+		}//history summary
+		*/
+		
+		JSON.registerObjectMarshaller(SearchRegistration) { sr ->
+			[
+				id: sr.id,
+				authorizedContext: sr.authorizedContext,
+				username: sr.username,
+				uuid: sr.uuid,
+				queries: sr.queries
+			]
+		}
+		
+		JSON.registerObjectMarshaller(Query) { qq ->
+			[
+				id: qq.id,
+				query: qq.query,
+				type: qq.type,
+				url: qq.url,
+				corpus: qq.corpus
+			]
+		}
 		
 		JSON.registerObjectMarshaller(CorpusType) { cp ->
 			[ 

@@ -33,11 +33,17 @@ class UIState {
     	//	angular.copy(c,this.currentContext);	
     	this.currentSearch.setContext(this.authorizedContexts[index]);	
 	}
-    
-    executeRecentSearch(registeredSearch) {
-    	console.log("recent");
-    }
-
+    /*lookupAuthorizedContextByLabel (label) {
+    	if ( !label ) { alert("ERROR"); return; }
+    	var context = undefined;
+    	for ( const ac of this.authorizedContexts ) {
+    		if ( ac.label==label ) {
+    			context = ac;
+    			break;
+    		}
+    	}
+    	return ac;
+    }*/
 }
 
 UIState.$inject = [ 'uiService', 'searchService', 'currentSearch' ];

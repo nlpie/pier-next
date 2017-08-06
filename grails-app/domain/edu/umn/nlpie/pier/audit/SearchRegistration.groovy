@@ -5,7 +5,7 @@ import groovy.json.JsonSlurper
 class SearchRegistration {
 
     static constraints = {
-
+		
     }
 	
 	static mapping = {

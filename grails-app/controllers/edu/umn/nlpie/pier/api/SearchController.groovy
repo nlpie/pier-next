@@ -33,7 +33,7 @@ class SearchController {//extends RestfulController {
 		try {
 			if ( request.method!="POST" ) throw new HttpMethodNotAllowedException(message:"issue GET instead")
 			//TODO sanity check on request.JSON - needs query, url, searchRequest.id, etc
-			println postBody.toString(2)
+			//println postBody.toString(2)
 			elasticResponse = elasticService.search( postBody.url, postBody.query )
 			def status = elasticResponse.status
 			if ( status==400 ) {
@@ -55,12 +55,14 @@ class SearchController {//extends RestfulController {
 		}
 	}
 	
-	def historySummary( ) {
+	def historySummary() {
 		def jsonBody = request.JSON
 		//TODO put exception handling in place
-		JSON.use ('history.summary') {
-			respond searchService.searchHistory( jsonBody.excludeMostRecent )
-		}
+		respond searchService.searchHistory( jsonBody.excludeMostRecent )	//projection 
+	}
+	
+	def registeredSearch() {
+		respond searchService.registeredSearch(params.id)
 	}
 	
 }

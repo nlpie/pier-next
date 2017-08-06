@@ -15,15 +15,19 @@ class SearchService {
 		return this.$http.post( APP.ROOT + '/search/elastic/', JSON.stringify(contextFilter) );
 	}
 	
-	fetchHistory( excludeCurrentSearch ) {
+	fetchHistory( excludeMostRecent ) {
     	var me = this;	
-    	this.historySummary( excludeCurrentSearch )
+    	this.$http.post( APP.ROOT + '/search/historySummary', { "excludeMostRecent":excludeMostRecent } )
 	    	.then( function(response) {
 	    		me.searchHistory = response.data;
 	    	});
     }
-	historySummary( excludeMostRecent ) {
-		return this.$http.post( APP.ROOT + '/search/historySummary', { "excludeMostRecent":excludeMostRecent } );
+	fetchHistorySummary( excludeMostRecent ) {
+		return 
+	}
+	
+	fetchRegisteredSearch(id) {
+		return this.$http.get( APP.ROOT + '/search/registeredSearch/' + id );
 	}
  
 	//based on https://appendto.com/2016/02/working-promises-angularjs-services/ (deferred technique)

@@ -18,8 +18,8 @@ class AuditService {
 		} catch (Exception e) {
 			postBody.username = "nouserservice.user"
 		}
-		def ql = new SearchRegistration( postBody ).save(failOnError:true)
-		return ql
+		def sr = new SearchRegistration( postBody ).save(failOnError:true)
+		return sr
 	}
 	
 	def logQueryAndResponse( postBody, elasticResponse ) {
@@ -39,7 +39,7 @@ class AuditService {
 	}
 	
 	def logException( postBody, elasticResponse, Exception e ) {
-		def sr = SearchRegistration.get(postBody["registration.id"].toLong())
+		def sr = SearchRegistration.get(postBody["searchRegistration.id"].toLong())
 		def q = new Query(postBody)
 		q.registration = sr
 		q.query = postBody.query

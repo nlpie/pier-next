@@ -12,7 +12,7 @@ class BaseQuery {
     	this.size = 0;
     }
 
-    addFilters(corpus) {
+    addFilters( corpus ) {
     	this.query.bool.filter.push( corpus.contextFilter ); 
     	var me = this;
     	Object.keys(corpus.appliedFilters).map( function(key,index) {
@@ -21,7 +21,6 @@ class BaseQuery {
         		//TODO get more sophisticated here with should clause, NOT filter
         	}
     	});
-    	//alert(JSON.stringify(me));
     }
 }
 
