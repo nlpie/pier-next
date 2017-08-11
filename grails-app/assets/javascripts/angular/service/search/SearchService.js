@@ -22,9 +22,6 @@ class SearchService {
 	    		me.searchHistory = response.data;
 	    	});
     }
-	fetchHistorySummary( excludeMostRecent ) {
-		return 
-	}
 	
 	fetchRegisteredSearch(id) {
 		return this.$http.get( APP.ROOT + '/search/registeredSearch/' + id );
