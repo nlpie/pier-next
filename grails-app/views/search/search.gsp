@@ -35,11 +35,11 @@
 							</div>
 						</div>
 						<!-- 
-						<ul class="pier-ul" style="color:gray">Ï
+						<ul class="pier-ul" style="color:gray">
 							<li><i class="fa fa-check-square-o" aria-hidden="true"></i>
 								7.b. Office (3,101)</li>
 							<li><i class="fa fa-square-o" aria-hidden="true"></i>
-								4. Inpatient Hospital (44) </li>Ï
+								4. Inpatient Hospital (44) </li>
 							<li><i class="fa fa-check-square-o" aria-hidden="true"></i>
 								7.d. Urgent Care Center (13)</li>
 							<li><i class="fa fa-minus-square-o" aria-hidden="true"></i>
