@@ -55,6 +55,37 @@ class SearchController {//extends RestfulController {
 		}
 	}
 	
+	def distinct() {
+		println request.JSON.toString(2)
+		def postBody = request.JSON
+		def elasticResponse
+		try {
+			if ( request.method!="POST" ) throw new HttpMethodNotAllowedException(message:"issue GET instead")
+			//TODO sanity check on request.JSON - needs query, url, searchRequest.id, etc
+			//println postBody.toString(2)
+			elasticResponse = elasticService.search( postBody.url, postBody.query )
+			def status = elasticResponse.status
+			if ( status==400 ) {
+				throw new BadElasticRequestException( message:"Malformed query - check your syntax" )
+			}
+			def distinctCount = searchService.logDistinctCountInfo( postBody, elasticResponse )
+			//respond elasticResponse.json
+			respond distinctCount
+		/ catch( PierApiException e) {
+			//auditService.logException ( postBody, elasticResponse, e )
+			respondWithException(e)
+		} catch( ValidationException e) {
+			//auditService.logException ( postBody, e )
+			e.printStackTrace()
+			respondWithException( new PierApiException( message:e.message ) )
+		} catch( Exception e) {
+			//auditService.logException ( postBody, elasticResponse, e )
+			respondWithException( new PierApiException( message:e.message ) )
+		} finally {
+		
+		}
+	}
+	
 	def historySummary() {
 		def jsonBody = request.JSON
 		//TODO put exception handling in place

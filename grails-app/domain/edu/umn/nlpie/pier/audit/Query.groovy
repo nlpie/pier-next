@@ -5,8 +5,6 @@ import groovy.json.JsonSlurper
 class Query {
 
     static constraints = {
-		cohort nullable:true
-		cohortSize nullable:true
 		hits nullable:true
 		took nullable:true
 		exceptionMessage nullable:true
@@ -28,7 +26,7 @@ class Query {
 	String url
 	String corpus
 	String type
-	String query
+	String query	//body of request sent to elastic
 	
 	//returned from elastic
 	Integer hits
@@ -40,8 +38,6 @@ class Query {
 	String exceptionMessage
 	
 	//[async] derived values
-	String cohort
-	Integer cohortSize
 	String label
 	
 	Date dateCreated

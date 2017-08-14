@@ -20,7 +20,12 @@
 							ng-repeat="(ontology, aggregations) in corpus.metadata.aggregations track by $index">
 							<label class="pier-ontology-label">{{ontology}} <i class="fa fa-question-circle"></i></label>
 							<div class="pier-aggregate" ng-repeat="aggregation in aggregations track by $index">
-								<label>{{aggregation.label}} <i class="fa fa-question-circle"></i></label>
+								<div>
+									<label>{{aggregation.label}} 
+										<i class="fa fa-question-circle"></i>
+									</label>
+									<span ng-if="aggregation.countDistinct" style="font-size:0.5em;margin-right:1em">{{aggregation.count | number}} distinct</span>
+								</div>
 								<div class="pier-filter" ng-repeat="bucket in corpus.results.aggs.aggs[aggregation.label].buckets track by $index">
 									<i class="fa fa-check-square-o"></i> 
 									<span ng-click="rc.search.addFilter( corpus, aggregation, bucket.key )" style="cursor:pointer">{{ aggregation.isTemporal ? bucket.key_as_string : bucket.key}}</span>
@@ -30,11 +35,11 @@
 							</div>
 						</div>
 						<!-- 
-						<ul class="pier-ul" style="color:gray">
+						<ul class="pier-ul" style="color:gray">Ï
 							<li><i class="fa fa-check-square-o" aria-hidden="true"></i>
 								7.b. Office (3,101)</li>
 							<li><i class="fa fa-square-o" aria-hidden="true"></i>
-								4. Inpatient Hospital (44) </li>
+								4. Inpatient Hospital (44) </li>Ï
 							<li><i class="fa fa-check-square-o" aria-hidden="true"></i>
 								7.d. Urgent Care Center (13)</li>
 							<li><i class="fa fa-minus-square-o" aria-hidden="true"></i>

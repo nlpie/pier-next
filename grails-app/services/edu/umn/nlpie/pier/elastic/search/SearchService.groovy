@@ -1,6 +1,8 @@
 package edu.umn.nlpie.pier.elastic.search
 
 import edu.umn.nlpie.pier.api.HistorySummaryDTO
+import edu.umn.nlpie.pier.audit.Bucket
+import edu.umn.nlpie.pier.audit.DistinctCount
 import edu.umn.nlpie.pier.audit.Query
 import edu.umn.nlpie.pier.audit.SearchRegistration
 
@@ -38,6 +40,29 @@ class SearchService {
 	
 	def registeredSearch(id) {
 		SearchRegistration.get(id.toLong())
+	}
+	
+	def logDistinctCountInfo( postBody, elasticResponse ) {
+		def json = elasticResponse.json
+		def sr = SearchRegistration.get(postBody["registration.id"].toLong())
+		def c = new DistinctCount(registration:sr)
+		c.query = postBody.query
+		c.httpStatus = elasticResponse.status
+		c.hits = json.hits.total
+		c.took = json.took
+		c.timedOut = json.timed_out
+		c.label = postBody.label
+		c.countType = postBody.countType
+		def buckets = json.aggregations[postBody.label].buckets 
+		c.size = buckets.size()
+		if ( c.size ) {
+			buckets.each { 
+				c.addToBuckets( new Bucket( key:it.key, keyAsString:it.key_as_string, docCount:it.doc_count ) )
+			}
+		}
+		c.save(failOnError:true)
+		sr.save(failOnError:true)
+		return c
 	}
 	
 }

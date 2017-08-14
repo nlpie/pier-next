@@ -5,7 +5,7 @@ import javax.annotation.PostConstruct
 import org.codehaus.groovy.grails.web.converters.configuration.DefaultConverterConfiguration
 
 import edu.umn.nlpie.pier.api.CorpusMetadata
-import edu.umn.nlpie.pier.api.HistorySummaryDTO
+import edu.umn.nlpie.pier.audit.DistinctCount
 import edu.umn.nlpie.pier.audit.Query
 import edu.umn.nlpie.pier.audit.SearchRegistration
 import edu.umn.nlpie.pier.context.AuthorizedContext
@@ -32,10 +32,23 @@ class JsonMarshallerRegistrar {
 				"username": fpr.user.username,
 				"displayOrder": fpr.displayOrder,
 				"aggregate": fpr.aggregate,
+				"countDistinct": fpr.computeDistinct,
+				"count": null,	//filled in client-side if countDistinct is true
 				"numberOfFilterOptions": fpr.numberOfFilterOptions,
 				"includeInExport": fpr.includeInExport,
 				"isTemporal": ["DATE","DATETIME"].contains(fpr.field.dataTypeName) ? true: false,
 				"isNumeric": ["LONG","INTEGER"].contains(fpr.field.dataTypeName) ? true: false
+			]
+		}
+		
+		JSON.registerObjectMarshaller(DistinctCount) { dc ->
+			[
+				"id": dc.id,
+				"countType": dc.countType,
+				"label": dc.label,
+				"size": dc.size, 
+				"took": dc.took,
+				"httpStatus": dc.httpStatus
 			]
 		}
 			

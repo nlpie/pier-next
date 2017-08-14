@@ -37,6 +37,7 @@ class FieldPreference {
     //boolean queryable = true
     Integer displayOrder = 10
     Boolean aggregate = true
+	Boolean computeDistinct = false
 	Ontology ontology
 	Integer	numberOfFilterOptions = 10
 	Boolean includeInExport = false

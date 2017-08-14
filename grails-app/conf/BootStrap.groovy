@@ -88,6 +88,9 @@ class BootStrap {
 					fp.label = "UMLS CUI"
 					fp.numberOfFilterOptions = 200
 				}
+				if ( f.fieldName=="mrn" || f.fieldName=="filing_datetime" ) {
+					fp.computeDistinct = true
+				}
 				f.addToPreferences(fp)
 			}
 		

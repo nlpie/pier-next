@@ -32,6 +32,7 @@ class AuditController {//extends RestfulController {
 			exceptionResponse(e)
 		} catch (Exception e) {
 			println "reg exception"
+			e.printStackTrace()
 			exceptionResponse( new PierApiException(message:e.message) )
 		}
 	}

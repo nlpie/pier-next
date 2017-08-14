@@ -1,11 +1,10 @@
 package edu.umn.nlpie.pier.audit
 
-import groovy.json.JsonSlurper
 
 class SearchRegistration {
 
     static constraints = {
-		
+
     }
 	
 	static mapping = {
@@ -13,7 +12,7 @@ class SearchRegistration {
 		uuid column:'uuid', index:'uuid_idx'
 	}
 	
-	static hasMany = [ "queries":Query ]
+	static hasMany = [ "queries":Query, "counts":DistinctCount ]
 	
 	//TODO add override/inherit constructor that takes request.JSON, looks up user, tests for necesseary JSON properties and throws exceptions. this will simplify the controllers/services
 	
@@ -23,5 +22,16 @@ class SearchRegistration {
 
 	Date dateCreated
 	Date lastUpdated
+	
+	def getDocsQuery() {
+		Query.findBySearchRegistrationAndType(this,"document")
+	}
+	def getAggsQuery() {
+		Query.findBySearchRegistrationAndType(this,"aggregagte")
+	}
+	//def getCohort() {
+	//	Cohort.findBySearchRegistration(this)
+	//}
+	
 
 }

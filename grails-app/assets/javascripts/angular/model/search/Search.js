@@ -2,6 +2,7 @@ import DocumentsResponse from './DocumentsResponse';
 import AggregationsResponse from './AggregationsResponse';
 import DocumentQuery from './elastic/DocumentQuery';
 import AggregationQuery from './elastic/AggregationQuery';
+import DistinctValuesEstimationQuery from './elastic/DistinctValuesEstimationQuery';
 import TermsAggregation from './elastic/TermsAggregation';
 import Pagination from './Pagination';
 import TermFilter from './elastic/TermFilter';
@@ -190,7 +191,11 @@ class Search {
 		    				}
 		    			})
 		    			.catch( function(e) {
-	    					me.remoteError("docs",e);
+	    					try {
+	    						me.remoteError("docs",e);
+	    					} catch(e) {
+	    						throw(e)
+	    					}
 	    				})
 						.finally( function() {
 							me.status.searchingDocs = false;
@@ -199,17 +204,21 @@ class Search {
 					this.fetchAggregations( corpus )
 	    				.then( function(response) {
 		    				me.assignAggregationsResponse( corpus,response );
-	    				})
+	    				}).then( function( maxBuckets ) {
+	    					var maxBuckets = corpus.results.aggs.total;
+	    					console.log("max cohort buckets " + maxBuckets);
+		    				me.distinctComputations( corpus, maxBuckets );
+		    			})
 	    				.catch( function(e) {
 	    					//catches non-200 status errors
 	    					me.remoteError("aggs",e);
 	    				})
 						.finally( function() {
 	    					me.status.computingAggs = false;
-	    				});	
+	    				});
 					
     			} catch(e) {
-    				//need  better return from controller, json response if !=200
+    				//javascript error
 					me.error("full",e);
 				}
 			}
@@ -318,6 +327,40 @@ class Search {
     }
     assignAggregationsResponse(corpus,response) {
     	corpus.results.aggs = new AggregationsResponse(response.data);
+    }
+    
+    distinctComputations( corpus, maxBuckets ) {
+    	var url = corpus.metadata.url;
+    	var aggregations = corpus.metadata.aggregations;
+    	var me = this;
+    	Object.keys(aggregations).map( function(key,index) {
+    		var aggregationCategory = corpus.metadata.aggregations[key];
+    		for (const aggregation of aggregationCategory) {
+    			if ( aggregation.countDistinct ) {
+    				var query = new DistinctValuesEstimationQuery( corpus, me.userInput, aggregation.label, aggregation.fieldName, maxBuckets );
+    				var payload = { 
+    					"registration.id": me.registration.id,
+    					"corpus": corpus.name, 
+    					"countType": "bucket", 
+    					"label": aggregation.label, 
+    					"url": url, 
+    					"query": query
+    				};
+    				console.info(JSON.stringify( payload ));
+	    			me.$http.post( APP.ROOT + '/search/distinct/', JSON.stringify( payload ) )
+	    			.then( function(response) {
+	    				//console.info(JSON.stringify(response.data),null,'\t');
+	    				me.assignDistinct( aggregation, response );
+	    			});
+    			}
+    		}
+    		
+    	});
+    }
+    assignDistinct( aggregation, response ) {
+    	var count = response.data.size	//aggregations[aggregation.label].buckets.length;
+    	aggregation.count = count;
+		console.log("distinct " + aggregation.label + " took  " + response.data.took);
     }
     
 }

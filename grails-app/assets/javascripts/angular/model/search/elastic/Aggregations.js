@@ -3,7 +3,11 @@ import TermsAggregation from './TermsAggregation';
 class Aggregations {
 	
 	constructor( corpus ) {
-		this.addAggregations( corpus );
+		if ( corpus===undefined ) {
+			//noop - do not set configured aggs for corpus
+		} else {			
+			this.addAggregations( corpus );
+		}
 	}
 	
 	add(label,agg) {
@@ -13,10 +17,10 @@ class Aggregations {
 	addAggregations( corpus ) {
 		var me = this;
     	var aggregations = corpus.metadata.aggregations;
+    	//console.info(JSON.stringify(aggregations,null,'\t'));
     	Object.keys(aggregations).map( function(key,index) {
     		var aggregationCategory = corpus.metadata.aggregations[key];
     		for (const aggregation of aggregationCategory) {
-    			//alert(JSON.stringify(aggregation,null,'\t'));
     			me.add( aggregation.label, new TermsAggregation(aggregation.fieldName,	aggregation.numberOfFilterOptions) );
     		}
     		
