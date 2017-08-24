@@ -9,8 +9,6 @@
 		<div class="container-fluid" ng-controller="resultsController as rc">
 			<div ng-attr-id="{{ corpus.name }}" ng-show="corpus.selected" class="row" ng-repeat="corpus in rc.search.context.candidateCorpora track by $index">
 				<div id="agg-column" class="col-xs-3">
-					<div growl limit-messages="1" reference="full"></div>
-					<span>{{corpus.name}} {{corpus.metadata.searchable}} {{rc.search.status.version}}</span>
 					<div growl reference="aggs"></div>
 					<div ng-show="rc.search.status.computingAggs" id="aggs-spinner" style="padding-top:25px">
 						<asset:image src="ajax-loader.gif" alt="computing aggregations..." /> computing aggregations...
@@ -52,12 +50,19 @@
 
 				<div id="doc-column" class="col-xs-9" ng-style="corpus.opacity">
 					<div growl reference="docs"></div>
+					<div growl limit-messages="1" reference="full"></div>
 					<div ng-show="rc.search.status.searchingDocs" id="docs-spinner" style="padding-top:25px">
 						<asset:image src="ajax-loader.gif" alt="searching corpora..." /> searching corpora...
 					</div>
-					<div class="panel panel-default" ng-if="corpus.results.docs && !rc.search.status.searchingDocs" ng-repeat="doc in corpus.results.docs.hits track by $index">
-						<div class="panel-body">
-							<pre>{{$index}}{{ doc._source[corpus.metadata.defaultSearchField] }}</pre>
+					<div class="panel panel-default" 
+						ng-repeat="doc in corpus.results.docs.hits track by $index"
+						ng-if="corpus.results.docs && !rc.search.status.searchingDocs" 
+						ng-switch="corpus.name">
+						<div ng-switch-when="Surgical Pathology Reports">
+							<pre>{{ doc._source[corpus.metadata.defaultSearchField] }}</pre>
+						</div>
+						<div ng-switch-default class="panel-body">
+							{{ doc._source[corpus.metadata.defaultSearchField] }}
 						</div>
 					</div>
 
