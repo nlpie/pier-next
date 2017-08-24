@@ -54,14 +54,13 @@
 					<div ng-show="rc.search.status.searchingDocs" id="docs-spinner" style="padding-top:25px">
 						<asset:image src="ajax-loader.gif" alt="searching corpora..." /> searching corpora...
 					</div>
-					<div class="panel panel-default" 
-						ng-repeat="doc in corpus.results.docs.hits track by $index"
+					<div ng-repeat="doc in corpus.results.docs.hits track by $index"
 						ng-if="corpus.results.docs && !rc.search.status.searchingDocs" 
 						ng-switch="corpus.name">
 						<div ng-switch-when="Surgical Pathology Reports">
 							<pre>{{ doc._source[corpus.metadata.defaultSearchField] }}</pre>
 						</div>
-						<div ng-switch-default class="panel-body">
+						<div ng-switch-default class="panel panel-default panel-body">
 							{{ doc._source[corpus.metadata.defaultSearchField] }}
 						</div>
 					</div>
