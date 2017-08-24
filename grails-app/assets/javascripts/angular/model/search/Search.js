@@ -29,7 +29,8 @@ class Search {
         	dirty: false,
         	searchingDocs: false,
         	computingAggs: false,
-        	uuid: undefined
+        	uuid: undefined,
+        	version: 0
         }
         this.cuiExpansionEnabled = false;				
 		this.similarityExpansionEnabled = false; 
@@ -74,6 +75,7 @@ class Search {
     	//for some reason this function gets invoked with undefined searchContext on change of contexts dropdown; 
     	//this check and immediate return prevents console errors, otherwise the app appears to work as expected
     	this.context = searchContext;
+    	this.status.version++;
     	this.clearResults();
     	var me = this;
     	for ( let corpus of this.context.candidateCorpora ) {
