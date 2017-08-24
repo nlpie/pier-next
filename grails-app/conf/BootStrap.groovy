@@ -48,26 +48,24 @@ class BootStrap {
 			def biomedicus = Ontology.findByName('BioMedICUS NLP Annotations')?:new Ontology(name:'BioMedICUS NLP Annotations', description:"NLP annotations").save(flush:true, failOnError:true)
 			
 			def clinicalCorpusType = CorpusType.findByName("Clinical Notes")?: new CorpusType(name:"Clinical Notes", description:"notes from Epic", enabled:true, glyph:"fa-file-text-o").save(flush:true, failOnError:true)
-			def microbioCorpusType = CorpusType.findByName("Microbiology Notes")?: new CorpusType(name:"Microbiology Notes", description:"microbio results from CDR", enabled:true, glyph:"icon-i-pathology").save(flush:true, failOnError:true)
 			
 			def nlp05 = Cluster.findByClusterName("nlp05")?:new Cluster(clusterName:"nlp05",uri:"http://nlp05.ahc.umn.edu:9200",environment:"TEST",description:"test cluster (to be prod)", commonName:"test cluster")
-			def epic = Index.findByCommonName("Epic Notes")?:		new Index(commonName:"Epic Notes", 		  indexName:"notes_v3",  status:"Available", description:"clinical epic notes", 	numberOfShards:6, numberOfReplicas:0)//.save(flush:true, failOnError:true)
+			def epicNotesIdx = Index.findByCommonName("Epic Notes")?:		new Index(commonName:"Epic Notes", 		  indexName:"notes_v3",  status:"Available", description:"clinical epic notes", 	numberOfShards:6, numberOfReplicas:0)//.save(flush:true, failOnError:true)
 			
-			
+			def noteId = Field.findByFieldName("note_id")?:new Field(fieldName:"note_id",dataTypeName:"LONG", description:"Epic note id")
 			def mrn = Field.findByFieldName("mrn")?:new Field(fieldName:"mrn",dataTypeName:"NOT_ANALYZED_STRING", description:"Epic patient identifier")
 			def encounterId = Field.findByFieldName("encounter_id")?:new Field(fieldName:"encounter_id",dataTypeName:"LONG", description:"Epic visit number")
 			def serviceDate = Field.findByFieldName("service_date")?:new Field(fieldName:"service_date",dataTypeName:"DATE", description:"Date of Service")
 			def filingDatetime = Field.findByFieldName("filing_datetime")?:new Field(fieldName:"filing_datetime",dataTypeName:"DATETIME", description:"When note was filed")
 			
-			def kod = Field.findByFieldName("kod")?:new Field(fieldName:"kod",dataTypeName:"NOT_ANALYZED_STRING", description:"kind of document")//.save(flush:true, failOnError:true)
-			def smd = Field.findByFieldName("smd")?:new Field(fieldName:"smd",dataTypeName:"NOT_ANALYZED_STRING", description:"subject matter domain")//.save(flush:true, failOnError:true)
-			def text = Field.findByFieldName("text")?:new Field(fieldName:"text",dataTypeName:"SNOWBALL_ANALYZED_STRING", description:"document text", defaultSearchField:true)//.save(flush:true, failOnError:true)
+			def kod = Field.findByFieldName("kod")?:new Field(fieldName:"kod",dataTypeName:"NOT_ANALYZED_STRING", description:"kind of document")
+			def smd = Field.findByFieldName("smd")?:new Field(fieldName:"smd",dataTypeName:"NOT_ANALYZED_STRING", description:"subject matter domain")
+			def text = Field.findByFieldName("text")?:new Field(fieldName:"text",dataTypeName:"SNOWBALL_ANALYZED_STRING", description:"document text", defaultSearchField:true)
 			def contextFilter = Field.findByFieldName("authorized_context_filter_value")?:new Field(fieldName:"authorized_context_filter_value",dataTypeName:"NOT_ANALYZED_STRING", description:"Array of search contexts that include this note",contextFilterField:true )
+			def cui = Field.findByFieldName("cuis")?:new Field(fieldName:"cuis", dataTypeName:"NOT_ANALYZED_STRING", description:"UMLS CUIs identified by BioMedICUS NLP pipeline")
 			
-			def cui = Field.findByFieldName("cuis")?:new Field(fieldName:"cuis", dataTypeName:"NOT_ANALYZED_STRING", description:"UMLS CUIs identified by BioMedICUS NLP pipeline")//.save(flush:true, failOnError:true)
-			
-			
-			def noteType = Type.findByTypeName("note")?:new Type(typeName:"note", description:"CDR note", environment:Environment.current.name, corpusType:clinicalCorpusType)//.save(flush:true, failOnError:true)
+			def noteType = Type.findByTypeName("note")?:new Type(typeName:"note", description:"CDR note", environment:Environment.current.name, corpusType:clinicalCorpusType)
+			noteType.addToFields(noteId)
 			noteType.addToFields(mrn)
 			noteType.addToFields(encounterId)
 			noteType.addToFields(serviceDate)
@@ -86,34 +84,65 @@ class BootStrap {
 				if ( f.fieldName=="cuis" ) {
 					fp.ontology=biomedicus
 					fp.label = "UMLS CUI"
-					fp.numberOfFilterOptions = 200
+					fp.numberOfFilterOptions = 100
 				}
-				if ( f.fieldName=="mrn" || f.fieldName=="filing_datetime" ) {
+				if ( f.fieldName=="mrn" || f.fieldName=="note_id") {
 					fp.computeDistinct = true
 				}
 				f.addToPreferences(fp)
 			}
-		
-			epic.addToTypes(noteType)
-			nlp05.addToIndexes(epic)
+			epicNotesIdx.addToTypes(noteType)
+			nlp05.addToIndexes(epicNotesIdx)
+			//println nlp05.toString()
+			nlp05.save(failOnError:true, flush:true)
+			//done with clinical notes config
+			
+			//SURG PATH REPORTS INDEX
+			def surgPathCorpusType = CorpusType.findByName("Surgical Pathology Reports")?: new CorpusType(name:"Surgical Pathology Reports", description:"surgical path reports from CDR", enabled:true, glyph:"icon-i-pathology").save(flush:true, failOnError:true)
+			def surgPathIdx = Index.findByCommonName("Surgical Pathology Reports")?:new Index(commonName:"Surgical Pathology Reports", indexName:"surgical-path_v1", status:"Available", description:"surgical pathology reports", numberOfShards:6, numberOfReplicas:0)
+			def surgPathType = Type.findByTypeName("report")?:new Type(typeName:"report", description:"CDR surgical path report", environment:Environment.current.name, corpusType:surgPathCorpusType)
+			def report = Field.findByFieldName("report")?:new Field(fieldName:"report",dataTypeName:"SNOWBALL_ANALYZED_STRING", description:"surgical pathology report text", defaultSearchField:true)
+			def surgPathContextFilterField = Field.findByFieldNameAndType("authorized_context_filter_value", null)?:new Field(fieldName:"authorized_context_filter_value",dataTypeName:"NOT_ANALYZED_STRING", description:"Array of search contexts that include this note",contextFilterField:true )
+			def pathCui = Field.findByFieldNameAndType("cuis", null)?:new Field(fieldName:"cuis", dataTypeName:"NOT_ANALYZED_STRING", description:"UMLS CUIs identified by BioMedICUS NLP pipeline")
+			surgPathType.addToFields(report)
+			surgPathType.addToFields(surgPathContextFilterField)
+			surgPathType.addToFields(pathCui)
+			surgPathType.fields.each { f ->
+				println "adding surg path pref for ${f.fieldName}"
+				def fp = new FieldPreference(user:app, label:PierUtils.labelFromUnderscore(f.fieldName), ontology:epicOntology, applicationDefault:true)
+				if ( f.contextFilterField || f.defaultSearchField ) fp.aggregate=false
+				if ( f.fieldName=="report") fp.aggregate=false
+				if ( f.fieldName=="cuis" ) {
+					fp.ontology=biomedicus
+					fp.label = "UMLS CUI"
+					fp.numberOfFilterOptions = 50
+				}
+				f.addToPreferences(fp)
+			}
+			surgPathIdx.addToTypes(surgPathType)
+			nlp05.addToIndexes(surgPathIdx)
 			println nlp05.toString()
 			nlp05.save(failOnError:true, flush:true)
-			//done with nlp05 config
 			
+			//SIDE-BY-SIDE CLUSTER SANITY CHECK
+			/*
+			def microbioCorpusType = CorpusType.findByName("Microbiology Notes")?: new CorpusType(name:"Microbiology Notes", description:"microbio results from CDR", enabled:true, glyph:"icon-i-pathology").save(flush:true, failOnError:true)
 			def nlp02 = Cluster.findByClusterName("nlp02")?:new Cluster(clusterName:"nlp02",uri:"http://nlp02.ahc.umn.edu:9200",environment:"TEST",description:"prod cluster (to be test)", commonName:"prod cluster")
-			def micro = Index.findByCommonName("Microbiology Reports")?:new Index(commonName:"Microbiology Reports", indexName:"microbio_v1", status:"Available", description:"microbiology result reports", numberOfShards:6, numberOfReplicas:0)//.save(flush:true, failOnError:true)
+			def micro = Index.findByCommonName("Microbiology Reports")?:new Index(commonName:"Microbiology Reports", indexName:"microbio_v1", status:"Available", description:"microbiology result reports", numberOfShards:6, numberOfReplicas:0)
 			def resultText = Field.findByFieldNameAndTypeIsNull("text")?:new Field(fieldName:"text",dataTypeName:"SNOWBALL_ANALYZED_STRING", description:"microbiology result text", defaultSearchField:true)//.save(flush:true, failOnError:true)
 			def resultType = Type.findByTypeName("result")?:new Type(typeName:"result", description:"CDR microbio results", environment:Environment.current.name, corpusType:microbioCorpusType)//.save(flush:true, failOnError:true)
 			resultType.addToFields(resultText)
 			resultType.fields.each { f ->
 				println "adding pref for ${f.fieldName}"
 				f.addToPreferences(new FieldPreference(user:app, label:PierUtils.labelFromUnderscore(f.fieldName), ontology:epicHL7LoincOntology, applicationDefault:true, aggregate:false))
-			}
+			}		
 			micro.addToTypes(resultType)
 			nlp02.addToIndexes(micro)
 			println nlp02.toString()
 			nlp02.save(failOnError:true)
-			println "done populating elastic info"
+			*/
+			
+			//PREFS SANITY CHECK
 			configService.clonePreferences(User.findByUsername("rmcewan"))
 			println "preferences set for rmcewan"
 		}
