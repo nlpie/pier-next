@@ -19,12 +19,14 @@ body {
 .main {
 	margin-top: -15px;
 	overflow-y: scroll;
+	color:#444
 }
 
 .dropdown-menu {
    max-height:300px;
    overflow-y: auto;
 }
+
 .pier-li-icon {
 	cursor:pointer;
 }
@@ -106,25 +108,20 @@ a {
 	padding:5px;
 }
 
-#aggs > li {
-	margin-left:0px;
-	padding:0px;
+
+.pier-ontology {
+	margin-left: 0em;
+}
+.pier-ontology-label {
+	background-color: #e7e7e7;
+	width: 100%;
+}
+.pier-aggregate {
+	margin-left:0.5em;
 }
 
-.pier-li-ontology {
-	list-style:none;
-	padding:2px;
-	color:black;
-}
-.pier-li-aggregation {
-	list-style:none;
-	padding:2px;
-	color:black;
-}
-
-.pier-li-filter {
-	list-style:none;
-	padding:2px;
+.pier-filter {
+	margin-left:1em;
 	color:grey;
 }
 

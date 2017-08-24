@@ -3,29 +3,24 @@ body {
   overflow: hidden;
   height:100%;
   padding-top: 50px;
-  padding-bottom: 10px;
 }
 
 #agg-column {
   /* background-color: #2ecc71; */
-  height:100%;
-  /* text-align: center; */
+  /* height:100%; */
   position: absolute; 
-  top: 150px;
+  top: 140px;
   bottom: 0;
   left: 0;
   overflow-y: scroll; 
-  /* width: 75%; */
 }
 
 #doc-column {
   /* background-color: #f1c40f; */
-  height:100%;
-  /* text-align: center; */
+  /* height:100%; */
   position: absolute;
-  top: 150px;
+  top: 140px;
   bottom: 0;
   right: 0;
   overflow-y: scroll;
-  /* width: 25%; */
 }
