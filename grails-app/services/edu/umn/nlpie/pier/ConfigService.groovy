@@ -21,6 +21,8 @@ class ConfigService {
 
     //keep
 	def getAuthorizedContexts() {
+		def list = AuthorizedContext.list(sort:'label')
+		
 		//TODO get user from spring security service
 		//TODO check if user has ROLE_ADMIN
 		def corpusTypes = CorpusType.findAllByEnabled(true,[sort:'name',order:"desc"])

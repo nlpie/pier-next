@@ -44,9 +44,11 @@ class SearchService {
 	
 	def logDistinctCountInfo( postBody, elasticResponse ) {
 		def json = elasticResponse.json
+		//println postBody.toString(2)
 		def sr = SearchRegistration.get(postBody["registration.id"].toLong())
 		def c = new DistinctCount(registration:sr)
 		c.query = postBody.query
+		c.terms = postBody.query.query.bool.must.query_string.query
 		c.httpStatus = elasticResponse.status
 		c.hits = json.hits.total
 		c.took = json.took

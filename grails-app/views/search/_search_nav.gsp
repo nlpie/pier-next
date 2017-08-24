@@ -18,7 +18,7 @@
 		<ul class="nav navbar-nav navbar-right">
 			<!-- configure links in NavCtrl links property -->
 			<li>
-				<a><i class="fa fa-expand fa-lg" data-container="body" data-toggle="tooltip" data-placement="bottom" data-html="true" title="expand query using semantic similarity"></i></a>
+				<a><i class="fa fa-expand fa-lg" ng-click="sc.uiState.currentSearch.toggleRelatednessExpansion()" ng-style="sc.uiState.currentSearch.options.relatednessExpansion.style" data-container="body" data-toggle="tooltip" data-placement="bottom" data-html="true" title="expand query using semantic similarity"></i></a>
 			</li>
 			<li>
 				<a><i class="fa fa-language fa-lg" data-container="body" data-toggle="tooltip" data-placement="bottom" data-html="true" title="expand query using UMLS CUIs"></i></a>
@@ -42,7 +42,7 @@
                         <ul class="dropdown-menu" role="menu">
                             <li role="presentation" class="dropdown-header pull-left">Authorized Search Contexts</li>
                         	<li ng-repeat="c in sc.uiState.authorizedContexts track by $index" class="pull-left">
-                        		<a ng-click="sc.uiState.changeContext($index)">
+                        		<a>
 		                        	<i ng-repeat="ct in c.candidateCorpora track by $index" 
 		                        		class="fa {{ct.glyph}} pier-li-left-padded-icon"
 		                        		ng-style="(ct.metadata.searchable) ? {'color':'green'} : {'color': 'lightgray'}"
@@ -93,13 +93,12 @@
 		</form>
 
 		<div ng-repeat="corpus in sc.uiState.currentSearch.context.candidateCorpora track by $index"
-					ng-if="corpus.results.docs" class="btn-group pull-right" role="group" style="margin-right:170px">
-			<div>
+			 ng-if="corpus.results.docs" class="btn-group pull-right" role="group" style="margin-right:170px">
+			<div ng-if="corpus.metadata.searchable">
 				<button type="button" class="btn btn-default btn-result-pagination"><i class="fa fa-angle-double-left"></i></button>
 				<button type="button" class="btn btn-default btn-result-pagination"><i class="fa fa-angle-left"></i></button>
 				<button 
 					type="button"
-					ng-if="corpus.metadata.searchable"
 					class="btn btn-default btn-result-action"
 					ng-class="{ 'btn-result-action-on': corpus.selected }"
 					data-container="body" data-toggle="tooltip" data-placement="top"
@@ -112,6 +111,7 @@
 				
 			</div>
 		</div>
+
     </div><!-- /.navbar-collapse -->
   </div><!-- /.container-fluid -->
 </nav>

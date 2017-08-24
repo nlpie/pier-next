@@ -28,21 +28,22 @@ class AuditService {
 		def q = new Query(postBody)
 		q.registration = sr
 		q.query = postBody.query
+		q.terms = postBody.query.query.bool.must.query_string.query
 		q.httpStatus = elasticResponse.status
 		q.hits = json.hits.total
 		q.took = json.took
 		q.timedOut = json.timed_out
 		q.label = Query.createLabel(q)
 		q.save(failOnError:true)
-		//sr.addToQueries(q).save(failOnError:true)
 		return q
 	}
 	
 	def logException( postBody, elasticResponse, Exception e ) {
-		def sr = SearchRegistration.get(postBody["searchRegistration.id"].toLong())
+		def sr = SearchRegistration.get(postBody["registration.id"].toLong())
 		def q = new Query(postBody)
 		q.registration = sr
 		q.query = postBody.query
+		q.terms = postBody.query.query.bool.must.query_string.query
 		q.httpStatus = elasticResponse.status
 		q.exceptionMessage = e.message
 		q.save(failOnError:true)

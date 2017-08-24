@@ -5,7 +5,6 @@ import edu.umn.nlpie.pier.api.AvailableAggregations
 import edu.umn.nlpie.pier.api.QueryInfo
 
 /**
- * Ï
  * @author (rmcewan) 
  * 
  * CorpusType qualifies the Type class

@@ -14,7 +14,7 @@ class Query {
     }
 	
 	static mapping = {
-		query type: 'text'
+		query sqlType: "mediumtext"
 		exceptionMessage type: 'text'
 		//version false
 	}
@@ -27,6 +27,7 @@ class Query {
 	String corpus
 	String type
 	String query	//body of request sent to elastic
+	String terms
 	
 	//returned from elastic
 	Integer hits

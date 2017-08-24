@@ -37,7 +37,23 @@ class Search {
 		this.cuiExpansion = {};				//{ heart:[], valve:[] } or { enabled:false, expansionMap: { heart:[], valve:[] } }
 		this.relatednessExpansion = {}; 		//{ heart:[], valve:[] } or { enabled:false, expansionMap: { heart:[], valve:[] } 
 		
-		//this.results = {};	//object containing key:SearchResponse{}
+		this.options = {
+    		relatednessExpansion : {
+    			on : false,
+    			style: {}
+    		}
+    	}
+		
+    }
+	    
+    toggleRelatednessExpansion() {
+    	console.log("togtoggleRelatednessExpansiongle");
+    	this.options.relatednessExpansion.on = !this.options.relatednessExpansion.on;
+    	if ( this.options.relatednessExpansion.on ) {
+    		this.options.relatednessExpansion.style = { 'color':'green' };
+    	} else {
+    		this.options.relatednessExpansion.style = { };
+    	}
     }
     
     dirty(corpus) {
@@ -71,13 +87,12 @@ class Search {
     }
 
     setContext(searchContext) {
-    	if (!searchContext) return;	
+    	//if (!searchContext) return;	
     	//for some reason this function gets invoked with undefined searchContext on change of contexts dropdown; 
     	//this check and immediate return prevents console errors, otherwise the app appears to work as expected
     	this.context = searchContext;
     	this.status.version++;
     	this.clearResults();
-    	var me = this;
     	for ( let corpus of this.context.candidateCorpora ) {
     		if ( corpus.metadata.searchable ) {
     			if ( corpus.metadata.filtered ) {
@@ -104,7 +119,6 @@ class Search {
 	    			}); 
 			}
     	}
-    	
     	this.searchService.fetchHistory( false );
     }
     
@@ -215,7 +229,7 @@ class Search {
 	    				}).then( function( maxBuckets ) {
 	    					var maxBuckets = corpus.results.aggs.total;
 	    					console.log("max cohort buckets " + maxBuckets);
-		    				me.distinctComputations( corpus, maxBuckets );
+		    				if ( me.options.relatednessExpansion.on ) me.distinctComputations( corpus, maxBuckets );
 		    			})
 	    				.catch( function(e) {
 	    					//catches non-200 status errors
@@ -223,6 +237,9 @@ class Search {
 	    				})
 						.finally( function() {
 	    					me.status.computingAggs = false;
+	    					//console.log(JSON.stringify(corpus.results.docs.hits[0],null,'\t'));
+	    					//console.log(JSON.stringify(corpus.results.aggs.aggs,null,'\t'));
+	    					//console.log(JSON.stringify(corpus.results.docs,null,'\t'));
 	    				});
 					
     			} catch(e) {
@@ -326,12 +343,8 @@ class Search {
     }
     
     assignDocumentsResponse(corpus,response) {
+    	//console.log(JSON.stringify(response,null,'\t'));
     	corpus.results.docs = new DocumentsResponse(response.data);
-    	/*{"_shards":{"total":6,"failed":0,"successful":6},"hits":{"hits":[],"total":128,"max_score":0.0},"took"
-    		:613,"timed_out":false,"aggregations":{"KoD":{"doc_count_error_upper_bound":0,"sum_other_doc_count":0
-    		,"buckets":[{"doc_count":128,"key":"7. Note"}]}}}
-    	*/
-    	
     }
     assignAggregationsResponse(corpus,response) {
     	corpus.results.aggs = new AggregationsResponse(response.data);
@@ -354,7 +367,7 @@ class Search {
     					"url": url, 
     					"query": query
     				};
-    				console.info(JSON.stringify( payload ));
+    				//console.info(JSON.stringify( payload ));
 	    			me.$http.post( APP.ROOT + '/search/distinct/', JSON.stringify( payload ) )
 	    			.then( function(response) {
 	    				//console.info(JSON.stringify(response.data),null,'\t');

@@ -1,23 +1,24 @@
 package edu.umn.nlpie.pier.audit
 
 
-
 class DistinctCount {
 
     static mapping = {
 		//table name:'`distinct_count`'
+		query sqlType: "mediumtext"
 	}
 	
 	static constraints = {
-    	countType inList:[ 'bucket', 'cardinality' ]
+    	countType inList:[ 'bucket', 'cardinality' ]		
 	}
 	
-	static belongsTo = [ "registration":SearchRegistration ]
-	static hasMany = [ "buckets":Bucket ]
+	static hasMany = [ buckets:Bucket ]
+	static belongsTo = [ registration:SearchRegistration ]
 	
 	//passed from client
 	String countType = "bucket"
 	String query	//body of request sent to elastic
+	String terms
 	String label
 	
 	//derived properties
