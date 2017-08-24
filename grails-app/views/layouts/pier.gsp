@@ -20,6 +20,7 @@
 	<asset:javascript src="lib/jquery.min.js" />
 	<asset:stylesheet src="lib/bootstrap.min.css" />
 	<asset:stylesheet src="lib/admin.css" />
+	<asset:stylesheet src="lib/column-scroll.css" />
 
 	
 
@@ -124,21 +125,7 @@
 	<script>
 		$(document).ready(function(){
 		    $('[data-toggle="tooltip"]').tooltip({ delay:{show: 500, hide: 100} });
-		});
-		
-		//this set of stmts makes the css work that controls vert scroll under top navvar */
-		/* see https://jsfiddle.net/a88n0aet/ and http://stackoverflow.com/questions/31497996/how-to-avoid-that-the-scroll-bar-on-the-right-overlaps-with-the-top-navbar-boot */
-		height = $(window).height() - 75;
-		$(".main").height(height);
-		window.onresize = function(event) {
-			var height = $(window).height() - 75;
-			$(".main").height(height);
-		};
-
-		function sleep (time) {
-			return new Promise((resolve) => setTimeout(resolve, time));
-		}
-					
+		});		
 	</script>
 </body>
 
