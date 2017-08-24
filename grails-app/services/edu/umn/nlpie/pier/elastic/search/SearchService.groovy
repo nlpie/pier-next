@@ -16,7 +16,7 @@ class SearchService {
 	
 	def searchHistory( excludeMostRecent ) {
 		def sql = new StringBuffer()
-		sql << "select distinct max(q.registration.id), q.label, q.registration.authorizedContext from Query q where q.registration.username=? and q.httpStatus=? and q.type=? and q.registration.id not in ( ? ) group by q.label, q.registration.authorizedContext, q.query order by max(q.registration.id) desc "
+		sql << "select distinct max(q.registration.id), q.label, q.registration.authorizedContext from Query q where q.registration.username=? and q.httpStatus=? and q.type=? and q.registration.id not in ( ? ) group by q.hashCodedQuery, q.registration.authorizedContext, q.hashCodedQuery order by max(q.registration.id) desc "
 
 		def registrationId = 0.toLong()
 		

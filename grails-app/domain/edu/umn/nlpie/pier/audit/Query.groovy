@@ -11,6 +11,7 @@ class Query {
 		httpStatus nullable:true
 		timedOut nullable:true
 		label nullable:true
+		hashCodedQuery nullable:true
     }
 	
 	static mapping = {
@@ -27,6 +28,7 @@ class Query {
 	String corpus
 	String type
 	String query	//body of request sent to elastic
+	Integer hashCodedQuery
 	String terms
 	
 	//returned from elastic

@@ -28,6 +28,7 @@ class AuditService {
 		def q = new Query(postBody)
 		q.registration = sr
 		q.query = postBody.query
+		q.hashCodedQuery = q.query.hashCode()
 		q.terms = postBody.query.query.bool.must.query_string.query
 		q.httpStatus = elasticResponse.status
 		q.hits = json.hits.total

@@ -34,7 +34,10 @@ class ConfigService {
 	
 	def authorizedContextByLabel( label ) {
 		//TODO get user from spring security service
-		AuthorizedContext.findByLabel( label );
+		println label
+		def ac = AuthorizedContext.findByLabel( label );
+		if ( !ac ) ac = new AuthorizedContext( label:label, filterValue:0 )
+		ac
 	}
 	
 	
