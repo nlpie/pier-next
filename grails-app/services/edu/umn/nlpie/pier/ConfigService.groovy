@@ -27,10 +27,7 @@ class ConfigService {
 		//TODO check if user has ROLE_ADMIN
 		def corpusTypes = CorpusType.findAllByEnabled(true,[sort:'name',order:"desc"])
 		corpusTypes.each { ct ->
-			//println ct.name
-			//if ( ct.name=="Surgical Pathology Reports") {
-				list.add(0,new AuthorizedContext( label:ct.name, filterValue:0 ));
-			//}
+			list.add(0,new AuthorizedContext( label:ct.name, filterValue:0 ));
 		}
 		list
     }

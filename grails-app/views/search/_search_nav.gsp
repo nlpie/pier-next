@@ -40,7 +40,7 @@
                             <span class="caret"></span>
                         </button>
                         <ul class="dropdown-menu" role="menu">
-                            <li role="presentation" class="dropdown-header pull-left">Authorized Search Contexts</li>
+                            <li role="presentation" class="dropdown-header">Authorized Search Contexts</li>
                         	<li ng-repeat="c in sc.uiState.authorizedContexts track by $index" class="pull-left">
                         		<a>
 		                        	<i ng-repeat="ct in c.candidateCorpora track by $index" 
