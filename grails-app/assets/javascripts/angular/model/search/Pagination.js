@@ -1,7 +1,7 @@
 
 class Pagination {
 	constructor() {	
-		this.notesPerPage = 25;
+		this.notesPerPage = 100;
 		this.offset = 0;
     }
 }
