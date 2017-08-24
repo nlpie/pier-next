@@ -13,7 +13,7 @@ class BaseQuery {
     }
 
     addFilters( corpus ) {
-    	this.query.bool.filter.push( corpus.contextFilter ); 
+    	if ( corpus.contextFilter ) this.query.bool.filter.push( corpus.contextFilter ); 
     	var me = this;
     	Object.keys(corpus.appliedFilters).map( function(key,index) {
     		for (let filter of corpus.appliedFilters[key] ) {

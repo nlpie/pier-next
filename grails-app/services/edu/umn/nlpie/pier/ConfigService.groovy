@@ -22,7 +22,15 @@ class ConfigService {
     //keep
 	def getAuthorizedContexts() {
 		//TODO get user from spring security service
-		AuthorizedContext.list(max:2,sort:'label')
+		//TODO check if user has ROLE_ADMIN
+		def corpusTypes = CorpusType.findAllByEnabled(true,[sort:'name',order:"desc"])
+		corpusTypes.each { ct ->
+			//println ct.name
+			//if ( ct.name=="Surgical Pathology Reports") {
+				list.add(0,new AuthorizedContext( label:ct.name, filterValue:0 ));
+			//}
+		}
+		list
     }
 	
 	def authorizedContextByLabel( label ) {

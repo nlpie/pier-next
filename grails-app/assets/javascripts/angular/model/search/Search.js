@@ -80,12 +80,15 @@ class Search {
     	var me = this;
     	for ( let corpus of this.context.candidateCorpora ) {
     		if ( corpus.metadata.searchable ) {
-    			corpus.contextFilter = new TermFilter(corpus.metadata.contextFilterField, this.context.contextFilterValue);	//contextFilter specific to each searchable corpus
+    			if ( corpus.metadata.filtered ) {
+    				corpus.contextFilter = new TermFilter(corpus.metadata.contextFilterField, this.context.contextFilterValue);	//contextFilter specific to each searchable corpus
+    				//alert(JSON.stringify(corpus.contextFilter));
+    			}
     			if ( !corpus.appliedFilters ) {
     				corpus.appliedFilters = {};
     				corpus.opacity = this.resultsOpacity.bright;
     				corpus.pagination = new Pagination();
-    				corpus.results = {};	//object containing key:SearchResponse{}
+    				corpus.results = {};
     				this.clean();
     			}
 				this.availableAggregations( corpus )
@@ -96,7 +99,8 @@ class Search {
 	    				//console.log("Search.js " + JSON.stringify(searchContext,null,'\t'));
 	    			})
 	    			.then( function() {
-	    				console.log("DONE");
+	    				console.log("AUTHORIZED CONTEXT SET");
+	    				//alert(JSON.stringify(corpus));
 	    			}); 
 			}
     	}
@@ -112,7 +116,9 @@ class Search {
     
     clearResults() {
     	this.searchIconClass = "fa fa-search";
-    	this.results = {};
+    	for ( let corpus of this.context.candidateCorpora ) {
+    		corpus.results = {};
+    	}
     }
     
     

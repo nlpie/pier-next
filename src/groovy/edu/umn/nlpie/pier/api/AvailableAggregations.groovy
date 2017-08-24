@@ -31,7 +31,7 @@ class AvailableAggregations {
 	AvailableAggregations(String corpusTypeId) {
 		def type = Type.find("from Type as t where t.corpusType.id=? and environment=? and t.index.status=?", [ corpusTypeId.toLong(), Environment.current.name, 'Available' ])
 		this.populate(type)
-		println this.aggregations.toString()
+		//println "AGGS: ${this.aggregations}"
 	}
 	
 	private defaultAggregations = [:]
@@ -45,7 +45,9 @@ class AvailableAggregations {
 		def ontologies = preferences.collect{ it.ontology }.unique()
 		ontologies.each { o ->
 			def prefsByOntology = preferences.findAll{ it.ontology.id==o.id && it.aggregate==true }
-			aggregations.put(o.name, prefsByOntology)
+			if ( prefsByOntology.size>0 ) {
+				aggregations.put(o.name, prefsByOntology)
+			}
 		}
 		
 	}

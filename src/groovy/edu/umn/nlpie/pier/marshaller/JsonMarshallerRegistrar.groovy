@@ -79,6 +79,7 @@ class JsonMarshallerRegistrar {
 				[
 					tooltip: cm.tooltip,
 					searchable: cm.searchable,
+					filtered: cm.filtered,
 					url: cm.url,
 					defaultSearchField: cm.defaultSearchField,
 					contextFilterField: cm.contextFilterField

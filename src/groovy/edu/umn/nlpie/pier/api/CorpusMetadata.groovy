@@ -17,8 +17,10 @@ class CorpusMetadata {
 	
 	CorpusMetadata(CorpusType ct) {
 		//this constructor causes issues when type is not found
+		//println "looking for Type with corpusType.id:${ct.id} env:${Environment.current.name} status:Available "
 		def type = Type.find("from Type as t where t.corpusType.id=? and environment=? and t.index.status=?", [ ct.id, Environment.current.name, 'Available' ])
 		this.searchable = true
+		this.filtered = true	//most of the time corpus with be assoc with a restricted search/auth context
 		this.url = "${type.index.cluster.uri}/${type.index.indexName}/${type.typeName}/_search"
 		this.defaultSearchField = type.searchableField
 		this.contextFilterField = type.contextFilterField
@@ -26,6 +28,7 @@ class CorpusMetadata {
 	}
 	
 	Boolean searchable 
+	Boolean filtered
 	String url 
 	String defaultSearchField 
 	String contextFilterField

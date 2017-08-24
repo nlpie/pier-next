@@ -24,14 +24,13 @@ class UIState {
 	    	.then( function(response) {
 	    		me.authorizedContexts = response.data;
 	    		me.currentSearch.setContext(me.authorizedContexts[0]);	//set to first in list
-	    		//me.currentContext = me.authorizedContexts[0];
 	    		//inject $http, searchService into Search.js, then search (as currentSearch) into uistate and set currentContext on uistate.currentSearch
 	    	});
     }
     
-    changeContext(index) {
-    	//	angular.copy(c,this.currentContext);	
-    	this.currentSearch.setContext(this.authorizedContexts[index]);	
+    changeContext(context) {
+    	//alert(JSON.stringify(context));
+    	this.currentSearch.setContext(context);	
 	}
     /*lookupAuthorizedContextByLabel (label) {
     	if ( !label ) { alert("ERROR"); return; }
