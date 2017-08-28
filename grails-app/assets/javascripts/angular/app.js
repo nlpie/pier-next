@@ -1,4 +1,5 @@
 import * as angular from '../lib/angular.min.js';
+import '../lib/angular-sanitize.min.js';
 import * as spinners from '../lib/angular-growl.min.js';
 
 import SearchService from '../angular/service/search/SearchService';
@@ -12,7 +13,7 @@ import UIService from '../angular/service/config/UIService';
 import UIState from '../angular/model/ui/UIState';
 
 
-angular.module( 'app', ['angular-growl'] )
+angular.module( 'app', ['angular-growl', 'ngSanitize'] )
     //.service('userService', UserService)
     .service('searchService', SearchService)
     .service('currentSearch', Search)

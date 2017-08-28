@@ -254,7 +254,8 @@ label:focus,
 }
 
 .hl {
-	color:magenta;
+	font-weight:bold;
+	color:blue;
 }
 
 

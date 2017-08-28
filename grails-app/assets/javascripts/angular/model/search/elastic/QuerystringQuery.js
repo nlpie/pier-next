@@ -1,11 +1,11 @@
 
 class QuerystringQuery {
     
-	constructor(field, userInput) {
+	constructor( defaultSearchField, userInput ) {
         this.query_string = {
-        	"default_field" : field,
+        	"query": userInput,
         	"default_operator": "AND",
-        	"query": userInput
+        	"default_field": defaultSearchField
         }
     }
     
@@ -13,11 +13,3 @@ class QuerystringQuery {
 }
 
 export default QuerystringQuery;
-
-/*
-"query": {"query_string": {
-    "query": "text:( female ) ",
-    "default_operator": "AND",
-    "fields": ["text"]
-}}
-*/

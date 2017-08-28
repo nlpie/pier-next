@@ -14,7 +14,7 @@ class Search {
     	this.searchService = searchService;
     	this.uiService = uiService;
     	
-    	this.userInput = "heart";
+    	this.userInput = "iliitis";
     	this.context = undefined;
     	this.registration = undefined;
     	

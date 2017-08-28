@@ -57,11 +57,16 @@
 					<div ng-repeat="doc in corpus.results.docs.hits track by $index"
 						ng-if="corpus.results.docs && !rc.search.status.searchingDocs" 
 						ng-switch="corpus.name">
-						<div ng-switch-when="Surgical Pathology Reports">
-							<pre>{{ doc._source[corpus.metadata.defaultSearchField] }}</pre>
+						<div ng-switch-when="Surgical Pathology Reports" class="panel panel-default panel-body">
+							<pre 
+								ng-repeat="frag in doc.highlight[corpus.metadata.defaultSearchField] track by $index"
+								ng-bind-html="frag.toString()">
+							</pre>
 						</div>
 						<div ng-switch-default class="panel panel-default panel-body">
-							{{ doc._source[corpus.metadata.defaultSearchField] }}
+							<div ng-bind-html="doc.highlight[corpus.metadata.defaultSearchField].join('<br>&nbsp;&vellip;<br> ')">
+								
+							</div>
 						</div>
 					</div>
 

@@ -6,7 +6,7 @@ class BaseQuery {
     	this.query = {};
     	this.query.bool = {};
     	this.query.bool.must = {};
-    	this.query.bool.must = new QuerystringQuery(corpus.defaultSearchField, userInput);
+    	this.query.bool.must = new QuerystringQuery(corpus.metadata.defaultSearchField, userInput);
     	this.query.bool.filter = [];
     	this.addFilters( corpus );
     	this.size = 0;
