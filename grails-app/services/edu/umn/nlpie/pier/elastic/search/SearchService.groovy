@@ -55,9 +55,12 @@ class SearchService {
 		c.timedOut = json.timed_out
 		c.label = postBody.label
 		c.countType = postBody.countType
-		def buckets = json.aggregations[postBody.label].buckets 
-		c.size = buckets.size()
-		if ( c.size ) {
+		def cardinalityLabel = postBody.label + " Cardinality Estimate"
+		c.cardinalityEstimate = json.aggregations[cardinalityLabel].value
+		println "CE: ${c.cardinalityEstimate}"
+		def buckets = json.aggregations[postBody.label]?.buckets //may not have this type of aggregation due to large hit count
+		c.bucketCount = (buckets) ?  buckets.size() : -1
+		if ( buckets ) {
 			buckets.each { 
 				c.addToBuckets( new Bucket( key:it.key, keyAsString:it.key_as_string, docCount:it.doc_count ) )
 			}

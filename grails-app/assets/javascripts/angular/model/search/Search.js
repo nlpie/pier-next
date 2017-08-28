@@ -358,16 +358,17 @@ class Search {
     		var aggregationCategory = corpus.metadata.aggregations[key];
     		for (const aggregation of aggregationCategory) {
     			if ( aggregation.countDistinct ) {
-    				var query = new DistinctValuesEstimationQuery( corpus, me.userInput, aggregation.label, aggregation.fieldName, maxBuckets );
+    				var countType = ( maxBuckets<=500000 ) ? "combined" : "cardinality";
+    				var query = new DistinctValuesEstimationQuery( corpus, me.userInput, aggregation.label, aggregation.fieldName, maxBuckets, countType );
     				var payload = { 
     					"registration.id": me.registration.id,
     					"corpus": corpus.name, 
-    					"countType": "bucket", 
+    					"countType": countType, 
     					"label": aggregation.label, 
     					"url": url, 
     					"query": query
     				};
-    				//console.info(JSON.stringify( payload ));
+    				//alert(JSON.stringify( query, null, '\t' ));
 	    			me.$http.post( APP.ROOT + '/search/distinct/', JSON.stringify( payload ) )
 	    			.then( function(response) {
 	    				//console.info(JSON.stringify(response.data),null,'\t');
@@ -379,9 +380,9 @@ class Search {
     	});
     }
     assignDistinct( aggregation, response ) {
-    	var count = response.data.size	//aggregations[aggregation.label].buckets.length;
-    	aggregation.count = count;
-		console.log("distinct " + aggregation.label + " took  " + response.data.took);
+    	aggregation.bucketCount = response.data.bucketCount; //aggregations[aggregation.label].buckets.length;
+    	aggregation.cardinalityEstimate = response.data.cardinalityEstimate;
+		console.log("distinct " + aggregation.label + " took " + response.data.took + " returning bucket, cardinaltiy counts of: " + response.data.bucketCount + ", " + response.data.cardinalityEstimate);
     }
     
 }

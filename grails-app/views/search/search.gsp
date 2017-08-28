@@ -22,7 +22,7 @@
 								<label>{{aggregation.label}} 
 									<i class="fa fa-question-circle"></i>
 								</label>
-								<span ng-if="aggregation.countDistinct" style="font-size:0.5em;margin-right:1em">{{aggregation.count | number}} distinct</span>
+								<span ng-if="aggregation.countDistinct" style="font-size:0.5em;margin-right:1em">{{aggregation.bucketCount | number}}, {{aggregation.cardinalityEstimate | number}} (bucket, cardinality) counts</span>
 							</div>
 							<div class="pier-filter" ng-repeat="bucket in corpus.results.aggs.aggs[aggregation.label].buckets track by $index">
 								<i class="fa fa-check-square-o"></i> 

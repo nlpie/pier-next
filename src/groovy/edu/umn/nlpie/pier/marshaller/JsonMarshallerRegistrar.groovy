@@ -46,7 +46,8 @@ class JsonMarshallerRegistrar {
 				"id": dc.id,
 				"countType": dc.countType,
 				"label": dc.label,
-				"size": dc.size, 
+				"bucketCount": dc.bucketCount, 
+				"cardinalityEstimate": dc.cardinalityEstimate,
 				"took": dc.took,
 				"httpStatus": dc.httpStatus
 			]
