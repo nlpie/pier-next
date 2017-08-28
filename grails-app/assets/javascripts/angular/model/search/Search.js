@@ -382,7 +382,7 @@ class Search {
     assignDistinct( aggregation, response ) {
     	aggregation.bucketCount = response.data.bucketCount; //aggregations[aggregation.label].buckets.length;
     	aggregation.cardinalityEstimate = response.data.cardinalityEstimate;
-		console.log("distinct " + aggregation.label + " took " + response.data.took + " returning bucket, cardinaltiy counts of: " + response.data.bucketCount + ", " + response.data.cardinalityEstimate);
+		console.log("distinct " + aggregation.label + " took " + response.data.took + " returning bucket, cardinality counts of: " + response.data.bucketCount + ", " + response.data.cardinalityEstimate);
     }
     
 }
