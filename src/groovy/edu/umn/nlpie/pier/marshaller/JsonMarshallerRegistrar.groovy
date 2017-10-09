@@ -46,7 +46,7 @@ class JsonMarshallerRegistrar {
 				"id": dc.id,
 				"countType": dc.countType,
 				"label": dc.label,
-				"bucketCount": dc.bucketCount, 
+				"count": dc.count, 
 				"cardinalityEstimate": dc.cardinalityEstimate,
 				"took": dc.took,
 				"httpStatus": dc.httpStatus
@@ -82,6 +82,7 @@ class JsonMarshallerRegistrar {
 					searchable: cm.searchable,
 					filtered: cm.filtered,
 					url: cm.url,
+					scrollUrl: cm.scrollUrl,
 					defaultSearchField: cm.defaultSearchField,
 					contextFilterField: cm.contextFilterField
 				]

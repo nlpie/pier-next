@@ -11,7 +11,7 @@
 				<div id="agg-column" class="col-xs-3">
 					<div growl reference="aggs"></div>
 					<div ng-show="rc.search.status.computingAggs" id="aggs-spinner" style="padding-top:25px">
-						<asset:image src="ajax-loader.gif" alt="computing aggregations..." /> computing aggregations...
+						<asset:image src="ajax-loader.gif" alt="determining filters..." /> determining filters...
 					</div>
 					<div class="pier-ontology"
 						ng-if="corpus.results.aggs.aggs && !rc.search.status.computingAggs" 
@@ -22,7 +22,7 @@
 								<label>{{aggregation.label}} 
 									<i class="fa fa-question-circle"></i>
 								</label>
-								<span ng-if="aggregation.countDistinct" style="font-size:0.5em;margin-right:1em">{{aggregation.bucketCount | number}}, {{aggregation.cardinalityEstimate | number}} (bucket, cardinality) counts</span>
+								<span ng-if="aggregation.countDistinct" style="font-size:0.5em;margin-right:1em">{{aggregation.count | number}}, {{aggregation.cardinalityEstimate | number}} ({{aggregation.countType}}, cardinality) counts</span>
 							</div>
 							<div class="pier-filter" ng-repeat="bucket in corpus.results.aggs.aggs[aggregation.label].buckets track by $index">
 								<i class="fa fa-check-square-o"></i> 
@@ -58,10 +58,12 @@
 						ng-if="corpus.results.docs && !rc.search.status.searchingDocs" 
 						ng-switch="corpus.name">
 						<div ng-switch-when="Surgical Pathology Reports" class="panel panel-default panel-body">
-							<pre 
+							<pre ng-bind-html="doc._source[corpus.metadata.defaultSearchField]"></pre>
+							<!-- <pre 
 								ng-repeat="frag in doc.highlight[corpus.metadata.defaultSearchField] track by $index"
 								ng-bind-html="frag.toString()">
 							</pre>
+							 -->
 						</div>
 						<div ng-switch-default class="panel panel-default panel-body">
 							<div ng-bind-html="doc.highlight[corpus.metadata.defaultSearchField].join('<br>&nbsp;&vellip;<br> ')">

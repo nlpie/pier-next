@@ -22,6 +22,7 @@ class CorpusMetadata {
 		this.searchable = true
 		this.filtered = true	//most of the time corpus with be assoc with a restricted search/auth context
 		this.url = "${type.index.cluster.uri}/${type.index.indexName}/${type.typeName}/_search"
+		this.scrollUrl = "${type.index.cluster.uri}/_search/scroll"
 		this.defaultSearchField = type.searchableField
 		this.contextFilterField = type.contextFilterField
 		this.tooltip = "Includes ${ct.name}"
@@ -30,6 +31,7 @@ class CorpusMetadata {
 	Boolean searchable 
 	Boolean filtered
 	String url 
+	String scrollUrl
 	String defaultSearchField 
 	String contextFilterField
 	String tooltip

@@ -7,8 +7,8 @@ class Bucket {
 
     static mapping = {
 		//table name:'`bucket`'
-		key column:'`key`', index:'key_index'
-		keyAsString index:'key_string_index'
+		key column:'`key`', index:'bucket_key_index'
+		keyAsString index:'bucket_key_string_index'
 	}
 	
 	static constraints = {

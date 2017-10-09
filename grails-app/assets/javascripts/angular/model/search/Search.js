@@ -2,7 +2,9 @@ import DocumentsResponse from './DocumentsResponse';
 import AggregationsResponse from './AggregationsResponse';
 import DocumentQuery from './elastic/DocumentQuery';
 import AggregationQuery from './elastic/AggregationQuery';
-import DistinctValuesEstimationQuery from './elastic/DistinctValuesEstimationQuery';
+import BucketCountQuery from './elastic/BucketCountQuery';
+import CardinalityOnlyQuery from './elastic/CardinalityOnlyQuery';
+import SingleFieldScrollCountQuery from './elastic/SingleFieldScrollCountQuery';
 import TermsAggregation from './elastic/TermsAggregation';
 import Pagination from './Pagination';
 import TermFilter from './elastic/TermFilter';
@@ -14,7 +16,7 @@ class Search {
     	this.searchService = searchService;
     	this.uiService = uiService;
     	
-    	this.userInput = "iliitis";
+    	this.userInput = "heart";//"iliitis";
     	this.context = undefined;
     	this.registration = undefined;
     	
@@ -43,7 +45,6 @@ class Search {
     			style: {}
     		}
     	}
-		
     }
 	    
     toggleRelatednessExpansion() {
@@ -56,7 +57,7 @@ class Search {
     	}
     }
     
-    dirty(corpus) {
+    dirty( corpus ) {
 		this.searchIconClass = "fa fa-refresh fa-spin";
 		if (corpus) {
 			//dim only this corpus
@@ -68,7 +69,7 @@ class Search {
 			}
 		}
 	}
-	clean() {
+	done() {
 		//clean applies to all corpora, no need to sniff for target corpus
 		this.searchIconClass = "fa fa-search";
 		for (let corpus of this.context.candidateCorpora) {
@@ -82,7 +83,7 @@ class Search {
     		corpus.appliedFilters[aggregation.label] = [];
     	}
     	corpus.appliedFilters[aggregation.label].push( new TermFilter(aggregation.fieldName,value) );
-    	this.dirty(corpus);
+    	this.dirty( corpus );
     	//alert(JSON.stringify(corpus.appliedFilters));
     }
 
@@ -104,7 +105,7 @@ class Search {
     				corpus.opacity = this.resultsOpacity.bright;
     				corpus.pagination = new Pagination();
     				corpus.results = {};
-    				this.clean();
+    				this.done();
     			}
 				this.availableAggregations( corpus )
 	    			.then( function(response) {
@@ -132,6 +133,7 @@ class Search {
     	this.searchIconClass = "fa fa-search";
     	for ( let corpus of this.context.candidateCorpora ) {
     		corpus.results = {};
+    		//corpus.metadata.aggregations = {};
     	}
     }
     
@@ -227,9 +229,9 @@ class Search {
 	    				.then( function(response) {
 		    				me.assignAggregationsResponse( corpus,response );
 	    				}).then( function( maxBuckets ) {
-	    					var maxBuckets = corpus.results.aggs.total;
-	    					console.log("max cohort buckets " + maxBuckets);
-		    				if ( me.options.relatednessExpansion.on ) me.distinctComputations( corpus, maxBuckets );
+	    					var maxCount = corpus.results.aggs.total;
+	    					console.log("max distinct count " + maxCount);
+		    				if ( me.options.relatednessExpansion.on ) me.distinctCounts( corpus, maxCount );
 		    			})
 	    				.catch( function(e) {
 	    					//catches non-200 status errors
@@ -244,11 +246,12 @@ class Search {
 					
     			} catch(e) {
     				//javascript error
+    				alert("ERROR");
 					me.error("full",e);
 				}
 			}
 		}
-    	this.clean();
+    	this.done();
     	this.searchService.fetchHistory( true );
     }
     
@@ -303,7 +306,7 @@ class Search {
     				}
     			}
 			}
-    	this.clean();
+    	this.done();
     	this.searchService.fetchHistory( true );
     }
     
@@ -350,7 +353,7 @@ class Search {
     	corpus.results.aggs = new AggregationsResponse(response.data);
     }
     
-    distinctComputations( corpus, maxBuckets ) {
+    distinctCounts( corpus, maxCount ) {
     	var url = corpus.metadata.url;
     	var aggregations = corpus.metadata.aggregations;
     	var me = this;
@@ -358,8 +361,16 @@ class Search {
     		var aggregationCategory = corpus.metadata.aggregations[key];
     		for (const aggregation of aggregationCategory) {
     			if ( aggregation.countDistinct ) {
-    				var countType = ( maxBuckets<=500000 ) ? "combined" : "cardinality";
-    				var query = new DistinctValuesEstimationQuery( corpus, me.userInput, aggregation.label, aggregation.fieldName, maxBuckets, countType );
+    				var countType = ( maxCount<=15000000 ) ? "bucket" : "scroll";	//TODO externalize maxBuckets threshold
+    				var query;
+    				if ( countType=='scroll' ) query = new SingleFieldScrollCountQuery( corpus, me.userInput, aggregation.label, aggregation.fieldName );
+    				if ( countType=='bucket' ) {
+    					if ( aggregation.fieldName=='note_id' ) {
+    						query = new CardinalityOnlyQuery( corpus, me.userInput, aggregation.label, aggregation.fieldName );
+    					} else {
+    						query = new BucketCountQuery( corpus, me.userInput, aggregation.label, aggregation.fieldName, maxCount );
+    					}
+    				}
     				var payload = { 
     					"registration.id": me.registration.id,
     					"corpus": corpus.name, 
@@ -368,21 +379,42 @@ class Search {
     					"url": url, 
     					"query": query
     				};
-    				//alert(JSON.stringify( query, null, '\t' ));
-	    			me.$http.post( APP.ROOT + '/search/distinct/', JSON.stringify( payload ) )
-	    			.then( function(response) {
-	    				//console.info(JSON.stringify(response.data),null,'\t');
-	    				me.assignDistinct( aggregation, response );
-	    			});
+    				if ( countType=="bucket" ) {
+    					alert(JSON.stringify( payload, null, '\t' ));
+		    			if ( aggregation.fieldName=="note_id" ) {		    				
+		    				me.$http.post( APP.ROOT + '/search/noteCount/', JSON.stringify( payload ) )
+		    				.then( function(response) {
+		    					me.assignDistinct( aggregation, response );
+		    				});
+		    			} else {
+		    				me.$http.post( APP.ROOT + '/search/bucketCount/', JSON.stringify( payload ) )
+		    				.then( function(response) {
+		    					me.assignDistinct( aggregation, response );
+		    				});
+		    			}
+    				} else { //scroll count
+    					//add scrollUrl to payload
+    					payload.scrollUrl = corpus.metadata.scrollUrl;
+    					//alert(JSON.stringify( payload, null, '\t' ));
+    					try {
+    						me.$http.post( APP.ROOT + '/search/scrollCount', JSON.stringify( payload ) )
+    							.then( function(response) {
+    								me.assignDistinct( aggregation, response );
+    							});
+    					} catch(e) {
+    						throw(e);
+    					}
+    				}
     			}
     		}
     		
     	});
     }
     assignDistinct( aggregation, response ) {
-    	aggregation.bucketCount = response.data.bucketCount; //aggregations[aggregation.label].buckets.length;
+    	aggregation.countType = response.data.countType;
+    	aggregation.count = response.data.count;
     	aggregation.cardinalityEstimate = response.data.cardinalityEstimate;
-		console.log("distinct " + aggregation.label + " took " + response.data.took + " returning bucket, cardinality counts of: " + response.data.bucketCount + ", " + response.data.cardinalityEstimate);
+		console.log("distinct " + aggregation.label + " took " + response.data.took + " returning " + response.data.countType + "/cardinality counts of: " + response.data.count + "/" + response.data.cardinalityEstimate);
     }
     
 }
