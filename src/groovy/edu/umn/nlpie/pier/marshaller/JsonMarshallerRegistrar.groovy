@@ -70,7 +70,8 @@ class JsonMarshallerRegistrar {
 					id: ct.id,
 					name: ct.name,
 					glyph: ct.glyph,
-					metadata: ct.metadata
+					metadata: ct.metadata,
+					status: [ searchingDocs:false, computingAggs:false ]
 					//queryInfo: ct.queryInfo
 					//aggregations: null,	//placeholder to be filled by subsequent, client-side initiated request; alias for default or userConfigured filter set
 					//appliedFilters: null//placeholder for user-specified filters to be used in a search of this corpus 

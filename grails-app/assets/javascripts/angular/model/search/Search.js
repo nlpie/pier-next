@@ -29,8 +29,8 @@ class Search {
         this.status = {
         	error: undefined,
         	dirty: false,
-        	searchingDocs: false,
-        	computingAggs: false,
+        	//searchingDocs: false,
+        	//computingAggs: false,
         	uuid: undefined,
         	version: 0
         }
@@ -222,7 +222,7 @@ class Search {
 	    					}
 	    				})
 						.finally( function() {
-							me.status.searchingDocs = false;
+							corpus.status.searchingDocs = false;
 						});
 					
 					this.fetchAggregations( corpus )
@@ -238,7 +238,7 @@ class Search {
 	    					me.remoteError("aggs",e);
 	    				})
 						.finally( function() {
-	    					me.status.computingAggs = false;
+	    					corpus.status.computingAggs = false;
 	    					//console.log(JSON.stringify(corpus.results.docs.hits[0],null,'\t'));
 	    					//console.log(JSON.stringify(corpus.results.aggs.aggs,null,'\t'));
 	    					//console.log(JSON.stringify(corpus.results.docs,null,'\t'));
@@ -280,7 +280,7 @@ class Search {
 			    					me.remoteError("docs",e);
 			    				})
 								.finally( function() {
-									me.status.searchingDocs = false;
+									corpus.status.searchingDocs = false;
 								});
 		    			} catch(e) {
 		    				//need  better return from controller, json response if !=200
@@ -297,7 +297,7 @@ class Search {
 			    					me.remoteError("aggs",e);
 			    				})
 								.finally( function() {
-			    					me.status.computingAggs = false;
+			    					corpus.status.computingAggs = false;
 			    				});	
 		    			} catch(e) {
 		    				//need  better return from controller, json response if !=200
@@ -331,14 +331,14 @@ class Search {
     searchCorpus( corpus ) {
 		//return promise and let the client resolve it
     	//console.log(JSON.stringify(corpus,null,'\t'));
-    	this.status.searchingDocs = true;
+    	corpus.status.searchingDocs = true;
     	var url = corpus.metadata.url;
     	var docsQuery = new DocumentQuery(corpus, this.userInput, this.pagination);
 		return this.$http.post( APP.ROOT + '/search/elastic/', JSON.stringify( {"registration.id":this.registration.id, "corpus": corpus.name, "type":"document", "url":url, "query": docsQuery} ) );
 	}
     fetchAggregations( corpus ) {
     	//return promise and let the client resolve it
-    	this.status.computingAggs = true;
+    	corpus.status.computingAggs = true;
     	var url = corpus.metadata.url;
     	var aggsQuery = new AggregationQuery(corpus, this.userInput);
     	//alert(JSON.stringify(aggsQuery));

@@ -10,11 +10,11 @@
 			<div ng-attr-id="{{ corpus.name }}" ng-show="corpus.selected" class="row" ng-repeat="corpus in rc.search.context.candidateCorpora track by $index">
 				<div id="agg-column" class="col-xs-3">
 					<div growl reference="aggs"></div>
-					<div ng-show="rc.search.status.computingAggs" id="aggs-spinner" style="padding-top:25px">
+					<div ng-show="corpus.status.computingAggs" id="aggs-spinner" style="padding-top:25px">
 						<asset:image src="ajax-loader.gif" alt="determining filters..." /> determining filters...
 					</div>
 					<div class="pier-ontology"
-						ng-if="corpus.results.aggs.aggs && !rc.search.status.computingAggs" 
+						ng-if="corpus.results.aggs.aggs && !corpus.status.computingAggs" 
 						ng-repeat="(ontology, aggregations) in corpus.metadata.aggregations track by $index">
 						<label class="pier-ontology-label">{{ontology}} <i class="fa fa-question-circle"></i></label>
 						<div class="pier-aggregate" ng-repeat="aggregation in aggregations track by $index">
@@ -51,11 +51,11 @@
 				<div id="doc-column" class="col-xs-9" ng-style="corpus.opacity">
 					<div growl reference="docs"></div>
 					<div growl limit-messages="1" reference="full"></div>
-					<div ng-show="rc.search.status.searchingDocs" id="docs-spinner" style="padding-top:25px">
+					<div ng-show="corpus.status.searchingDocs" id="docs-spinner" style="padding-top:25px">
 						<asset:image src="ajax-loader.gif" alt="searching corpora..." /> searching corpora...
 					</div>
 					<div ng-repeat="doc in corpus.results.docs.hits track by $index"
-						ng-if="corpus.results.docs && !rc.search.status.searchingDocs" 
+						ng-if="corpus.results.docs && !corpus.status.searchingDocs" 
 						ng-switch="corpus.name">
 						<div ng-switch-when="Surgical Pathology Reports" class="panel panel-default panel-body">
 							<pre ng-bind-html="doc._source[corpus.metadata.defaultSearchField]"></pre>
