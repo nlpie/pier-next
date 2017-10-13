@@ -20,10 +20,6 @@ class Search {
     	this.context = undefined;
     	this.registration = undefined;
     	
-		this.resultsOpacity = {
-			dimmed: { 'opacity': 0.2 },
-			bright: { 'opacity': 1 }
-		}
 		this.searchIconClass = "";
 		
         this.status = {
@@ -61,20 +57,21 @@ class Search {
 		this.searchIconClass = "fa fa-refresh fa-spin";
 		if (corpus) {
 			//dim only this corpus
-			corpus.opacity = this.resultsOpacity.dimmed;
+			corpus.opacity = corpus.resultsOpacity.dimmed;
 		} else {
 			//dim doc results for all copora
 			for (let corpus of this.context.candidateCorpora) {
-				corpus.opacity = this.resultsOpacity.dimmed;
+				corpus.opacity = corpus.resultsOpacity.dimmed;
 			}
 		}
 	}
 	done() {
 		//clean applies to all corpora, no need to sniff for target corpus
 		this.searchIconClass = "fa fa-search";
-		for (let corpus of this.context.candidateCorpora) {
+		//corpus.opacity = this.resultsOpacity.bright;
+		/*for (let corpus of this.context.candidateCorpora) {
 			corpus.opacity = this.resultsOpacity.bright;
-		}
+		}*/
 	}
     
     //adds filters to corpus.appliedFilters object (not array)
@@ -102,7 +99,7 @@ class Search {
     			}
     			if ( !corpus.appliedFilters ) {
     				corpus.appliedFilters = {};
-    				corpus.opacity = this.resultsOpacity.bright;
+    				corpus.opacity = corpus.resultsOpacity.bright;
     				corpus.pagination = new Pagination();
     				corpus.results = {};
     				this.done();
