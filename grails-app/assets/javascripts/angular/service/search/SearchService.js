@@ -31,7 +31,7 @@ class SearchService {
 	    	});
     }
 	
-	fetchRegisteredSearch(id) {
+	fetchRegisteredSearch( id ) {
 		return this.$http.get( APP.ROOT + '/search/registeredSearch/' + id );
 	}
 	
