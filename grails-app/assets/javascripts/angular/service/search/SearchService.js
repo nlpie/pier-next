@@ -15,9 +15,17 @@ class SearchService {
 		return this.$http.post( APP.ROOT + '/search/elastic/', JSON.stringify(contextFilter) );
 	}
 	
-	fetchHistory( excludeMostRecent ) {
+	fetchHistory() {
     	var me = this;	
-    	return this.$http.post( APP.ROOT + '/search/historySummary', { "excludeMostRecent":excludeMostRecent } )
+    	return this.$http.post( APP.ROOT + '/search/historySummary', { "excludeMostRecent":false } )
+	    	.then( function(response) {
+	    		me.searchHistory = response.data;
+	    	});
+    }
+	
+	fetchHistoryExcludingMostRecent() {
+    	var me = this;	
+    	return this.$http.post( APP.ROOT + '/search/historySummary', { "excludeMostRecent":true } )
 	    	.then( function(response) {
 	    		me.searchHistory = response.data;
 	    	});

@@ -112,7 +112,7 @@ class Search {
 	    			}); 
 			}
     	}
-    	this.searchService.fetchHistory( false );
+    	this.searchService.fetchHistory();
     }
     
     //----------------- refactored search ------------------------------
@@ -134,11 +134,11 @@ class Search {
     e() {
     	//execute search 
     	let me = this;
-    	this.fi();
+    	this.fi(); //placeholder for now
     	this.r()
     	.then( me.searchCorpora )
     	.then( me.complete )
-    	.then( me.searchService.fetchHistory( true ) );
+    	.then( me.searchService.fetchHistoryExcludingMostRecent() )
     	.catch( function(e) {
     		me.clearResults();
     		me.remoteError("docs",e);
@@ -373,7 +373,6 @@ class Search {
     }
     
     parsePastSearchRegistration( searchRegistration ) {
-    	
     	var elasticQuery = JSON.parse( searchRegistration.queries[0].query ); 	//doesn't matter which query, all will have used the same querystring query
     	console.log(elasticQuery);
     	this.userInput = elasticQuery.query.bool.must.query_string.query;
@@ -497,7 +496,7 @@ class Search {
     			}
 			}
     	this.complete();
-    	this.searchService.fetchHistory( true );
+    	this.searchService.fetchHistoryExcludingMostRecent();
     }
     
    /* deprecated

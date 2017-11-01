@@ -15,7 +15,7 @@ class UIState {
     
     init() {
 		this.fetchContexts();
-		this.searchService.fetchHistory( false );
+		this.searchService.fetchHistory();
 	}
     
     fetchContexts() {
@@ -24,7 +24,6 @@ class UIState {
 	    	.then( function(response) {
 	    		me.authorizedContexts = response.data;
 	    		me.currentSearch.setContext(me.authorizedContexts[0]);	//set to first in list
-	    		//inject $http, searchService into Search.js, then search (as currentSearch) into uistate and set currentContext on uistate.currentSearch
 	    	});
     }
     
