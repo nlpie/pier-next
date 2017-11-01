@@ -77,9 +77,9 @@
                         	<li ng-repeat="sh in sc.searchService.searchHistory track by $index">
 								<a ng-click="sc.uiState.currentSearch.conductPastSearch(sh.registration.id)">
                         			<div title="replace me">
-                        			<sup>{{sh.registration.authorizedContext}}</sup>
-                        			<br>
-                        			{{sh.query.label}}
+	                        			{{sh.query.label}}
+	                        			<br>
+	                        			<sup style="padding-left:2em">{{sh.registration.authorizedContext}}</sup>
                         			</div>
                         		</a>
                             </li>

@@ -36,7 +36,7 @@
        			<div class="input-group" style="display:table;">
 					<div class="input-group-btn" class="input-group-addon" style="width:1%;">
 						<button type="button" class="btn btn-default" data-toggle="dropdown" style="border-right:none">
-                            <span class="label-icon" title="{{sc.uiState.currentContext.description}}" >{{sc.uiState.currentContext.icsRequest}}</span>
+                            <span class="label-icon" title="{{sc.uiState.currentSearch.context.description}}" >{{sc.uiState.currentSearch.context.icsRequest}}</span>
                             <span class="caret"></span>
                         </button>
                         <ul class="dropdown-menu" role="menu">

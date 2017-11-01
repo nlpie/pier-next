@@ -8,7 +8,7 @@ class UIState {
     	this.currentSearch = currentSearch;
     	
     	this.authorizedContexts = undefined;
-    	this.currentContext = undefined;
+    	//this.currentContext = undefined;
     	
     	this.init();
     }
