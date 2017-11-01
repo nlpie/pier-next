@@ -38,6 +38,9 @@ class SearchController {//extends RestfulController {
 			if ( status==400 ) {
 				throw new BadElasticRequestException( message:"Malformed query - check your syntax" )
 			}
+			if ( status==500 ) {
+				throw new PierApiException( message:elasticResponse.json.error.root_cause.reason )
+			}
 			auditService.logQueryAndResponse( postBody, elasticResponse )
 			respond elasticResponse.json 
 		} catch( PierApiException e) {
@@ -52,6 +55,34 @@ class SearchController {//extends RestfulController {
 		} finally {
 		
 		}
+		/*500 error from elastic when trying deep paging
+		{
+			"error": {
+			  "root_cause": [
+				{
+				  "type": "query_phase_execution_exception",
+				  "reason": "Result window is too large, from + size must be less than or equal to: [10000] but was [510000]. See the scroll api for a more efficient way to request large data sets. This limit can be set by changing the [index.max_result_window] index level parameter."
+				}
+			  ],
+			  "type": "search_phase_execution_exception",
+			  "reason": "all shards failed",
+			  "phase": "query",
+			  "grouped": true,
+			  "failed_shards": [
+				{
+				  "shard": 0,
+				  "index": "notes_v3",
+				  "node": "YXHHd9aqSN-S9Pu33CIUXQ",
+				  "reason": {
+					"type": "query_phase_execution_exception",
+					"reason": "Result window is too large, from + size must be less than or equal to: [10000] but was [510000]. See the scroll api for a more efficient way to request large data sets. This limit can be set by changing the [index.max_result_window] index level parameter."
+				  }
+				}
+			  ]
+			},
+			"status": 500
+		  }
+		  */
 	}
 	
 	def noteCount() {

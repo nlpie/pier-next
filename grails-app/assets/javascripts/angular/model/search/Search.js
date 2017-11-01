@@ -10,13 +10,14 @@ import Pagination from './Pagination';
 import TermFilter from './elastic/TermFilter';
 
 class Search {
-	    constructor( $http, growl, searchService, uiService ) {
+	    constructor( $http, $q, growl, searchService, uiService ) {
     	this.$http = $http;
+    	this.$q = $q;
     	this.growl = growl;
     	this.searchService = searchService;
     	this.uiService = uiService;
     	
-    	this.userInput = "heart";//"iliitis";
+    	this.userInput = "iliitis";
     	this.context = undefined;
     	this.registration = undefined;
     	
@@ -25,8 +26,6 @@ class Search {
         this.status = {
         	error: undefined,
         	dirty: false,
-        	//searchingDocs: false,
-        	//computingAggs: false,
         	uuid: undefined,
         	version: 0
         }
@@ -54,24 +53,20 @@ class Search {
     }
     
     dirty( corpus ) {
+    	//search and corpus need to be set to dirty
+    	this.status.dirty = true;
 		this.searchIconClass = "fa fa-refresh fa-spin";
-		if (corpus) {
+		if ( corpus ) {
 			//dim only this corpus
 			corpus.opacity = corpus.resultsOpacity.dimmed;
+			corpus.status.dirty = true;
 		} else {
 			//dim doc results for all copora
 			for (let corpus of this.context.candidateCorpora) {
 				corpus.opacity = corpus.resultsOpacity.dimmed;
+				corpus.status.dirty = true;
 			}
 		}
-	}
-	done() {
-		//clean applies to all corpora, no need to sniff for target corpus
-		this.searchIconClass = "fa fa-search";
-		//corpus.opacity = this.resultsOpacity.bright;
-		/*for (let corpus of this.context.candidateCorpora) {
-			corpus.opacity = this.resultsOpacity.bright;
-		}*/
 	}
     
     //adds filters to corpus.appliedFilters object (not array)
@@ -102,7 +97,7 @@ class Search {
     				corpus.opacity = corpus.resultsOpacity.bright;
     				corpus.pagination = new Pagination();
     				corpus.results = {};
-    				this.done();
+    				this.complete();
     			}
 				this.availableAggregations( corpus )
 	    			.then( function(response) {
@@ -120,6 +115,200 @@ class Search {
     	this.searchService.fetchHistory( false );
     }
     
+    //----------------- refactored search ------------------------------
+    //each should return a promise? or be its own self-contatined process that returns a promise?
+    
+    //core search
+    c() {
+    	//context set
+    	//returns this
+    }
+    
+    complete( search ) {
+		return Promise.resolve( function() {
+			search.searchIconClass = "fa fa-search";
+			return search;
+		});
+	}
+    
+    e() {
+    	//execute search 
+    	let me = this;
+    	this.fi();
+    	this.r()
+    	.then( me.searchCorpora )
+    	.then( me.complete )
+    	.then( me.searchService.fetchHistory( true ) );
+    	.catch( function(e) {
+    		me.clearResults();
+    		me.remoteError("docs",e);
+		});
+    }
+    
+    r() {
+    	//register
+    	//returns search obj/this
+    	//alert("r");
+    	var me = this;
+    	return this.$http.post( APP.ROOT + '/audit/register/', JSON.stringify( { "authorizedContext":this.context.label } ) )
+    		.then( function( registrationResponse ) {
+    			me.registration = registrationResponse.data;
+    			return me;
+    		});
+    }
+    
+    fi() {
+    	//filter setup
+    	//returns? needs some analysis
+    }
+    
+    
+    d( registration, corpus ) {
+    	//single corpus doc search
+    	//returns es hits
+    	corpus.status.searchingDocs = true;
+    	var url = corpus.metadata.url;
+    	var docsQuery = new DocumentQuery( corpus, this.userInput );
+		return this.$http.post( APP.ROOT + '/search/elastic/', JSON.stringify( {"registration.id":registration.id, "corpus":corpus.name, "type":"document", "url":url, "query":docsQuery} ) )
+			.then( function( docSearchResponse ) {
+				let results = docSearchResponse.data;
+				corpus.results.docs = new DocumentsResponse( results );
+				corpus.pagination.update( corpus.results.docs.total );
+				return results;
+			})
+			.finally( function() {
+				corpus.status.dirty = false;
+				corpus.status.searchingDocs = false;
+				corpus.opacity = corpus.resultsOpacity.bright;
+			});
+    }
+    
+    a( registration, corpus ) {
+    	//single corpus agg computation
+    	//returns es hits
+    	corpus.status.computingAggs = true;
+    	var url = corpus.metadata.url;
+    	var aggsQuery = new AggregationQuery(corpus, this.userInput);
+		return this.$http.post( APP.ROOT + '/search/elastic/', JSON.stringify( {"registration.id":registration.id, "corpus":corpus.name, "type":"aggregation", "url":url, "query":aggsQuery} ) )
+			.then( function( aggsSearchResponse ) {
+				let results = aggsSearchResponse.data;
+				corpus.results.aggs = new AggregationsResponse( results );
+				return results;
+			})
+			.finally( function() {
+    			corpus.status.computingAggs = false;
+    		});
+    }
+    
+    sh() {
+    	//fetch history
+    	//returns search history array
+    }
+    
+    searchCorpora( search ) {
+    	//alert( "sc" );
+    	//alert( JSON.stringify(search,null,'\t') );
+    	//search corpora, kicks off parallel ($q.all) documents and aggs search
+    	//iterate over corpora and kick off parallel d() and a() searches
+    	let corporaSearch = [];
+    	for ( let corpus of search.context.candidateCorpora ) {
+    		if ( corpus.metadata.searchable ) {
+    			//alert( corpus.name );
+    			corpus.selected = true;	//TODO refactor selected assignments to a user pref
+    			corpus.pagination = new Pagination();
+    			let searches = [];
+    			searches.push( search.d( search.registration, corpus ) );
+    			searches.push( search.a( search.registration, corpus ) );
+    			let corpusSearch = search.$q.all( searches )
+    			.then ( function( results ) {
+    				//results is an array mapped to searches array
+    				//return results;
+    			});
+    			corporaSearch.push( corpusSearch );
+			}
+		}
+    	return search.$q.all( corporaSearch )
+    		.then( function(response) {
+    			return search;
+    		});
+    }
+    
+    
+    //pagination
+    nextPage( corpus ) {
+    	//next pg, no aggs
+    	if ( !corpus.status.dirty && corpus.pagination.next() ) {
+    		let me = this;
+    		this.d( this.registration, corpus )
+	    	.catch( function(e) {
+	    		me.clearResults();
+	    		me.remoteError("docs",e);
+			});
+    		if ( corpus.pagination.truncated ) {
+    			this.info( "docs", "Pagination limited to " + this.paginationLimit + " pages of results" );
+    		}
+    	}
+    }
+    
+    lastPage( corpus ) {
+		if ( !corpus.status.dirty && corpus.pagination.last() )  {
+			let me = this;
+			return this.d( this.registration, corpus )
+			.catch( function(e) {
+				me.clearResults();
+				me.remoteError("docs",e);
+			});
+			if ( corpus.pagination.truncated ) {
+    			this.info( "docs", "Pagination limited to " + this.paginationLimit + " pages of results" );
+    		}
+		}
+    }
+    
+    previousPage( corpus ) {
+    	//prev pg, composite
+    	if ( !corpus.status.dirty && corpus.pagination.previous() ) this.d( this.registration, corpus );
+    }
+    
+    firstPage( corpus ) {
+    	if ( !corpus.status.dirty && corpus.pagination.first() ) this.d( this.registration, corpus );
+    }
+    
+    forwardCursor( corpus ) {
+		return ( !corpus.status.dirty && corpus.pagination.hasNext() ) ? "pointer" : "not-allowed";
+	}
+	backwardCursor( corpus ) {
+		return ( !corpus.status.dirty && corpus.pagination.hasPrevious() ) ? "pointer" : "not-allowed";
+	}
+    
+    
+    //past searches
+    ps() {
+    	//search item is search history, past search
+    	//returns es hits
+    }
+    
+    ss() {
+    	//saved search
+    	//returns es hits
+    }
+    
+    info( div,e ) {
+    	this.growl.info( e.toString(), {ttl:5000, referenceId:div} );
+    }
+    error( div,e ) {
+    	this.growl.error( e.toString(), {ttl:5000, referenceId:div} );
+    }
+    remoteError( div,e ) {
+    	console.log(JSON.stringify(e,null,'\t'));
+    	//this.growl.error( e.statusText + " (" + e.status + ") <<  " + e.data.error.root_cause[0].type + "::" + e.data.error.root_cause[0].reason, {ttl:5000, referenceId:div} );
+    	//TODO ensure bad elastic queries are captured
+    	this.growl.error( e.statusText + " (" + e.status + ") - " + e.data.message, {ttl:5000, referenceId:div} );
+    }
+    
+
+    
+  //----------------- end refactored search------------------------------
+    
     availableAggregations( corpus ) {
     	//gets aggregation filters based on user prefs 
     	return this.$http.get( APP.ROOT + '/config/corpusAggregationsByType/' + corpus.id, { cache:false } );
@@ -130,7 +319,6 @@ class Search {
     	this.searchIconClass = "fa fa-search";
     	for ( let corpus of this.context.candidateCorpora ) {
     		corpus.results = {};
-    		//corpus.metadata.aggregations = {};
     	}
     }
     
@@ -152,15 +340,17 @@ class Search {
       }
     }
 */
-    conduct() {
+   /*deprecated
+   conduct() {
+    	console.log("conducting.......");
     	var me = this;
     	this.clearResults();
     	this.register()
     		.then( function(response) {
-    			me.assignRegistration(response.data);
+    			me.assignRegistration( response );
     			me.execute();
     		});
-    }
+    }*/
     
     conductPastSearch( registrationId ) {
     	//use registrationId to lookup registration to get the auth context label
@@ -193,6 +383,7 @@ class Search {
     	//assign parsed query here
     }
     
+    /*deprecated
     execute() {
     	//pagination.notesPerPage and .offset are set in DocumentQuery.js
     	var me = this;
@@ -225,7 +416,8 @@ class Search {
 					this.fetchAggregations( corpus )
 	    				.then( function(response) {
 		    				me.assignAggregationsResponse( corpus,response );
-	    				}).then( function( maxBuckets ) {
+	    				})
+	    				.then( function( maxBuckets ) {
 	    					var maxCount = corpus.results.aggs.total;
 	    					console.log("max distinct count " + maxCount);
 		    				if ( me.options.relatednessExpansion.on ) me.distinctCounts( corpus, maxCount );
@@ -243,14 +435,15 @@ class Search {
 					
     			} catch(e) {
     				//javascript error
-    				alert("ERROR");
+    				alert("ERROR: " + e.toString() );
 					me.error("full",e);
 				}
 			}
 		}
-    	this.done();
+    	this.complete();
     	this.searchService.fetchHistory( true );
     }
+    */
     
     reExecute( searchRegistration ) {
     	//notesPerPage [and .offset] need to be parsed from searchRegistration and put on uiState
@@ -303,26 +496,18 @@ class Search {
     				}
     			}
 			}
-    	this.done();
+    	this.complete();
     	this.searchService.fetchHistory( true );
     }
     
-    error( div,e ) {
-    	//alert(e.toString());
-    	this.growl.error( e.toString(), {ttl:10000, referenceId:div} );
-    }
-    remoteError( div,e ) {
-    	console.log(JSON.stringify(e,null,'\t'));
-    	//this.growl.error( e.statusText + " (" + e.status + ") <<  " + e.data.error.root_cause[0].type + "::" + e.data.error.root_cause[0].reason, {ttl:5000, referenceId:div} );
-    	//TODO ensure bad elastic queries are captured
-    	this.growl.error( e.statusText + " (" + e.status + ") - " + e.data.message, {ttl:10000, referenceId:div} );
-    }
-    
+   /* deprecated
     register() {
     	return this.$http.post( APP.ROOT + '/audit/register/', JSON.stringify( { "authorizedContext":this.context.label } ) );
     }
-    assignRegistration(data) {
-    	this.registration = data; 	//TODO fluff up a RegistrationResponse object
+    
+    assignRegistration( registrationResponse ) {
+    	console.log("assigning registration");
+    	this.registration = registrationResponse.data; 	//TODO fluff up a RegistrationResponse object
     }
     
     searchCorpus( corpus ) {
@@ -348,7 +533,7 @@ class Search {
     }
     assignAggregationsResponse(corpus,response) {
     	corpus.results.aggs = new AggregationsResponse(response.data);
-    }
+    }*/
     
     distinctCounts( corpus, maxCount ) {
     	var url = corpus.metadata.url;
@@ -416,6 +601,6 @@ class Search {
     
 }
 
-Search.$inject = [ '$http', 'growl', 'searchService', 'uiService' ];
+Search.$inject = [ '$http', '$q', 'growl', 'searchService', 'uiService' ];
 
 export default Search;

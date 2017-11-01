@@ -71,7 +71,11 @@ class JsonMarshallerRegistrar {
 					name: ct.name,
 					glyph: ct.glyph,
 					metadata: ct.metadata,
-					status: [ searchingDocs:false, computingAggs:false ],
+					status: [ 
+						searchingDocs:false, 
+						computingAggs:false, 
+						dirty:false 
+					],
 					resultsOpacity: [
 						dimmed: [ opacity: 0.2 ],
 						bright: [ opacity: 1 ]

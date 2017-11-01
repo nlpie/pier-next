@@ -17,7 +17,7 @@ class SearchService {
 	
 	fetchHistory( excludeMostRecent ) {
     	var me = this;	
-    	this.$http.post( APP.ROOT + '/search/historySummary', { "excludeMostRecent":excludeMostRecent } )
+    	return this.$http.post( APP.ROOT + '/search/historySummary', { "excludeMostRecent":excludeMostRecent } )
 	    	.then( function(response) {
 	    		me.searchHistory = response.data;
 	    	});
