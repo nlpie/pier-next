@@ -17,6 +17,7 @@ class Query {
 	static mapping = {
 		query sqlType: "mediumtext"
 		exceptionMessage type: 'text'
+		terms sqlType: 'text'
 		//version false
 	}
 	
