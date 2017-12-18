@@ -10,7 +10,7 @@ dataSource {
 		minIdle = 5
 		maxIdle = 25
 		maxWait = 10000
-		maxAge = 10 * 60000
+		maxAge = 100 * 60000
 		timeBetweenEvictionRunsMillis = 5000
 		minEvictableIdleTimeMillis = 60000
 		validationQuery = "SELECT 1"
