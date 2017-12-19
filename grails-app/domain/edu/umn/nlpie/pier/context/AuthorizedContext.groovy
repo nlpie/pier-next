@@ -60,7 +60,7 @@ class AuthorizedContext {
 			//address case of whole corpus contexts like 'Clinical Notes' and 'Surgical Pathology Reports'
 			if ( this.label==ct.name ) {	
 				ct.metadata = new CorpusMetadata(ct)
-				ct.metadata.filtered = false
+				ct.metadata.restrictedContext = false
 			}
 				
 		}
