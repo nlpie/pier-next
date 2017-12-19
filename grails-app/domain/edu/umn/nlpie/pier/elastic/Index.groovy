@@ -41,19 +41,6 @@ class Index {
 	static hasMany = [ types:Type ]
 	static hasOne = [ conceptualSearch:ConceptualSearch ]
 	
-	/*static currentClinicalNotesIndex() {
-		Index.findByCorpusTypeAndStatus("clinical notes","Searchable")
-	}
-	static currentPathologyNotesIndex() {
-		Index.findByCorpusTypeAndStatus("pathology notes","Searchable")
-	}
-	static currentMicrobiologyNotesIndex() {
-		Index.findByCorpusTypeAndStatus("microbiology notes","Searchable")
-	}
-	static currentImagingNotesIndex() {
-		Index.findByCorpusTypeAndStatus("imaging notes","Searchable")
-	}*/
-	
 	@Override
 	String toString() {
 		commonName ?: ""

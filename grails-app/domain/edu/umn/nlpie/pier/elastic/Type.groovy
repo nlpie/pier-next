@@ -12,8 +12,8 @@ import edu.umn.nlpie.pier.ui.CorpusType
  * An Index can contain multiple searchable types, i.e, searchable corpora.
  * An Index lives on a Cluster
  * 
- * elastic supports the /note,microbio/note,microbio/_search syntax implying: 
- * search types note and microbio in the notes and microbiology indices (but they must be on the same cluster for this to work)
+ * elastic supports the /note,surgpath/note,surgpath/_search syntax implying: 
+ * search types note and surgpath in the notes and surgpath indices (but they must be on the same cluster for this to work)
  * see https://www.elastic.co/guide/en/elasticsearch/guide/current/multi-index-multi-type.html
  * 
  */

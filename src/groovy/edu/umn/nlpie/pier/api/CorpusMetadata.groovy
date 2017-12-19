@@ -20,7 +20,7 @@ class CorpusMetadata {
 		//println "looking for Type with corpusType.id:${ct.id} env:${Environment.current.name} status:Available "
 		def type = Type.find("from Type as t where t.corpusType.id=? and environment=? and t.index.status=?", [ ct.id, Environment.current.name, 'Available' ])
 		this.searchable = true
-		this.filtered = true	//most of the time corpus with be assoc with a restricted search/auth context
+		this.restrictedContext = true	//most of the time corpus with be assoc with a restricted search/auth context
 		this.url = "${type.index.cluster.uri}/${type.index.indexName}/${type.typeName}/_search"
 		this.scrollUrl = "${type.index.cluster.uri}/_search/scroll"
 		this.defaultSearchField = type.searchableField
@@ -29,7 +29,7 @@ class CorpusMetadata {
 	}
 	
 	Boolean searchable 
-	Boolean filtered
+	Boolean restrictedContext
 	String url 
 	String scrollUrl
 	String defaultSearchField 

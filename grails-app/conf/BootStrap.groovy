@@ -126,24 +126,6 @@ class BootStrap {
 			println nlp05.toString()
 			nlp05.save(failOnError:true, flush:true)
 			
-			//SIDE-BY-SIDE CLUSTER SANITY CHECK
-			/*
-			def microbioCorpusType = CorpusType.findByName("Microbiology Notes")?: new CorpusType(name:"Microbiology Notes", description:"microbio results from CDR", enabled:true, glyph:"icon-i-pathology").save(flush:true, failOnError:true)
-			def nlp02 = Cluster.findByClusterName("nlp02")?:new Cluster(clusterName:"nlp02",uri:"http://nlp02.ahc.umn.edu:9200",environment:"TEST",description:"prod cluster (to be test)", commonName:"prod cluster")
-			def micro = Index.findByCommonName("Microbiology Reports")?:new Index(commonName:"Microbiology Reports", indexName:"microbio_v1", status:"Available", description:"microbiology result reports", numberOfShards:6, numberOfReplicas:0)
-			def resultText = Field.findByFieldNameAndTypeIsNull("text")?:new Field(fieldName:"text",dataTypeName:"SNOWBALL_ANALYZED_STRING", description:"microbiology result text", defaultSearchField:true)//.save(flush:true, failOnError:true)
-			def resultType = Type.findByTypeName("result")?:new Type(typeName:"result", description:"CDR microbio results", environment:Environment.current.name, corpusType:microbioCorpusType)//.save(flush:true, failOnError:true)
-			resultType.addToFields(resultText)
-			resultType.fields.each { f ->
-				println "adding pref for ${f.fieldName}"
-				f.addToPreferences(new FieldPreference(user:app, label:PierUtils.labelFromUnderscore(f.fieldName), ontology:epicHL7LoincOntology, applicationDefault:true, aggregate:false))
-			}		
-			micro.addToTypes(resultType)
-			nlp02.addToIndexes(micro)
-			println nlp02.toString()
-			nlp02.save(failOnError:true)
-			*/
-			
 			//PREFS SANITY CHECK
 			configService.clonePreferences(User.findByUsername("rmcewan"))
 			println "preferences set for rmcewan"
