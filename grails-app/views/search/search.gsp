@@ -66,9 +66,7 @@
 							 -->
 						</div>
 						<div ng-switch-default class="panel panel-default panel-body">
-							<div ng-bind-html="doc.highlight[corpus.metadata.defaultSearchField].join('<br>&nbsp;&vellip;<br> ')">
-								
-							</div>
+							<div ng-bind-html="doc.highlight ? doc.highlight[corpus.metadata.defaultSearchField].join('<br>&nbsp;&vellip;<br> ') : doc._source[corpus.metadata.defaultSearchField]"></div>
 						</div>
 					</div>
 
