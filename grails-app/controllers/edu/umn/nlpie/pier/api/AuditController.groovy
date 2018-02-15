@@ -25,7 +25,7 @@ class AuditController {//extends RestfulController {
 		//lookup user
 		//verify user has access to corpus/index
 		try {
-			if ( request.method!="POST" ) throw new HttpMethodNotAllowedException(message:"issue GET instead")
+			if ( request.method!="POST" ) throw new HttpMethodNotAllowedException(message:"issue POST instead")
 			respond auditService.register(request.JSON)
 		} catch (PierApiException e) {
 			println "pier exception"
