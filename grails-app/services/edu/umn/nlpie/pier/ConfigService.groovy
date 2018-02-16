@@ -55,7 +55,7 @@ class ConfigService {
 	}
 	
 	//keep
-	def clonePreferences(User user) {
+	def initalizeUserPreferences(User user) {
 		def prefs = this.defaultPreferences
 		prefs.each {
 			println "cloning ${it.field.type}:${it.label}"

@@ -86,13 +86,15 @@ class ConfigController {
 		//respond configService.defaultUiDataElementSettings
 	}
 	
+	@Deprecated
 	def clone() {
-		configService.clonePreferences(User.findByUsername("rmcewan"))
+		configService.initalizeUserPreferences(User.findByUsername("rmcewan"))
 	}
 	
+	@Deprecated
 	def data() {
 		configService.data()
-		configService.clonePreferences(User.findByUsername("rmcewan"))
+		configService.initalizeUserPreferences(User.findByUsername("rmcewan"))
 	}
 	
 	def mapping() {

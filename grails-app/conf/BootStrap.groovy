@@ -127,7 +127,7 @@ class BootStrap {
 			nlp05.save(failOnError:true, flush:true)
 			
 			//PREFS SANITY CHECK
-			configService.clonePreferences(User.findByUsername("rmcewan"))
+			configService.initalizeUserPreferences(User.findByUsername("rmcewan"))
 			println "preferences set for rmcewan"
 		}
 		
