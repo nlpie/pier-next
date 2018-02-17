@@ -21,7 +21,7 @@ class Search {
     	this.context = undefined;
     	this.registration = undefined;
     	
-		this.searchIconClass = "";
+		this.searchIconClass = "fa fa-search fa-spin";
 		
         this.status = {
         	error: undefined,
@@ -125,10 +125,9 @@ class Search {
     }
     
     complete( search ) {
-		return Promise.resolve( function() {
-			search.searchIconClass = "fa fa-search";
-			return search;
-		});
+    	if ( !search ) search = this;	//invocation of this complete() may not be in promise chain that passes search object
+    	search.searchIconClass = "fa fa-search";
+    	return search.$q.when(search);
 	}
     
     e() {
