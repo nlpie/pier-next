@@ -19,17 +19,7 @@ class ConfigController {
 	//keep
 	def authorizedContexts() {
 		//TODO with spring security in place can restrict the set of requests based on user allowed to invoke this method
-		//def cached = session["authorized-contexts"]
-		//def contexts
-		//if ( cached ) {
-			//println " returning cached contexts"
-		//	contexts = cached
-		//} else {
-			//println "constructing contexts"
-			def contexts = configService.authorizedContexts
-			//println "caching contexts"
-			//session["authorized-contexts"] = contexts	//TODO scope cached object to user, using username, e.g. rmcewan-authorized-contexts
-		//}
+		def contexts = configService.authorizedContexts
 		JSON.use ('authorized.context') {
 			respond contexts
 		}
@@ -45,17 +35,7 @@ class ConfigController {
 	
 	def corpusAggregationsByType() {
 		def corpusTypeId = params.id
-		//def cached = session["corpus-filters-${corpusTypeId}"]
-		def filters
-		/*if ( cached ) {
-			filters = cached
-			println " returning cached filters"
-		} else {
-			println "constructing filters"*/
-			filters = configService.getCorpusAggregations(corpusTypeId)
-			//println "caching filters"
-			//session["corpus-filters-${corpusTypeId}"] = filters	//TODO scope cached object to user, using username, e.g. rmcewan-corpus-filters-1
-		//}
+		def filters = configService.getCorpusAggregations(corpusTypeId)
 		respond filters
 	}
 	
@@ -76,8 +56,6 @@ class ConfigController {
 			respond configService.getAvailableCorpora(env)
 		}
 	}
-	
-	
 	
 	def settings() { 
 		def json = configService.defaultPreferences as JSON
@@ -115,46 +93,6 @@ class ConfigController {
 		PierUtils.toSnakeCase("CamelCaseToUnderscore")
 		PierUtils.underscoreToCamelCase("underscore_to_camel_case")
 		PierUtils.labelFromUnderscore("label_from_underscore")
-	}
-	
-	def find() {
-		//curl -XPOST -H "Content-Type: application/json" -d '{ "shape" : "POLYGON((-106.69 39.2,-106.77 40.8,-106.54 41.46,-106.08 41.99,-105.45 42.3,-104.75 42.35,-104.08 42.12,-103.55 41.66,-103.24 41.03,-103.11 39.07,-103.34 38.41,-103.8 37.88,-104.78 37.51,-105.8 37.75,-106.51 38.51,-106.69 39.2))" }' http://localhost:8080/api/guide/find
-		//path query reutrns guide.id, guide.title, guide.shape, guide.publisher, abstract, audience 
-		//indiv guide request returns the whole guide; request body contains array of field guide ids 
-		try {
-			if ( request.method!="POST" ) throw new HttpMethodNotAllowedException(message:"${request.method} request not allowed, issue POST instead")
-			def p = request.JSON
-			if ( !p ) throw new BadRequestException(message:"empty POST request body")
-			if ( !p.shape ) throw new BadRequestException(message:"shape attribute missing in POST request body")
-			def shape = p.shape
-			println "Guide: ${shape}"
-						
-			def results = fieldGuideService.guidesByGeometry(shape)
-			println "Guide spatial matches: ${results.size()}"
-				
-			JSON.use ('FieldGuideLite') {
-				respond results
-			}	
-		} catch (PierApiException e) {
-			render(status: e.status, text: '{"message":"'+ e.message +'"}') as JSON
-		} catch (Exception e) {
-			def apiEx = new PierApiException(message:e.message)
-			render(status: apiEx.status, text: '{"message":"'+ apiEx.message +'"}') as JSON
-		}
-	}
-	
-	def all() {
-		try {
-			if ( request.method!="GET" ) throw new HttpMethodNotAllowedException(message:"${request.method} method not allowed, issue GET instead")
-			JSON.use ('FieldGuideLite') {
-				respond fieldGuideService.allGuides()
-			}
-		} catch (PierApiException e) {
-			render(status: e.status, text: '{"message":"'+ e.message +'"}') as JSON
-		} catch (Exception e) {
-			def apiEx = new PierApiException(message:e.message)
-			render(status: apiEx.status, text: '{"message":"'+ apiEx.message +'"}') as JSON
-		} 
 	}
 
 	def index() {
