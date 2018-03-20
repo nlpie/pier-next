@@ -23,7 +23,9 @@ class SearchController {//extends RestfulController {
 		//render(status: e.status, text: '{"message":"'+ msg +'"}', contentType: "application/json") as JSON
 	}
 	
-	def search() { }	//default search view 
+	def index() { }	//default search view
+	
+	def search() { }	//deprecated 
 	
 	def elastic() {
 		//println request.JSON.toString(2)

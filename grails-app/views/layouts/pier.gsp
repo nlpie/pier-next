@@ -71,8 +71,8 @@
 					</ul> -->
 					<ul class="nav navbar-nav navbar-right">
 						<!-- configure links in NavCtrl links property -->
-						<li class="<g:if test="${actionName=='search'}">active</g:if>">
-							<a href="${request.contextPath}/search/search" data-toggle="tooltip" data-placement="bottom" title="search">
+						<li class="<g:if test="${controllerName=='search' && actionName=='index'}">active</g:if>">
+							<a href="${request.contextPath}/search" data-toggle="tooltip" data-placement="bottom" title="search">
 								<i class="fa fa-search fa-lg" aria-hidden="true"></i>
 							</a>
 						</li>
@@ -87,8 +87,8 @@
 								<i class="fa fa-question fa-lg" aria-hidden="true"></i>
 							</a>
 						</li>
-						<li class="<g:if test="${controllerName=='config' && actionName=='settings'}">active</g:if>">
-							<a href="${request.contextPath}/config/settings" data-toggle="tooltip" data-placement="bottom" title="settings">
+						<li class="<g:if test="${controllerName=='settings' && actionName=='index'}">active</g:if>">
+							<a href="${request.contextPath}/settings" data-toggle="tooltip" data-placement="bottom" title="settings">
 								<i class="fa fa-sliders fa-lg" aria-hidden="true"></i>
 							</a>
 						</li>

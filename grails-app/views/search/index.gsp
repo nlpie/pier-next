@@ -16,17 +16,17 @@
 					<div class="pier-ontology"
 						ng-if="corpus.results.aggs.aggs && !corpus.status.computingAggs" 
 						ng-repeat="(ontology, aggregations) in corpus.metadata.aggregations track by $index">
-						<label class="pier-ontology-label">{{ontology}} <i class="fa fa-question-circle"></i></label>
+						<label class="pier-ontology-label">{{ontology}} <!--  <i class="fa fa-question-circle"></i>--> </label>
 						<div class="pier-aggregate" ng-repeat="aggregation in aggregations track by $index">
 							<div>
 								<label>{{aggregation.label}} 
-									<i class="fa fa-question-circle"></i>
+									<i class="fa fa-question-circle" title="{{aggregation.fieldDescription}}"></i>
 								</label>
 								<span ng-if="aggregation.countDistinct" style="font-size:0.5em;margin-right:1em">{{aggregation.count | number}}, {{aggregation.cardinalityEstimate | number}} ({{aggregation.countType}}, cardinality) counts</span>
 							</div>
 							<div class="pier-filter" ng-repeat="bucket in corpus.results.aggs.aggs[aggregation.label].buckets track by $index">
-								<i class="fa fa-check-square-o"></i> 
-								<span ng-click="rc.search.addFilter( corpus, aggregation, bucket.key )" style="cursor:pointer">{{ aggregation.isTemporal ? bucket.key_as_string : bucket.key}}</span>
+								<!-- <i class="fa fa-check-square-o"></i>  -->
+								<span ng-click="rc.search.addFilter( corpus, aggregation, bucket.key )" style="cursor:pointer">{{ aggregation.isTemporal ? bucket.key_as_string : bucket.key }}</span>
 								<span style="font-size:0.5em">({{bucket.doc_count | number}})</span>
 							</div>
 							<hr>
@@ -52,13 +52,13 @@
 					<div growl reference="docs"></div>
 					<div growl limit-messages="1" reference="full"></div>
 					<div ng-show="corpus.status.searchingDocs" id="docs-spinner" style="padding-top:25px">
-						<asset:image src="ajax-loader.gif" alt="searching corpora..." /> searching corpora...
+						<asset:image src="ajax-loader.gif" alt="searching corpus..." /> searching corpus...
 					</div>
 					<div ng-repeat="doc in corpus.results.docs.hits track by $index"
 						ng-if="corpus.results.docs && !corpus.status.searchingDocs" 
 						ng-switch="corpus.name">
 						<div ng-switch-when="Surgical Pathology Reports" class="panel panel-default panel-body">
-							<pre ng-bind-html="doc._source[corpus.metadata.defaultSearchField]"></pre>
+							<pre ng-bind-html="doc.highlight ? doc.highlight[corpus.metadata.defaultSearchField].join('<br>&nbsp;&vellip;<br> ') : doc._source[corpus.metadata.defaultSearchField]"></pre>
 							<!-- <pre 
 								ng-repeat="frag in doc.highlight[corpus.metadata.defaultSearchField] track by $index"
 								ng-bind-html="frag.toString()">

@@ -12,6 +12,7 @@ import grails.converters.JSON
 class ConfigController {
     
 	ConfigService configService
+	def apiService
 	
 	static responseFormats = ['json']
 	//static allowedMethods = [get: "GET", "find": "POST"]
