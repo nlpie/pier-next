@@ -15,6 +15,7 @@ import edu.umn.nlpie.pier.elastic.Index
 import edu.umn.nlpie.pier.elastic.Type
 import edu.umn.nlpie.pier.ui.CorpusType
 import edu.umn.nlpie.pier.ui.FieldPreference
+import edu.umn.nlpie.pier.ui.Ontology
 import grails.converters.JSON
 
 class JsonMarshallerRegistrar {
@@ -30,7 +31,7 @@ class JsonMarshallerRegistrar {
 				"fieldDescription": fpr.field.description,
 				"ontology": fpr.ontology.name,
 				"username": fpr.user.username,
-				"displayOrder": fpr.displayOrder,
+				"displayOrder": fpr.displayOrder,	
 				"aggregate": fpr.aggregate,
 				"countDistinct": fpr.computeDistinct,
 				"count": null,	//filled in client-side if countDistinct is true
@@ -39,6 +40,52 @@ class JsonMarshallerRegistrar {
 				"isTemporal": ["DATE","DATETIME"].contains(fpr.field.dataTypeName) ? true: false,
 				"isNumeric": ["LONG","INTEGER"].contains(fpr.field.dataTypeName) ? true: false
 			]
+		}
+		
+		JSON.createNamedConfig ('fieldpreference') { DefaultConverterConfiguration<JSON> cfg ->
+			cfg.registerObjectMarshaller (FieldPreference) { fpr ->
+				[
+					"id": fpr.id,
+					"label": fpr.label,
+					//"fieldName": fpr.field.fieldName,
+					"ontology": fpr.ontology,
+					//"username": fpr.user.username,
+					"displayOrder": fpr.displayOrder,
+					"aggregate": fpr.aggregate,
+					"countDistinct": fpr.computeDistinct,
+					//"count": null,	//filled in client-side if countDistinct is true
+					"numberOfFilterOptions": fpr.numberOfFilterOptions,
+					"includeInExport": fpr.includeInExport,
+					"isTemporal": ["DATE","DATETIME"].contains(fpr.field.dataTypeName) ? true: false,
+					"isNumeric": ["LONG","INTEGER"].contains(fpr.field.dataTypeName) ? true: false,
+					"corpus": fpr.field.type.index,
+					"field": fpr.field
+				]
+			}
+			cfg.registerObjectMarshaller (Field) { f ->
+				[
+					id: f.id,
+					fieldName: f.fieldName,
+					aggregatable: f.aggregatable,
+					exportable: f.exportable,
+					contextFilterField: f.contextFilterField,
+					dataTypeName: f.dataTypeName,
+					description: f.description
+				]
+			}
+			cfg.registerObjectMarshaller (Index) { i ->
+				[
+					id: i.id,
+					name: i.commonName
+				]
+			}
+			cfg.registerObjectMarshaller (Ontology) { o ->
+				[
+					id: o.id,
+					name: o.name,
+					description: o.description
+				]
+			}
 		}
 		
 		JSON.registerObjectMarshaller(DistinctCount) { dc ->

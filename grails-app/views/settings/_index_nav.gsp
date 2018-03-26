@@ -13,17 +13,25 @@
     </div>
 
     <!-- Collect the nav links, forms, and other content for toggling -->
-    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-
+    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1" ng-controller="settingsController as sc">
 		<ul class="nav navbar-nav navbar-right nav-pills">
-			<li id="filters" class="active" onclick="this.className='active';document.getElementById('export').className='';">
-				<a style="border-radius:0px">Filters</a>
+			<li class="dropdown">
+          		<a class="dropdown-toggle" data-toggle="dropdown" role="button">
+					{{ sc.settings.corpus }} <span class="caret"></span>
+				</a>
+          		<ul class="dropdown-menu">
+					<li role="presentation" class="dropdown-header">Searchable Corpora</li>
+            		<li ng-repeat="(corpus, ontologies) in sc.settings.prefs">
+						<a ng-click="sc.settings.changeCorpus(corpus)">{{ corpus }}</a>
+					</li>
+          		</ul>
+        	</li>
+			
+			<li id="{{key}}" ng-class="sc.settings.styles.{{key}}" ng-class="sc.settings.styles.filters" ng-click="sc.settings.swap(key)" ng-repeat="(key, view) in sc.settings.views">
+				<a style="border-radius:0px">{{ view }}</a>
 			</li>
-			<li id="export" class="" onclick="this.className='active';document.getElementById('filters').className='';">
-				<a style="border-radius:0px">Export</a>
-			</li>
+			
 		</ul>
-		
     </div><!-- /.navbar-collapse -->
   </div><!-- /.container-fluid -->
 </nav>

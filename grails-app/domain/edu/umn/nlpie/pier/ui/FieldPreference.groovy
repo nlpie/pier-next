@@ -2,21 +2,17 @@ package edu.umn.nlpie.pier.ui
 
 import edu.umn.nlpie.pier.elastic.Field
 import edu.umn.nlpie.pier.springsecurity.User
+import grails.util.Environment
 
-
+//@Resource(uri='/fieldPreference', formats=['json'])
 class FieldPreference {
 
 	static constraints = {
-		field()
-		//field(unique:'user')
+		field( unique:'user' )
 		user()
 		label()
-		//queryable()
 		displayOrder()
 		aggregate()
-		/*ontology validator: { val, obj, errors ->
-			if ( !(Ontology.findAllByIndex(obj.property.type.index).collect{it.id}.contains(val)) ) errors.rejectValue('ontology', 'Ontology must be associated with the parent corpus of the field being edited')
-		}*/
 		ontology( nullable:true )
 		numberOfFilterOptions()
 		includeInExport()
@@ -28,19 +24,14 @@ class FieldPreference {
 	
 	static belongsTo = [ field:Field ]
 	
-	//{id: 1, key:'setting', field:'setting', label:'Setting', use:['query','alldata','nonotes'], 
-	//	query:true, facetChoice:true, facet:true, facetSize:10, downloadChoice:true, download:true, ontology:'Epic' },
-	
-    //Field field
     User user
 	String label
-    //boolean queryable = true
-    Integer displayOrder = 10
-    Boolean aggregate = true
-	Boolean computeDistinct = false
+    Integer displayOrder = 10			//p
+    Boolean aggregate = true			//p
+	Boolean computeDistinct = false		//ui
 	Ontology ontology
-	Integer	numberOfFilterOptions = 10
-	Boolean includeInExport = false
+	Integer	numberOfFilterOptions = 5	//p
+	Boolean includeInExport = false		//p
 	Boolean applicationDefault = false
 	
 	Date dateCreated
@@ -48,8 +39,15 @@ class FieldPreference {
 	
 	String toString() {
 		if ( id==null ) return ""
-		//( applicationDefault ) ? "${label} (DEFAULT)" : "${label} (${user.username})"
 		"${label}"
+	}
+	
+	static List preferencesByIndexAndUser( index, user ) {
+		def grailsEnv = Environment.current.toString()	// != Environment.PRODUCTION
+		def prefs = FieldPreference.executeQuery(
+						'select fp from FieldPreference fp where user=? and fp.field.type.index=?', [ index,user ]
+					)
+		
 	}
 	
 }

@@ -27,7 +27,7 @@ class Type {
     	typeName( unique:'index')
     	description(nullable:true)
 		corpusType( unique:'environment')
-		environment inList: ['development', 'test', 'production', 'deprecated']
+		environment inList: ['DEVELOPMENT', 'TEST', 'PRODUCTION', 'DEPRECATED']
 	}
 	
     String typeName

@@ -22,7 +22,7 @@ class AuthorizedContext {
 	
     Long requestId
 	String label
-	String filterValue
+	String filterValue	//filter value used in ES for note sets
 	String username
 	Long userId
 	String description
@@ -60,7 +60,7 @@ class AuthorizedContext {
 			//address case of whole corpus contexts like 'Clinical Notes' and 'Surgical Pathology Reports'
 			if ( this.label==ct.name ) {	
 				ct.metadata = new CorpusMetadata(ct)
-				ct.metadata.restrictedContext = false
+				ct.metadata.filtered = false
 			}
 				
 		}

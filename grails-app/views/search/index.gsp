@@ -28,24 +28,14 @@
 								<!-- <i class="fa fa-check-square-o"></i>  -->
 								<span ng-click="rc.search.addFilter( corpus, aggregation, bucket.key )" style="cursor:pointer">{{ aggregation.isTemporal ? bucket.key_as_string : bucket.key }}</span>
 								<span style="font-size:0.5em">({{bucket.doc_count | number}})</span>
+								<label class="switch pull-right">
+  									<input type="checkbox" ng-click="rc.search.addFilter( corpus, aggregation, bucket.key )" >
+  									<span class="slider round"></span>
+								</label>
 							</div>
 							<hr>
 						</div>
 					</div>
-					<!-- 
-					<ul class="pier-ul" style="color:gray">
-						<li><i class="fa fa-check-square-o" aria-hidden="true"></i>
-							7.b. Office (3,101)</li>
-						<li><i class="fa fa-square-o" aria-hidden="true"></i>
-							4. Inpatient Hospital (44) </li>
-						<li><i class="fa fa-check-square-o" aria-hidden="true"></i>
-							7.d. Urgent Care Center (13)</li>
-						<li><i class="fa fa-minus-square-o" aria-hidden="true"></i>
-							3. Emergency Department (3)</li>
-						<li><i class="fa fa-square-o" aria-hidden="true"></i>
-							7.c. Outpatient Hospital (1)</li>
-					</ul>
-					 -->
 				</div>
 
 				<div id="doc-column" class="col-xs-9" ng-style="corpus.opacity">

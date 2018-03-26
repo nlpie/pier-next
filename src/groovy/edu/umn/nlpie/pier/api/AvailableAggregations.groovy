@@ -42,7 +42,7 @@ class AvailableAggregations {
 	def populate(type) {
 		//def type = Type.find("from Type as t where t.corpusType.id=? and environment=? and t.index.status=?", [ 1.toLong(), Environment.current.name, 'Available' ])
 		def preferences = FieldPreference.where{ field.type.id==type.id && applicationDefault==true }.list()
-		def ontologies = preferences.collect{ it.ontology }.unique()
+		def ontologies = preferences.collect{ it.ontology }.sort { it.name }.unique()
 		ontologies.each { o ->
 			def prefsByOntology = preferences.findAll{ it.ontology.id==o.id && it.aggregate==true }
 			if ( prefsByOntology.size>0 ) {

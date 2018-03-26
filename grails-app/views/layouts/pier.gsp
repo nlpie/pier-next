@@ -27,9 +27,11 @@
 	<asset:javascript src="lib/bootstrap.min.js" />
 	<asset:stylesheet src="lib/font-awesome.min.css" />
 	<asset:stylesheet src="lib/wfmi-style.css" />
-	
 	<asset:stylesheet src="lib/bootstrap-toggle.min.css" />
 	<asset:javascript src="lib/bootstrap-toggle.min.js" />
+	<asset:stylesheet src="lib/angular-growl.min.css" />
+	<asset:stylesheet src="lib/xeditable.min.css" />
+	
 	
 	<asset:stylesheet src="lib/Roboto.css" />
 	
@@ -45,7 +47,6 @@
 	 
 	<asset:javascript src="lib/system.js" />
 	<asset:javascript src="lib/browser.js" />
-
 
 	<g:layoutHead />
 </head>
@@ -105,7 +106,6 @@
 	<g:render template="${actionName}_nav" />
 	
 	<g:layoutBody />
-
 	<script>
 		//sets up dynamic loading of ES6 modules/classes and loads top level file with imports of other modules
 	 	System.config({
@@ -122,6 +122,7 @@
 	    		//angular.bootstrap(document.body, ['app'], {strictDi: true});
 			});
 	</script>
+
 	<script>
 		$(document).ready(function(){
 		    $('[data-toggle="tooltip"]').tooltip({ delay:{show: 500, hide: 100} });

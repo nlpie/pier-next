@@ -69,7 +69,12 @@ a {
 	border-bottom-color: transparent;*//*#0090ff;*/
 }
 
+.nav .open > a, .nav .open > a:focus, .nav .open > a:hover {
+	border-color: transparent !important;
+}
+
 .navbar-nav > li > a {
+    background-color: transparent !important;
     line-height: 12px;
 }
 
@@ -245,6 +250,10 @@ label:focus,
 	-webkit-box-shadow: none;
 }
 
+.form-control {
+	height: 33px;
+}
+
 .noteset-available {
 	color: green
 }
@@ -256,6 +265,65 @@ label:focus,
 .hl {
 	font-style:italic;
 	color:blue;
+}
+
+/* slider checkboxes (https://www.w3schools.com/howto/howto_css_switch.asp) */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 18px;
+  height: 10px;
+  margin-right:2px;
+  vertical-align:middle;
+}
+
+.switch input {display:none;}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 8px;
+  width: 9px;
+  left: 1px;
+  bottom: 1px;
+  background-color: white;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+input:checked + .slider {
+  background-color: #428bca;
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px #428bca;;
+}
+
+input:checked + .slider:before {
+  -webkit-transform: translateX(7px);
+  -ms-transform: translateX(7px);
+  transform: translateX(7px);
+}
+
+/* Rounded sliders */
+.slider.round {
+  border-radius: 8px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
 }
 
 

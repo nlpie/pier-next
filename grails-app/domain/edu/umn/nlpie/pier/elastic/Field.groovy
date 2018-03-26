@@ -31,8 +31,8 @@ class Field {
 		dataTypeName( inList: [ "INTEGER", "LONG", "NOT_ANALYZED_STRING", "SNOWBALL_ANALYZED_STRING", "DATE", "DATETIME" ] )
 		description(nullable:true)	
 		dataType display:false
-		property display:false
-		preferences()
+		aggregatable()
+		exportable()
 		defaultPreference display:false
 	}
 	static belongsTo = [ type:Type ]
@@ -43,6 +43,8 @@ class Field {
 	String fieldName
 	Boolean defaultSearchField = false
 	Boolean contextFilterField = false
+	Boolean aggregatable = false
+	Boolean exportable = false
 	String dataTypeName
 	String description
 	List<FieldPreference> preferences
