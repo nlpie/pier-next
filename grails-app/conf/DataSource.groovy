@@ -1,6 +1,8 @@
 dataSource {	
 	pooled = true
     jmxExport = true
+    //logSql=true
+    //formatSql=true
 	properties {
 		// See http://grails.org/doc/latest/guide/conf.html#dataSource for documentation
 		//dataSource in each env will "inherit" these properties
@@ -36,7 +38,7 @@ dataSource_notes {
 	//dialect = org.hibernate.dialect.Oracle11gDialect
 	//url = "jdbc:oracle:thin:@ctsidbprod.ahc.umn.edu:1521/TIDEPRD"
 	dialect = org.hibernate.dialect.Oracle10gDialect	//no support for Oracle12c dialect in this version of Hibernate v4.x
-	url = "jdbc:oracle:thin:@//tideprdp.ahc.umn.edu:1521/TIDEPRDP"
+	url = "jdbc:oracle:thin:@//tideprdp.ahc.umn.edu:1521/tideprdp.ahc.umn.edu"
 	properties {
 		maxActive = 10
 		maxIdle = 10
