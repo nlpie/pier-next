@@ -13,6 +13,7 @@ class Request {
     }
 	
 	static marshaller = {
+//TODO object marshaller here? doesn't seem correct
 		JSON.registerObjectMarshaller(Request) { r ->
 			def parties = [
 		            ["id":12 , "name":"Ar", "privateField": "a"],

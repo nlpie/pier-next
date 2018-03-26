@@ -10,7 +10,7 @@ import Pagination from './Pagination';
 import TermFilter from './elastic/TermFilter';
 
 class Search {
-	    constructor( $http, $q, growl, searchService, uiService ) {
+    constructor( $http, $q, growl, searchService, uiService ) {
     	this.$http = $http;
     	this.$q = $q;
     	this.growl = growl;
@@ -116,7 +116,7 @@ class Search {
     }
     
     //----------------- refactored search ------------------------------
-    //each should return a promise? or be its own self-contatined process that returns a promise?
+    //each should return a promise? or be its own self-contained process that returns a promise?
     
     //core search
     c() {
@@ -127,21 +127,22 @@ class Search {
     complete( search ) {
     	if ( !search ) search = this;	//invocation of this complete() may not be in promise chain that passes search object
     	search.searchIconClass = "fa fa-search";
-    	return search.$q.when(search);
+    	return search.$q.when( search );
 	}
     
     e() {
     	//execute search 
     	let me = this;
     	this.fi(); //placeholder for now
-    	this.r()
-    	.then( me.searchCorpora )
-    	.then( me.complete )
-    	.then( me.searchService.fetchHistoryExcludingMostRecent() )
-    	.catch( function(e) {
-    		me.clearResults();
-    		me.remoteError("docs",e);
-		});
+    	this.r()	//returns the current Search instance and passes down the promise chain
+    		.then( me.searchCorpora )
+    		.then( me.dec )	//decorate (results) as appropriate
+    		.then( me.complete )		//LOOK into switching order of these this and next stmt and being able to fetch hist from Search.js (this); would be nice for complete to actally be the end of the promise chain.
+    		.then( me.searchService.fetchHistoryExcludingMostRecent() )
+    		.catch( function(e) {
+    			me.clearResults();
+    			me.remoteError("docs",e);
+    		});
     }
     
     r() {
@@ -161,10 +162,36 @@ class Search {
     	//returns? needs some analysis
     }
     
+    dec( search ) {
+    	let decorators = [];
+    	for ( let corpus of search.context.candidateCorpora ) {
+    		if ( corpus.results.aggs && corpus.results.aggs.aggs['Medical Concepts'] ) {
+    			for ( let bucket of corpus.results.aggs.aggs['Medical Concepts'].buckets ) {
+    				//console.log(bucket.key);
+    				decorators.push( 
+    					search.$http.get( APP.ROOT + '/umls/string/' + bucket.key )
+    					.then ( function( response ) {
+    						if (response.data.str) bucket.key=response.data.str;	//if umls str exits put in key prop
+    					})
+    				);
+    			}
+    		}
+    	}
+    	if ( decorators.length==0 ) {
+    		alert ("decorators is zero");
+    		return search;
+    	}
+    	return search.$q.all( decorators )
+    		.then( function( response ) {
+    			return search;
+    		});
+    }
+    
     
     d( registration, corpus ) {
     	//single corpus doc search
     	//returns es hits
+    	console.error(JSON.stringify(this,null,'\t'));
     	corpus.status.searchingDocs = true;
     	var url = corpus.metadata.url;
     	var docsQuery = new DocumentQuery( corpus, this.userInput );
@@ -187,7 +214,7 @@ class Search {
     	//returns es hits
     	corpus.status.computingAggs = true;
     	var url = corpus.metadata.url;
-    	var aggsQuery = new AggregationQuery(corpus, this.userInput);
+    	var aggsQuery = new AggregationQuery( corpus, this.userInput );
 		return this.$http.post( APP.ROOT + '/search/elastic/', JSON.stringify( {"registration.id":registration.id, "corpus":corpus.name, "type":"aggregation", "url":url, "query":aggsQuery} ) )
 			.then( function( aggsSearchResponse ) {
 				let results = aggsSearchResponse.data;
@@ -205,8 +232,6 @@ class Search {
     }
     
     searchCorpora( search ) {
-    	//alert( "sc" );
-    	//alert( JSON.stringify(search,null,'\t') );
     	//search corpora, kicks off parallel ($q.all) documents and aggs search
     	//iterate over corpora and kick off parallel d() and a() searches
     	let corporaSearch = [];
@@ -219,10 +244,10 @@ class Search {
     			searches.push( search.d( search.registration, corpus ) );
     			searches.push( search.a( search.registration, corpus ) );
     			let corpusSearch = search.$q.all( searches )
-    			.then ( function( results ) {
-    				//results is an array mapped to searches array
-    				//return results;
-    			});
+	    			.then ( function( results ) {
+	    				//results is an array mapped to searches array
+	    				//return results;
+	    			});
     			corporaSearch.push( corpusSearch );
 			}
 		}
@@ -339,17 +364,6 @@ class Search {
       }
     }
 */
-   /*deprecated
-   conduct() {
-    	console.log("conducting.......");
-    	var me = this;
-    	this.clearResults();
-    	this.register()
-    		.then( function(response) {
-    			me.assignRegistration( response );
-    			me.execute();
-    		});
-    }*/
     
     conductPastSearch( registrationId ) {
     	//use registrationId to lookup registration to get the auth context label

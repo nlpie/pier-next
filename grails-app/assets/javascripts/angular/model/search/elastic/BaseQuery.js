@@ -10,6 +10,7 @@ class BaseQuery {
     	this.query.bool.filter = [];
     	this.addFilters( corpus );
     	this.size = 0;
+    	console.info(JSON.stringify(this,null,'\t'));
     }
 
     addFilters( corpus ) {
