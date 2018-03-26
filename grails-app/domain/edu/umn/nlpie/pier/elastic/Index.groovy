@@ -28,7 +28,7 @@ class Index {
 	String alias
 	String commonName
 	String description
-	String status = "In Progess"
+	String status = "In Progress"
 	Integer numberOfShards
 	Integer numberOfReplicas
 	ConceptualSearch conceptualSearch
