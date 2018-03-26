@@ -1,13 +1,13 @@
-import Search from '../../model/search/Search';
+//import Search from '../../model/search/Search';
 
 class ResultsController {
 	
-	constructor( $scope, currentSearch, growl ) {
+	constructor( currentSearch ) {
 		this.search = currentSearch;
 	}
 	
 }
 
-ResultsController.$inject = [ '$scope', 'currentSearch' ];
+ResultsController.$inject = [ 'currentSearch' ];
 
 export default ResultsController;
