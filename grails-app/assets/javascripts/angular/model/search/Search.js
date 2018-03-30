@@ -62,22 +62,12 @@ class Search {
 			corpus.status.dirty = true;
 		} else {
 			//dim doc results for all copora
-			for (let corpus of this.context.candidateCorpora) {
+			for (let corpus of this.context.corpora) {
 				corpus.opacity = corpus.resultsOpacity.dimmed;
 				corpus.status.dirty = true;
 			}
 		}
 	}
-    
-    //adds filters to corpus.appliedFilters object (not array)
-	addFilter(corpus, aggregation, value) {
-    	if ( !corpus.appliedFilters[aggregation.label] ){
-    		corpus.appliedFilters[aggregation.label] = [];
-    	}
-    	corpus.appliedFilters[aggregation.label].push( new TermFilter(aggregation.fieldName,value) );
-    	this.dirty( corpus );
-    	//alert(JSON.stringify(corpus.appliedFilters));
-    }
 
     setContext(searchContext) {
     	//if (!searchContext) return;	
@@ -86,7 +76,7 @@ class Search {
     	this.context = searchContext;
     	this.status.version++;
     	this.clearResults();
-    	for ( let corpus of this.context.candidateCorpora ) {
+    	for ( let corpus of this.context.corpora ) {
     		if ( corpus.metadata.searchable ) {
     			if ( corpus.metadata.filtered ) {
     				corpus.contextFilter = new TermFilter(corpus.metadata.contextFilterField, this.context.contextFilterValue);	//contextFilter specific to each searchable corpus
@@ -99,17 +89,12 @@ class Search {
     				corpus.results = {};
     				this.complete();
     			}
-				this.availableAggregations( corpus )
+				this.corpusAggregations( corpus )
 	    			.then( function(response) {
 	    				corpus.metadata.aggregations = response.data;
-	    			})
-	    			.then( function() {
-	    				//console.log("Search.js " + JSON.stringify(searchContext,null,'\t'));
-	    			})
-	    			.then( function() {
 	    				console.log("AUTHORIZED CONTEXT SET");
-	    				//alert(JSON.stringify(corpus));
-	    			}); 
+	    			});
+	    				
 			}
     	}
     	this.searchService.fetchHistory();
@@ -164,7 +149,7 @@ class Search {
     
     dec( search ) {
     	let decorators = [];
-    	for ( let corpus of search.context.candidateCorpora ) {
+    	for ( let corpus of search.context.corpora ) {
     		if ( corpus.results.aggs && corpus.results.aggs.aggs['Medical Concepts'] ) {
     			for ( let bucket of corpus.results.aggs.aggs['Medical Concepts'].buckets ) {
     				//console.log(bucket.key);
@@ -191,7 +176,7 @@ class Search {
     d( registration, corpus ) {
     	//single corpus doc search
     	//returns es hits
-    	console.error(JSON.stringify(this,null,'\t'));
+    	//console.error(JSON.stringify(this,null,'\t'));
     	corpus.status.searchingDocs = true;
     	var url = corpus.metadata.url;
     	var docsQuery = new DocumentQuery( corpus, this.userInput );
@@ -219,6 +204,7 @@ class Search {
 			.then( function( aggsSearchResponse ) {
 				let results = aggsSearchResponse.data;
 				corpus.results.aggs = new AggregationsResponse( results );
+				//alert("RESULTS\n"+JSON.stringify(corpus,null,'\t'));
 				return results;
 			})
 			.finally( function() {
@@ -235,7 +221,7 @@ class Search {
     	//search corpora, kicks off parallel ($q.all) documents and aggs search
     	//iterate over corpora and kick off parallel d() and a() searches
     	let corporaSearch = [];
-    	for ( let corpus of search.context.candidateCorpora ) {
+    	for ( let corpus of search.context.corpora ) {
     		if ( corpus.metadata.searchable ) {
     			//alert( corpus.name );
     			corpus.selected = true;	//TODO refactor selected assignments to a user pref
@@ -333,15 +319,19 @@ class Search {
     
   //----------------- end refactored search------------------------------
     
-    availableAggregations( corpus ) {
+    /*corpusAggregations( corpus ) {
     	//gets aggregation filters based on user prefs 
     	return this.$http.get( APP.ROOT + '/config/corpusAggregationsByType/' + corpus.id, { cache:false } );
     	//https://coderwall.com/p/40axlq/power-up-angular-s-http-service-with-caching
+    }*/
+    corpusAggregations( corpus ) {
+    	//gets filters based on user prefs 
+    	return this.$http.get( APP.ROOT + '/settings/corpusAggregations/' + corpus.id );
     }
     
     clearResults() {
     	this.searchIconClass = "fa fa-search";
-    	for ( let corpus of this.context.candidateCorpora ) {
+    	for ( let corpus of this.context.corpora ) {
     		corpus.results = {};
     	}
     }
@@ -395,73 +385,11 @@ class Search {
     	//assign parsed query here
     }
     
-    /*deprecated
-    execute() {
-    	//pagination.notesPerPage and .offset are set in DocumentQuery.js
-    	var me = this;
-    	var defaultCorpusSet = false;
-    	for ( let corpus of this.context.candidateCorpora ) {
-    		if ( corpus.metadata.searchable ) {
-    			try {
-					this.searchCorpus( corpus )
-		    			.then( function(response) {
-		    				me.assignDocumentsResponse( corpus,response );
-		    				//client-side setting of default corpus, probably should be a property of corpus type
-		    				if ( !defaultCorpusSet ) {
-		    					corpus.selected = true;
-		    					defaultCorpusSet = true;
-		    				} else {
-		    					corpus.selected = false;
-		    				}
-		    			})
-		    			.catch( function(e) {
-	    					try {
-	    						me.remoteError("docs",e);
-	    					} catch(e) {
-	    						throw(e)
-	    					}
-	    				})
-						.finally( function() {
-							corpus.status.searchingDocs = false;
-						});
-					
-					this.fetchAggregations( corpus )
-	    				.then( function(response) {
-		    				me.assignAggregationsResponse( corpus,response );
-	    				})
-	    				.then( function( maxBuckets ) {
-	    					var maxCount = corpus.results.aggs.total;
-	    					console.log("max distinct count " + maxCount);
-		    				if ( me.options.relatednessExpansion.on ) me.distinctCounts( corpus, maxCount );
-		    			})
-	    				.catch( function(e) {
-	    					//catches non-200 status errors
-	    					me.remoteError("aggs",e);
-	    				})
-						.finally( function() {
-	    					corpus.status.computingAggs = false;
-	    					//console.log(JSON.stringify(corpus.results.docs.hits[0],null,'\t'));
-	    					//console.log(JSON.stringify(corpus.results.aggs.aggs,null,'\t'));
-	    					//console.log(JSON.stringify(corpus.results.docs,null,'\t'));
-	    				});
-					
-    			} catch(e) {
-    				//javascript error
-    				alert("ERROR: " + e.toString() );
-					me.error("full",e);
-				}
-			}
-		}
-    	this.complete();
-    	this.searchService.fetchHistory( true );
-    }
-    */
-    
     reExecute( searchRegistration ) {
     	//notesPerPage [and .offset] need to be parsed from searchRegistration and put on uiState
     	var me = this;
     	var defaultCorpusSet = false;
-    	for ( let corpus of this.context.candidateCorpora ) {
+    	for ( let corpus of this.context.corpora ) {
     		if ( corpus.metadata.searchable ) {}
     			for ( let q of searchRegistration.queries )	{
     				if ( q.corpus==corpus.name && q.type=="document" ) {
@@ -574,7 +502,7 @@ class Search {
     					"query": query
     				};
     				if ( countType=="bucket" ) {
-    					alert(JSON.stringify( payload, null, '\t' ));
+    					//alert(JSON.stringify( payload, null, '\t' ));
 		    			if ( aggregation.fieldName=="note_id" ) {		    				
 		    				me.$http.post( APP.ROOT + '/search/noteCount/', JSON.stringify( payload ) )
 		    				.then( function(response) {

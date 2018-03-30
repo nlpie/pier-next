@@ -8,7 +8,7 @@ import edu.umn.nlpie.pier.elastic.Field
 import edu.umn.nlpie.pier.elastic.Index
 import edu.umn.nlpie.pier.elastic.Type
 import edu.umn.nlpie.pier.springsecurity.User
-import edu.umn.nlpie.pier.ui.CorpusType
+import edu.umn.nlpie.pier.ui.Corpus
 import edu.umn.nlpie.pier.ui.FieldPreference
 import edu.umn.nlpie.pier.ui.Ontology
 import grails.plugins.rest.client.RestBuilder
@@ -21,12 +21,11 @@ class ConfigService {
 
     //keep
 	def getAuthorizedContexts() {
-		//def list = []
 		def list = AuthorizedContext.list(sort:'label')
 		//TODO get user from spring security service
-		//TODO check if user has ROLE_ADMIN
-		def corpusTypes = CorpusType.findAllByEnabled(true,[sort:'name',order:"desc"])
-		corpusTypes.each { ct ->
+		//TODO check if user has ROLE_ADMIN, if yes, add each enabled corpus for the current env for corpus-wide searching
+		def corpora = Corpus.availableCorpora
+		corpora.each { ct ->
 			list.add(0,new AuthorizedContext( label:ct.name, filterValue:0 ));
 		}
 		list
@@ -41,20 +40,15 @@ class ConfigService {
 	}
 	
 	
-	def getCorpusAggregations(corpusTypeId) {
-		new AvailableAggregations(corpusTypeId).aggregations
-	}
-	
-	//discard
-	def getAvailableCorpora(env) {
-		Type.where { corpusType.id in ( CorpusType.findAllByEnabled(true).collect{it.id} ) && environment==env }.list()
+	def getCorpusAggregations(corpusId) {
+		new AvailableAggregations(corpusId).aggregations
 	}
 	
 	def getDefaultPreferences() {
 		FieldPreference.findAllByApplicationDefault(true)
 	}
 	
-	//keep
+	//keep - creates set of initial preferences for new users
 	def initalizeUserPreferences(User user) {
 		def prefs = this.defaultPreferences
 		prefs.each {

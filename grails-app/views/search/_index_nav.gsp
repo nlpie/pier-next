@@ -41,14 +41,14 @@
                         </button>
                         <ul class="dropdown-menu" role="menu">
                             <li role="presentation" class="dropdown-header">Authorized Search Contexts</li>
-                        	<li ng-repeat="c in sc.uiState.authorizedContexts track by $index" class="pull-left">
+                        	<li ng-repeat="ctx in sc.uiState.authorizedContexts track by $index" class="pull-left">
                         		<a>
-		                        	<i ng-repeat="ct in c.candidateCorpora track by $index" 
-		                        		class="fa {{ct.glyph}} pier-li-left-padded-icon"
-		                        		ng-style="(ct.metadata.searchable) ? {'color':'green'} : {'color': 'lightgray'}"
-		                        		ng-attr-title="{{ct.metadata.tooltip}}">
+		                        	<i ng-repeat="corpus in ctx.corpora track by $index" 
+		                        		class="fa {{corpus.glyph}} pier-li-left-padded-icon"
+		                        		ng-style="(corpus.metadata.searchable) ? {'color':'green'} : {'color': 'lightgray'}"
+		                        		ng-attr-title="{{corpus.metadata.tooltip}}">
 		                        	</i> 
-                        			<span class="pier-li-left-padded-content" ng-click="sc.uiState.changeContext(c)" title="{{c.description}}">{{c.label}}</span>
+                        			<span class="pier-li-left-padded-content" ng-click="sc.uiState.changeContext(ctx)" title="{{ctx.description}}">{{ctx.label}}</span>
                         		</a>
                             </li>
                         </ul>
@@ -92,7 +92,7 @@
 			</div>
 		</form>
 
-		<div ng-repeat="corpus in sc.uiState.currentSearch.context.candidateCorpora track by $index"
+		<div ng-repeat="corpus in sc.uiState.currentSearch.context.corpora track by $index"
 			 ng-if="corpus.results.docs" class="btn-group pull-right" role="group" style="margin-right:170px">
 			<div ng-if="corpus.metadata.searchable">
 				<button type="button" class="btn btn-default btn-result-pagination" ng-click="sc.uiState.currentSearch.firstPage( corpus )" ng-style="{cursor:sc.uiState.currentSearch.backwardCursor( corpus )}"> <i class="fa fa-angle-double-left"> </i></button>

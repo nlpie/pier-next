@@ -1,7 +1,7 @@
 package edu.umn.nlpie.pier.context
 
 import edu.umn.nlpie.pier.api.CorpusMetadata;
-import edu.umn.nlpie.pier.ui.CorpusType
+import edu.umn.nlpie.pier.ui.Corpus
 
 
 class AuthorizedContext {
@@ -41,30 +41,29 @@ class AuthorizedContext {
 	
 	/**
 	 * 
-	 * @return List of annotated CorpusType instances. Annotations are transient fields: a flag indicating the CorpusType instance 
+	 * @return List of annotated Corpus instances. Annotations are transient fields: a flag indicating the Corpus instance 
 	 * is searchable for this user and an Elastic Type instance from the environment specific cluster configuration detailing cluster, 
-	 * index, and type details for the CorpusType instance
+	 * index, and type details for the Corpus instance
 	 */
-	def annotatedCorpusTypes() {
-		//TODO restore this  
-		def corpusTypes = CorpusType.findAllByEnabled(true)
-		//def corpusTypes = CorpusType.findAllByEnabledAndName(true,'Surgical Pathology Reports')
-		corpusTypes.each { ct ->
-			//check for corpus document sets associated with this auth context
-			def availableSearchContext = SearchContext.findByCorpusTypeAndStatusAndRequestId(ct.name,"Completed",this.requestId)
+	def annotatedCorpora() {  
+		def corpora = Corpus.availableCorpora
+		corpora.each { ct ->
+			//check for document sets associated with this auth context and corpus
+			def availableSearchContext = SearchContext.findByCorpusAndStatusAndRequestId(ct.name,"Completed",this.requestId)
 			if ( availableSearchContext ) {	
 				ct.metadata = new CorpusMetadata(ct)
 			} else { 
 				ct.metadata = new CorpusMetadata( searchable:false, tooltip:"Excludes ${ct.name}" )
 			}
 			//address case of whole corpus contexts like 'Clinical Notes' and 'Surgical Pathology Reports'
-			if ( this.label==ct.name ) {	
+			if ( this.label==ct.name ) {
+				println "THIS GOT CALLED"	
 				ct.metadata = new CorpusMetadata(ct)
 				ct.metadata.filtered = false
 			}
 				
 		}
-		corpusTypes
+		corpora
 	}
 
 }

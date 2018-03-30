@@ -1,10 +1,7 @@
 package edu.umn.nlpie.pier.elastic
 
-import org.codehaus.groovy.grails.web.converters.configuration.DefaultConverterConfiguration
-
-import edu.umn.nlpie.pier.ui.ConceptualSearch
-import edu.umn.nlpie.pier.ui.SemanticRelatednessSearch
-import grails.converters.JSON
+import edu.umn.nlpie.pier.ui.Corpus
+import grails.util.Environment
 
 
 class Index {
@@ -17,10 +14,9 @@ class Index {
     	indexName unique:'cluster'
 		commonName()
 		description()
+		environment inList: ['DEVELOPMENT', 'TEST', 'PRODUCTION', 'DEPRECATED']
 		status inList:['Available', 'Unavailable', 'In Progress'], nullable:false
 		alias (nullable:true)
-		conceptualSearch (nullable:true)
-		semanticRelatednessSearch (nullable:true)
 	}
 	
     Cluster cluster
@@ -31,23 +27,31 @@ class Index {
 	String status = "In Progress"
 	Integer numberOfShards
 	Integer numberOfReplicas
-	ConceptualSearch conceptualSearch
-	SemanticRelatednessSearch semanticRelatednessSearch
+	String environment
 	
 	Date dateCreated
 	Date lastUpdated
 	
 	static belongsTo = [ cluster:Cluster ]
-	static hasMany = [ types:Type ]
-	static hasOne = [ conceptualSearch:ConceptualSearch ]
+	static hasOne = [ type:Type ]
 	
 	@Override
 	String toString() {
 		commonName ?: ""
 	}
 	
+	void setType(type){
+		this.type = type
+		type.index = this
+	}
+	
+	static getAvailableIndexes() {
+		def env = Environment.current.toString()	//eg, PRODUCTION
+		Index.findAllByEnvironmentAndStatus(env,'Available')
+	}
+	
 }
 
 //Index
-	//Type types
+	//Type type
 		//Property properties

@@ -7,7 +7,7 @@ import java.util.Collection;
 
 import edu.umn.nlpie.pier.elastic.Field
 import edu.umn.nlpie.pier.elastic.Type
-import edu.umn.nlpie.pier.ui.CorpusType
+import edu.umn.nlpie.pier.ui.Corpus
 import grails.util.Environment
 import groovy.transform.InheritConstructors
 
@@ -15,16 +15,16 @@ import groovy.transform.InheritConstructors
 @InheritConstructors
 class CorpusMetadata {
 	
-	CorpusMetadata(CorpusType ct) {
+	CorpusMetadata(Corpus ct) {
 		//this constructor causes issues when type is not found
-		//println "looking for Type with corpusType.id:${ct.id} env:${Environment.current.name} status:Available "
-		def type = Type.find("from Type as t where t.corpusType.id=? and environment=? and t.index.status=?", [ ct.id, Environment.current.name, 'Available' ])
+		//println "looking for Type with corpus.id:${ct.id} env:${Environment.current.name} status:Available "
+		def index = ct.index
 		this.searchable = true
 		this.filtered = true	//most of the time corpus with be assoc with a restricted/filtered search/auth context
-		this.url = "${type.index.cluster.uri}/${type.index.indexName}/${type.typeName}/_search"
-		this.scrollUrl = "${type.index.cluster.uri}/_search/scroll"
-		this.defaultSearchField = type.searchableField
-		this.contextFilterField = type.contextFilterField
+		this.url = "${index.cluster.uri}/${index.indexName}/${index.type.typeName}/_search"
+		this.scrollUrl = "${index.cluster.uri}/_search/scroll"
+		this.defaultSearchField = index.type.searchableField
+		this.contextFilterField = index.type.contextFilterField
 		this.tooltip = "Includes ${ct.name}"
 	}
 	

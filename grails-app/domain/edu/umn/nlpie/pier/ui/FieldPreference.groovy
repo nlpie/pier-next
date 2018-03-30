@@ -13,9 +13,9 @@ class FieldPreference {
 		label()
 		displayOrder()
 		aggregate()
+		export()
 		ontology( nullable:true )
 		numberOfFilterOptions()
-		includeInExport()
 		applicationDefault validator: { val, obj ->
 				if ( (obj.user.username!="nlppier" && val=="on") || (obj.user.username=="nlppier" && val=="") ) return false
 			}
@@ -31,7 +31,7 @@ class FieldPreference {
 	Boolean computeDistinct = false		//ui
 	Ontology ontology
 	Integer	numberOfFilterOptions = 5	//p
-	Boolean includeInExport = false		//p
+	Boolean export = false		//p
 	Boolean applicationDefault = false
 	
 	Date dateCreated
@@ -42,6 +42,7 @@ class FieldPreference {
 		"${label}"
 	}
 	
+	//TODO - this method still necessary?
 	static List preferencesByIndexAndUser( index, user ) {
 		def grailsEnv = Environment.current.toString()	// != Environment.PRODUCTION
 		def prefs = FieldPreference.executeQuery(

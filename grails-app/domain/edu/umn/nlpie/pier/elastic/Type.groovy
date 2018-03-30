@@ -1,6 +1,6 @@
 package edu.umn.nlpie.pier.elastic
 
-import edu.umn.nlpie.pier.ui.CorpusType
+import edu.umn.nlpie.pier.ui.Corpus
 
 
 
@@ -26,8 +26,6 @@ class Type {
 	static constraints = {
     	typeName( unique:'index')
     	description(nullable:true)
-		corpusType( unique:'environment')
-		environment inList: ['DEVELOPMENT', 'TEST', 'PRODUCTION', 'DEPRECATED']
 	}
 	
     String typeName
@@ -38,8 +36,6 @@ class Type {
 	 * A test scope can live on a prod cluster, e.g.
 	 * Values map to grails.util.Environment.current.name
 	 */
-	String environment
-	CorpusType corpusType
 	
 	Date dateCreated
 	Date lastUpdated
@@ -78,7 +74,6 @@ class Type {
 	
 	String getCuiField() {
 		//similar to searchable field, look into putting cui field default on Field class
-		//TODO: how does this affect ConceptualSearch class and usage?
 	}
 	
 }
