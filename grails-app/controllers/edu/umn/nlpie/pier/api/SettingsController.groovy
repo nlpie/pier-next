@@ -41,6 +41,24 @@ class SettingsController {//extends RestfulController {
 		}
 	}
 	
+	def corpusAggregations() {
+		try {
+			if ( request.method!="GET" ) throw new HttpMethodNotAllowedException(message:"issue GET instead")
+			def corpusId = params.id
+			def f = settingsService.corpusAggregations(corpusId)
+			JSON.use("fieldpreference") {
+				respond f
+			}
+		} catch (PierApiException e) {
+			println "pier exception"
+			exceptionResponse(e)
+		} catch (Exception e) {
+			println "reg exception"
+			e.printStackTrace()
+			exceptionResponse( new PierApiException(message:e.message) )
+		}
+	}
+	
 	@Transactional
 	def update() {
 		//lookup user
@@ -57,17 +75,6 @@ class SettingsController {//extends RestfulController {
 			e.printStackTrace()
 			exceptionResponse( new PierApiException(message:e.message) )
 		}
-	}
-	
-	def env() {
-		def env = Environment.current
-		//env.properties.each { println "${it}: ${it.getClass().getName()}" }
-		//println env.current.toString()
-		//respond Environment.current.toString()
-		def prefs = FieldPreference.executeQuery(
-			'select fp from FieldPreference fp where user=? and fp.field.type.index=?', [ index,user ]
-		)
-		println prefs
 	}
 	
 }

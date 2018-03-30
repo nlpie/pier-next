@@ -17,14 +17,13 @@ class Aggregations {
 	addAggregations( corpus ) {
 		var me = this;
     	var aggregations = corpus.metadata.aggregations;
-    	//console.info(JSON.stringify(aggregations,null,'\t'));
-    	Object.keys(aggregations).map( function(key,index) {
-    		var aggregationCategory = corpus.metadata.aggregations[key];
-    		for (const aggregation of aggregationCategory) {
-    			me.add( aggregation.label, new TermsAggregation(aggregation.fieldName,	aggregation.numberOfFilterOptions) );
-    		}
-    		
-    	} );
+		Object.keys(aggregations).map( function(key,index) {
+    		var aggregationCategory = aggregations[key];
+    		Object.keys( aggregationCategory ).map( function(agg,index) {
+    			var aggregation = aggregationCategory[agg];
+    			me.add( aggregation.label, new TermsAggregation( aggregation.field.fieldName, aggregation.numberOfFilterOptions ) );
+    		});
+    	});
     }
 }
 

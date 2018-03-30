@@ -76,8 +76,8 @@
 							<div class="col-md-4">
 								<label class="switch">
   									<input type="checkbox" 
-  										ng-change="sc.settings.update( pref.id,'includeInExport',pref.includeInExport, 'Export status updated' )" 
-										ng-model="pref.includeInExport" />
+  										ng-change="sc.settings.update( pref.id,'export',pref.export, 'Export status updated' )" 
+										ng-model="pref.export" />
 									<span class="slider round"></span>
 								</label>
 							</div>

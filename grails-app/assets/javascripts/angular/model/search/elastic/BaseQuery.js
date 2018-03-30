@@ -1,4 +1,5 @@
 import QuerystringQuery from './QuerystringQuery';
+import TermFilter from './TermFilter';
 
 //do not instantiate, use subclasses instead
 class BaseQuery {
@@ -8,21 +9,34 @@ class BaseQuery {
     	this.query.bool.must = {};
     	this.query.bool.must = new QuerystringQuery(corpus.metadata.defaultSearchField, userInput);
     	this.query.bool.filter = [];
+    	//this.query.bool.should = [];
+    	//this.query.bool.must_not = [];
+    	//this.query.bool.must.push( new QuerystringQuery(corpus.metadata.defaultSearchField, userInput) );
     	this.addFilters( corpus );
     	this.size = 0;
-    	console.info(JSON.stringify(this,null,'\t'));
     }
 
     addFilters( corpus ) {
-    	if ( corpus.contextFilter ) this.query.bool.filter.push( corpus.contextFilter ); 
+    	if ( corpus.contextFilter ) this.query.bool.filter.push( corpus.contextFilter ); //TODO this is not the right reference for a BPIC note set
     	var me = this;
-    	Object.keys(corpus.appliedFilters).map( function(key,index) {
-    		for (let filter of corpus.appliedFilters[key] ) {
-        		me.query.bool.filter.push( filter );
-        		//TODO get more sophisticated here with should clause, NOT filter
-        	}
+    	Object.keys( corpus.metadata.aggregations ).map( function(ontol,index) {
+    		let ontology = corpus.metadata.aggregations[ontol];
+    		Object.keys( ontology ).map( function(agg,idx) {
+    			let aggregation = ontology[agg];
+    			Object.keys( aggregation.filters ).map( function(value,i) {
+    				let addFilter = aggregation.filters[value];
+    				if ( addFilter ) me.query.bool.filter.push( new TermFilter( aggregation.field.fieldName,value ));
+    			})
+        		//TODO get more sophisticated here with should clause, NOT filter; multiple filing date choices are good test for "should" clause;
+        	})
     	});
     }
+	/*example aggregation.filters object
+		{
+			Geriatrics:true,	//result of being selected or re-selected
+			Pediatrics:false	//previously selected, but now de-selected
+		}
+    */
 }
 
 export default BaseQuery;

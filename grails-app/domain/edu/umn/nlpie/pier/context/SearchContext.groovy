@@ -19,6 +19,6 @@ class SearchContext {
 	String filterValue
 	String description
 	String status
-	String corpusType
+	String corpus
 	
 }

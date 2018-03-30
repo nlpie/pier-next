@@ -6,7 +6,7 @@ import edu.umn.nlpie.pier.api.exception.*
 import edu.umn.nlpie.pier.elastic.Index
 import edu.umn.nlpie.pier.elastic.Type
 import edu.umn.nlpie.pier.springsecurity.User
-import edu.umn.nlpie.pier.ui.CorpusType
+import edu.umn.nlpie.pier.ui.Corpus
 import grails.converters.JSON
 
 class ConfigController {
@@ -35,14 +35,9 @@ class ConfigController {
 	}
 	
 	def corpusAggregationsByType() {
-		def corpusTypeId = params.id
-		def filters = configService.getCorpusAggregations(corpusTypeId)
+		def corpusId = params.id
+		def filters = configService.getCorpusAggregations(corpusId)
 		respond filters
-	}
-	
-	//keep
-	def corpusTypes() {
-		respond CorpusType.findAllByEnabled(true)
 	}
 	
 	//TODO refactor to superclass
@@ -50,30 +45,11 @@ class ConfigController {
 		render(status: e.status, text: '{"message":"'+ e.message +'"}', contentType: "application/json") as JSON
 	}
 	
-	//deprected
-	def corpora() {
-		def env = params.id
-		JSON.use("available.corpora") {
-			respond configService.getAvailableCorpora(env)
-		}
-	}
-	
 	def settings() { 
 		def json = configService.defaultPreferences as JSON
 		json.prettyPrint = true
 		json.render response
 		//respond configService.defaultUiDataElementSettings
-	}
-	
-	@Deprecated
-	def clone() {
-		configService.initalizeUserPreferences(User.findByUsername("rmcewan"))
-	}
-	
-	@Deprecated
-	def data() {
-		configService.data()
-		configService.initalizeUserPreferences(User.findByUsername("rmcewan"))
 	}
 	
 	def mapping() {

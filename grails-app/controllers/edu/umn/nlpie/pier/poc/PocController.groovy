@@ -4,7 +4,9 @@ import org.asynchttpclient.AsyncHttpClient
 import org.asynchttpclient.DefaultAsyncHttpClient
 
 import edu.umn.nlpie.pier.context.AuthorizedContext
+import edu.umn.nlpie.pier.elastic.Index
 import edu.umn.nlpie.pier.elastic.Type
+import edu.umn.nlpie.pier.ui.Corpus
 import edu.umn.nlpie.pier.ui.FieldPreference
 import grails.plugins.rest.client.RestBuilder
 import grails.util.Environment
@@ -27,7 +29,7 @@ class PocController {
 	}
 	
 	def defaultAggregationsFilters() {
-		def type = Type.find("from Type as t where t.corpusType.id=? and environment=? and t.index.status=?", [ 1.toLong(), Environment.current.name, 'Available' ])
+		def type = Type.find("from Type as t where t.corpus.id=? and environment=? and t.index.status=?", [ 1.toLong(), Environment.current.name, 'Available' ])
 		def preferences = FieldPreference.where{ field.type.id==type.id && applicationDefault==true }.list()
 		//prefs.each {
 			//println "${it.label} ${it.ontology.name}"
@@ -213,4 +215,36 @@ class PocController {
 	def angularpoc() {
 		
 	}
+	
+	def availableCorpora() {
+		/*def corpora = Corpus.list()
+		corpora.each { c ->
+			def indexes = c.indexes
+			println "${c}: indexes:${indexes.size()}"
+		}
+		
+		//def corp = Corpus.availableCorpora()
+		println env
+		def i = Index.findAllByEnvironment(env)
+		println "total indexes: " + i.size()
+		*/
+		def env = Environment.current.toString()	// != Environment.PRODUCTION
+		def corps = Corpus.executeQuery(
+			"select ct from Corpus ct join ct.indexes i where ct.enabled=? and i.environment=? and i.status=?", [ true, env, 'Available']
+		)
+		corps.each { c ->
+			def indexes = c.indexes
+			println "corpus: ${c}, indexes:${indexes.size()}"
+		}
+		corps
+	}
+	
+	def t() {
+		def corpora = Corpus.availableCorpora
+		corpora.each { corpus ->
+			def index = corpus.indexes[0]
+			println index
+		}
+	}
+	
 }

@@ -13,7 +13,7 @@ import edu.umn.nlpie.pier.elastic.Cluster
 import edu.umn.nlpie.pier.elastic.Field
 import edu.umn.nlpie.pier.elastic.Index
 import edu.umn.nlpie.pier.elastic.Type
-import edu.umn.nlpie.pier.ui.CorpusType
+import edu.umn.nlpie.pier.ui.Corpus
 import edu.umn.nlpie.pier.ui.FieldPreference
 import edu.umn.nlpie.pier.ui.Ontology
 import grails.converters.JSON
@@ -36,7 +36,7 @@ class JsonMarshallerRegistrar {
 				"countDistinct": fpr.computeDistinct,
 				"count": null,	//filled in client-side if countDistinct is true
 				"numberOfFilterOptions": fpr.numberOfFilterOptions,
-				"includeInExport": fpr.includeInExport,
+				"export": fpr.export,
 				"isTemporal": ["DATE","DATETIME"].contains(fpr.field.dataTypeName) ? true: false,
 				"isNumeric": ["LONG","INTEGER"].contains(fpr.field.dataTypeName) ? true: false
 			]
@@ -47,19 +47,18 @@ class JsonMarshallerRegistrar {
 				[
 					"id": fpr.id,
 					"label": fpr.label,
-					//"fieldName": fpr.field.fieldName,
+					"corpus": fpr.field.type.index,
 					"ontology": fpr.ontology,
-					//"username": fpr.user.username,
+					"field": fpr.field,
 					"displayOrder": fpr.displayOrder,
-					"aggregate": fpr.aggregate,
-					"countDistinct": fpr.computeDistinct,
-					//"count": null,	//filled in client-side if countDistinct is true
 					"numberOfFilterOptions": fpr.numberOfFilterOptions,
-					"includeInExport": fpr.includeInExport,
 					"isTemporal": ["DATE","DATETIME"].contains(fpr.field.dataTypeName) ? true: false,
 					"isNumeric": ["LONG","INTEGER"].contains(fpr.field.dataTypeName) ? true: false,
-					"corpus": fpr.field.type.index,
-					"field": fpr.field
+					"countDistinct": fpr.computeDistinct,
+					//"count": null,	//filled in client-side if countDistinct is true
+					"aggregate": fpr.aggregate,
+					"export": fpr.export,
+					"filters": [:]
 				]
 			}
 			cfg.registerObjectMarshaller (Field) { f ->
@@ -109,10 +108,10 @@ class JsonMarshallerRegistrar {
 					"contextFilterValue": c.filterValue,
 					"description": c.description?:"description unavailable",
 					"username": c.username,
-					"candidateCorpora": c.annotatedCorpusTypes()
+					"corpora": c.annotatedCorpora()
 				]
 			}
-			cfg.registerObjectMarshaller (CorpusType) { ct ->
+			cfg.registerObjectMarshaller (Corpus) { ct ->
 				[
 					id: ct.id,
 					name: ct.name,
@@ -128,9 +127,6 @@ class JsonMarshallerRegistrar {
 						bright: [ opacity: 1 ]
 					],
 					opacity: null
-					//queryInfo: ct.queryInfo
-					//aggregations: null,	//placeholder to be filled by subsequent, client-side initiated request; alias for default or userConfigured filter set
-					//appliedFilters: null//placeholder for user-specified filters to be used in a search of this corpus 
 				]
 			}
 			cfg.registerObjectMarshaller (CorpusMetadata) { cm ->
@@ -181,35 +177,6 @@ class JsonMarshallerRegistrar {
 				
 		}//available.corpora
 		
-		/*JSON.createNamedConfig ('history.summary0') { DefaultConverterConfiguration<JSON> cfg ->
-			cfg.registerObjectMarshaller (Query) { q ->
-				[
-					id: q.id,
-					type: q.type,
-					label: q.label,
-					registration: q.registration
-				]
-			}
-			cfg.registerObjectMarshaller (SearchRegistration) { sr ->
-				[
-					id: sr.id,
-					authorizedContext: sr.authorizedContext
-				]
-			}	
-		}//history summary
-		
-		JSON.createNamedConfig ('history.summary') { DefaultConverterConfiguration<JSON> cfg ->
-			//ArrayList<Object> is a list of arrays, each of which is a row of scalar values from the db representing the summary of recent query
-			//each row is of the form [1, heart, AfrinL-Req00674 Iteration-1]
-			cfg.registerObjectMarshaller (HistorySummaryDTO) { o ->
-				[
-					"registration": [ "id":o[0], "authorizationContext":o[2] ],
-					"query": [ "label":o[1] ]
-				]
-			}
-		}//history summary
-		*/
-		
 		JSON.registerObjectMarshaller(SearchRegistration) { sr ->
 			[
 				id: sr.id,
@@ -230,7 +197,7 @@ class JsonMarshallerRegistrar {
 			]
 		}
 		
-		JSON.registerObjectMarshaller(CorpusType) { cp ->
+		JSON.registerObjectMarshaller(Corpus) { cp ->
 			[ 
 				id: cp.id,
 				name: cp.name,
@@ -286,7 +253,7 @@ class JsonMarshallerRegistrar {
 		
 		def marshallers = []
 		marshallers << "authorized.context [named config]"
-		marshallers << "CorpusType"
+		marshallers << "Corpus"
 		marshallers << "Field"
 		marshallers << "Type"
 		marshallers << "index.mapping [named config]"
