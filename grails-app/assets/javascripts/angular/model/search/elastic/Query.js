@@ -27,11 +27,11 @@ class Query {
 	    				let addFilter = aggregation.filters[value];	//could be false
 	    				if ( addFilter ) {
 	    					if ( !filter ) filter = new BoolQuery();	//need is established, assign
-	    					alert(JSON.stringify(filter,null,'\t'));
+	    					//alert(JSON.stringify(filter,null,'\t'));
 	    					filter.addToShould( new TermFilter( aggregation.field.fieldName,value ) );
 	    				}
 	    			});
-	    			alert(JSON.stringify(filter,null,'\t'));
+	    			//alert(JSON.stringify(filter,null,'\t'));
 	    			if ( filter ) me.addFilter( filter );	//at least one TermFilter added to should clause of bool
     			}
         	})
