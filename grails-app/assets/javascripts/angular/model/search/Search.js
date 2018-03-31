@@ -176,10 +176,10 @@ class Search {
     d( registration, corpus ) {
     	//single corpus doc search
     	//returns es hits
-    	//console.error(JSON.stringify(this,null,'\t'));
     	corpus.status.searchingDocs = true;
     	var url = corpus.metadata.url;
     	var docsQuery = new DocumentQuery( corpus, this.userInput );
+//alert(JSON.stringify(docsQuery,null,'\t'));
 		return this.$http.post( APP.ROOT + '/search/elastic/', JSON.stringify( {"registration.id":registration.id, "corpus":corpus.name, "type":"document", "url":url, "query":docsQuery} ) )
 			.then( function( docSearchResponse ) {
 				let results = docSearchResponse.data;

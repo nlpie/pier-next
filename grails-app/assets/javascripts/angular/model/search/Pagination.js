@@ -1,7 +1,7 @@
 
 class Pagination {
 	constructor( total ) {
-		this.notesPerPage = 100;
+		this.notesPerPage = 10;
 		this.from = 0;
 		this.maxDocs = 0;
 		this.maxPage = 0;
