@@ -1,14 +1,13 @@
-import BaseQuery from './BaseQuery';
+import Query from './Query';
 import Aggregations from './Aggregations';
 import MinAggregation from './MinAggregation';
 import MaxAggregation from './MaxAggregation';
 
-class AggregationQuery extends BaseQuery {
+class AggregationQuery extends Query {
     constructor( corpus, userInput ) {
     	super( corpus, userInput );
     	this.aggs = new Aggregations( corpus );
     	this.size = 0;
-    	
     }
 }
 

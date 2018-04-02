@@ -1,7 +1,7 @@
-import BaseQuery from './BaseQuery';
+import Query from './Query';
 import Highlight from './Highlight';
 
-class DocumentQuery extends BaseQuery {
+class DocumentQuery extends Query {
     constructor( corpus, userInput ) {
     	super( corpus, userInput );
     	this.highlight = new Highlight(corpus.metadata.defaultSearchField);

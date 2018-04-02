@@ -36,6 +36,7 @@ class SearchController {//extends RestfulController {
 			//TODO sanity check on request.JSON - needs query, url, searchRequest.id, etc
 			//println postBody.toString(2)
 			elasticResponse = elasticService.search( postBody.url, postBody.query )
+			//println elasticResponse.json.toString(2)
 			def status = elasticResponse.status
 			if ( status==400 ) {
 				throw new BadElasticRequestException( message:"Malformed query - check your syntax" )

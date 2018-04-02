@@ -1,11 +1,11 @@
-import BaseQuery from './BaseQuery';
+import Query from './Query';
 import Aggregations from './Aggregations';
 import CardinalityAggregation from './CardinalityAggregation';
 
 /*
  * 	search results from using this class are handled server-side (actuall scrolling done on server), no client-side processing of its results, 
  */
-class SingleFieldScrollCountQuery extends BaseQuery {
+class SingleFieldScrollCountQuery extends Query {
     constructor( corpus, userInput, label, fieldName ) {
     	super( corpus, userInput );
     	this.size = 15000;	//TODO externalize

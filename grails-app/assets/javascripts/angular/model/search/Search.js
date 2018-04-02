@@ -40,6 +40,7 @@ class Search {
     			style: {}
     		}
     	}
+
     }
 	    
     toggleRelatednessExpansion() {
@@ -52,6 +53,7 @@ class Search {
     	}
     }
     
+    //TODO right level of abstraction? - move to Corpus?
     dirty( corpus ) {
     	//search and corpus need to be set to dirty
     	this.status.dirty = true;
@@ -76,8 +78,13 @@ class Search {
     	this.context = searchContext;
     	this.status.version++;
     	this.clearResults();
+    	let activeSet = false;
     	for ( let corpus of this.context.corpora ) {
     		if ( corpus.metadata.searchable ) {
+    			if ( !activeSet ) {
+    				this.uiService.setActiveCorpus( corpus, this.context.corpora );	//TODO refactor active assignments to a user pref?
+    				activeSet = false;
+    			}
     			if ( corpus.metadata.filtered ) {
     				corpus.contextFilter = new TermFilter(corpus.metadata.contextFilterField, this.context.contextFilterValue);	//contextFilter specific to each searchable corpus
     				//alert(JSON.stringify(corpus.contextFilter));
@@ -176,10 +183,10 @@ class Search {
     d( registration, corpus ) {
     	//single corpus doc search
     	//returns es hits
-    	//console.error(JSON.stringify(this,null,'\t'));
     	corpus.status.searchingDocs = true;
     	var url = corpus.metadata.url;
     	var docsQuery = new DocumentQuery( corpus, this.userInput );
+//alert(JSON.stringify(docsQuery,null,'\t'));
 		return this.$http.post( APP.ROOT + '/search/elastic/', JSON.stringify( {"registration.id":registration.id, "corpus":corpus.name, "type":"document", "url":url, "query":docsQuery} ) )
 			.then( function( docSearchResponse ) {
 				let results = docSearchResponse.data;
@@ -224,7 +231,6 @@ class Search {
     	for ( let corpus of search.context.corpora ) {
     		if ( corpus.metadata.searchable ) {
     			//alert( corpus.name );
-    			corpus.selected = true;	//TODO refactor selected assignments to a user pref
     			corpus.pagination = new Pagination();
     			let searches = [];
     			searches.push( search.d( search.registration, corpus ) );
@@ -399,10 +405,10 @@ class Search {
 				    				me.assignDocumentsResponse( corpus,response );
 				    				//client-side setting of default corpus, probably should be a property of corpus type
 				    				if ( !defaultCorpusSet ) {
-				    					corpus.selected = true;
+				    					//corpus.status.active = true;
 				    					defaultCorpusSet = true;
 				    				} else {
-				    					corpus.selected = false;
+				    					//corpus.status.active = false;
 				    				}
 				    			})
 				    			.catch( function(e) {

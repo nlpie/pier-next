@@ -45,11 +45,12 @@ class Corpus {
 	
 	//returns the index for this env - assumption is that there is only 1 index per Corpus in the current environment
 	//strictly speaking, the domain model permits more than one index
-	//TODO - put a constraint on the system to enforce only one index per env and Corpus
+	//TODO - put a constraint on the system to enforce only one index per env and Corpus, maybe refactor logic of this method
 	def getIndex() {
-		def corpora = Corpus.availableCorpora	//this will return all enabled corpora for this env
+		/*def corpora = Corpus.availableCorpora	//this will return all enabled corpora for this env
 		def thisCorpus = corpora.find { it.id==this.id }	
-		thisCorpus.indexes[0]
+		thisCorpus.indexes[0]*/
+		this.indexes[0]
 	}
 	
 	/**
@@ -74,7 +75,7 @@ class Corpus {
 	static getAvailableCorpora() {
 		def env = Environment.current.toString()	// != Environment.PRODUCTION
 		def corps = Corpus.executeQuery(
-			"select ct from Corpus ct join ct.indexes i where ct.enabled=? and i.environment=? and i.status=? order by ct.name ", [ true, env, 'Available']
+			"select ct from Corpus ct join ct.indexes i where ct.enabled=? and i.environment=? and i.status=? order by ct.name desc", [ true, env, 'Available']
 		)
 		corps.each { c ->
 			def indexes = c.indexes

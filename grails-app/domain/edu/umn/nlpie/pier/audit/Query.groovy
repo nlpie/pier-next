@@ -51,7 +51,8 @@ class Query {
 		def trunc = 40
 		def json = new JsonSlurper().parseText(q.query)
 		def s = new StringBuffer()
-		def userInput = json.query.bool.must.query_string.query
+		def userInput = json.query.bool.must.query_string.query[0]	//nodelist - only 1, so just get it
+	//println "userinput: ${userInput}"
 		if ( userInput.length()>trunc ) {
 			userInput = userInput.substring(0, trunc)
 			s << userInput << "..."

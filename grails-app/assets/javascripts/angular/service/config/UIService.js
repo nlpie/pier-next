@@ -19,6 +19,31 @@ class UIService {
     fetchPreferences() {
     	return this.$http.get( APP.ROOT + '/settings/preferences/', { "noop": true } );
     }
+    
+    removeFilters( corpus ) {
+    	Object.keys( corpus.metadata.aggregations ).map( function(ontol,index) {
+    		let ontology = corpus.metadata.aggregations[ontol];
+    		Object.keys( ontology ).map( function(agg,idx) {
+    			let aggregation = ontology[agg];
+    			if ( !( JSON.stringify(aggregation.filters) === JSON.stringify({}) ) ) {
+	    			aggregation.filters = {};
+    			}
+        	})
+    	});
+    	corpus.status.userSelectedFilters = false;
+    	corpus.status.showBan = false;
+    	corpus.status.dirty = true;
+    }
+    
+    setActiveCorpus( corpus, corpora ) {
+    	for ( let c of corpora ) {
+    		if ( c.name==corpus.name ) {
+    			c.status.active = true;
+    		} else {
+    			c.status.active = false;
+    		}
+    	}
+    }
 
 }
 

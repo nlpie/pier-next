@@ -1,10 +1,10 @@
-import BaseQuery from './BaseQuery';
+import Query from './Query';
 import Aggregations from './Aggregations';
 import TermsAggregation from './TermsAggregation';
 import CardinalityAggregation from './CardinalityAggregation';
 import MaxAggregation from './MaxAggregation';
 
-class BucketCountQuery extends BaseQuery {
+class BucketCountQuery extends Query {
     constructor( corpus, userInput, label, fieldName, maxCount ) {
     	super( corpus, userInput );
     	this.aggs = new Aggregations();

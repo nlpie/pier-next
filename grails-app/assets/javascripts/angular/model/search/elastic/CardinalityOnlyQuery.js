@@ -1,8 +1,8 @@
-import BaseQuery from './BaseQuery';
+import Query from './Query';
 import Aggregations from './Aggregations';
 import CardinalityAggregation from './CardinalityAggregation';
 
-class CardinalityOnlyQuery extends BaseQuery {
+class CardinalityOnlyQuery extends Query {
     constructor( corpus, userInput, label, fieldName ) {
     	super( corpus, userInput );
     	this.aggs = new Aggregations();

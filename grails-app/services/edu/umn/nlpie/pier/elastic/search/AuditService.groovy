@@ -3,6 +3,7 @@ package edu.umn.nlpie.pier.elastic.search
 import edu.umn.nlpie.pier.audit.Query
 import edu.umn.nlpie.pier.audit.SearchRegistration
 import grails.transaction.Transactional
+import groovy.json.JsonSlurper
 
 
 @Transactional
@@ -29,7 +30,7 @@ class AuditService {
 		q.registration = sr
 		q.query = postBody.query
 		q.hashCodedQuery = q.query.hashCode()
-		q.terms = postBody.query.query.bool.must.query_string.query
+		q.terms = postBody.query.query.bool.must.query_string.query[0]
 		q.httpStatus = elasticResponse.status
 		q.hits = json.hits.total
 		q.took = json.took
