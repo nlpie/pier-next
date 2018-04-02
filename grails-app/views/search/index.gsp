@@ -7,7 +7,7 @@
 	<body>
 
 		<div class="container-fluid" ng-controller="resultsController as rc">
-			<div ng-attr-id="{{ corpus.name }}" ng-show="corpus.selected" class="row" ng-repeat="corpus in rc.search.context.corpora track by $index">
+			<div ng-attr-id="{{ corpus.name }}" ng-show="corpus.status.active" class="row" ng-repeat="corpus in rc.search.context.corpora track by $index">
 				<div id="agg-column" class="col-xs-3">
 					<div growl reference="aggs"></div>
 					<div ng-show="corpus.status.computingAggs" id="aggs-spinner" style="padding-top:25px">
@@ -25,10 +25,12 @@
 								<span ng-if="aggregation.countDistinct" style="font-size:0.5em;margin-right:1em">{{aggregation.count | number}}, {{aggregation.cardinalityEstimate | number}} ({{aggregation.countType}}, cardinality) counts</span>
 							</div>
 							<div class="pier-filter" ng-repeat="bucket in corpus.results.aggs.aggs[aggregation.label].buckets track by $index">
-								<span style="cursor:pointer" ng-click="aggregation.filters[bucket.key]=!aggregation.filters[bucket.key];rc.search.dirty(corpus)">{{ aggregation.isTemporal ? bucket.key_as_string : bucket.key }}</span>
+								<span style="cursor:pointer" ng-click="aggregation.filters[bucket.key]=!aggregation.filters[bucket.key];rc.search.dirty(corpus);corpus.status.userSelectedFilters=true">
+									{{ aggregation.isTemporal ? bucket.key_as_string : bucket.key }}
+								</span>
 								<span style="font-size:0.5em">({{bucket.doc_count | number}})</span>
 								<label class="switch pull-right">
-  									<input type="checkbox" ng-click="rc.search.dirty(corpus)" ng-model="aggregation.filters[bucket.key]">
+  									<input type="checkbox" ng-click="rc.search.dirty(corpus);corpus.status.userSelectedFilters=true" ng-model="aggregation.filters[bucket.key]">
   									<span class="slider round"></span>
 								</label>
 							</div>

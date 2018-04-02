@@ -15,7 +15,8 @@ class Query {
     	if ( corpus.contextFilter ) {
     		this.query.bool.filter.push( corpus.contextFilter ); //TODO this is not the right reference for a BPIC note set
     	}
-    	var me = this;
+    	let me = this;
+    	corpus.status.userSelectedFilters = false;
     	Object.keys( corpus.metadata.aggregations ).map( function(ontol,index) {
     		let ontology = corpus.metadata.aggregations[ontol];
     		Object.keys( ontology ).map( function(agg,idx) {
@@ -26,7 +27,10 @@ class Query {
 	    			Object.keys( aggregation.filters ).map( function(value,i) {
 	    				let addFilter = aggregation.filters[value];	//could be false
 	    				if ( addFilter ) {
-	    					if ( !filter ) filter = new BoolQuery();	//need is established, assign
+	    					if ( !filter ) {
+	    						filter = new BoolQuery();	//need is established, assign
+	    						corpus.status.userSelectedFilters = true; //TODO move filtered status to corpus
+	    					}
 	    					//alert(JSON.stringify(filter,null,'\t'));
 	    					filter.addToShould( new TermFilter( aggregation.field.fieldName,value ) );
 	    				}

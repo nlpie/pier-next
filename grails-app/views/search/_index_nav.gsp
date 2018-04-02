@@ -35,7 +35,17 @@
        		<div class="form-group" style="display:inline;" >
        			<div class="input-group" style="display:table;">
 					<div class="input-group-btn" class="input-group-addon" style="width:1%;">
-						<button type="button" class="btn btn-default" data-toggle="dropdown" style="border-right:none">
+				<button ng-repeat="corpus in sc.uiState.currentSearch.context.corpora track by $index" type="button" class="btn btn-default" 
+						ng-if="corpus.status.active && corpus.status.userSelectedFilters"
+						style="border-right:none"
+  						ng-mouseover="corpus.status.showBan=true" 
+  						ng-mouseleave="corpus.status.showBan=false"
+  						title="remove filters for this corpus"
+  						ng-click="sc.uiService.removeFilters( corpus );sc.uiState.currentSearch.dirty( corpus )">
+					<i class="fa fa-filter"></i>
+					<i class="fa fa-ban" style="color:red;cursor:hand" ng-if="corpus.status.showBan==true"></i>
+				</button>
+						<button type="button" class="btn btn-default" data-toggle="dropdown" style="border-right:none;border-left:none">
                             <span class="label-icon" title="{{sc.uiState.currentSearch.context.description}}" >{{sc.uiState.currentSearch.context.label}}</span>
                             <span class="caret"></span>
                         </button>
@@ -97,15 +107,27 @@
 			<div ng-if="corpus.metadata.searchable">
 				<button type="button" class="btn btn-default btn-result-pagination" ng-click="sc.uiState.currentSearch.firstPage( corpus )" ng-style="{cursor:sc.uiState.currentSearch.backwardCursor( corpus )}"> <i class="fa fa-angle-double-left"> </i></button>
 				<button type="button" class="btn btn-default btn-result-pagination" ng-click="sc.uiState.currentSearch.previousPage( corpus )" ng-style="{cursor:sc.uiState.currentSearch.backwardCursor( corpus )}"> <i class="fa fa-angle-left"> </i></button>
+				
+  				<span class="fa-stack" ng-if="corpus.status.userSelectedFilters" 
+  						ng-mouseover="corpus.status.showBan=true" 
+  						ng-mouseleave="corpus.status.showBan=false"
+  						title="remove filters for this corpus"
+  						ng-click="sc.uiService.removeFilters( corpus );sc.uiState.currentSearch.dirty( corpus )">
+					<i class="fa fa-filter fa-stack-1x"></i>
+					<i class="fa fa-ban fa-stack-1x" style="color:red;cursor:hand" ng-if="corpus.status.showBan==true"></i>
+				</span>
+				
 				<button 
 					type="button"
 					class="btn btn-default btn-result-action"
-					ng-class="{ 'btn-result-action-on': corpus.selected }"
+					ng-class="{ 'btn-result-action-on': corpus.status.active }"
 					data-container="body" data-toggle="tooltip" data-placement="top"
-					data-html="true">	
+					data-html="true">
 					{{corpus.name}}
-					<span style="font-size: 0.5em">{{ corpus.pagination.currentPageInfo() }} of {{corpus.pagination.maxDocs | number}}</span>
+					<span style="font-size: 0.6em">{{ corpus.pagination.currentPageInfo() }} of {{corpus.pagination.maxDocs | number}}</span>
 				</button>
+				
+				
 				<button type="button" class="btn btn-default btn-result-pagination" ng-click="sc.uiState.currentSearch.nextPage( corpus )" ng-style="{cursor:sc.uiState.currentSearch.forwardCursor( corpus )}"> <i class="fa fa-angle-right"></i> </button>
 				<button type="button" class="btn btn-default btn-result-pagination" ng-click="sc.uiState.currentSearch.lastPage( corpus )" ng-style="{cursor:sc.uiState.currentSearch.forwardCursor( corpus )}"> <i class="fa fa-angle-double-right"> </i></button>
 				
@@ -115,3 +137,4 @@
     </div><!-- /.navbar-collapse -->
   </div><!-- /.container-fluid -->
 </nav>
+  					

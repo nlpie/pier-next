@@ -120,7 +120,10 @@ class JsonMarshallerRegistrar {
 					status: [ 
 						searchingDocs:false, 
 						computingAggs:false, 
-						dirty:false 
+						active: false,
+						dirty:false,
+						userSelectedFilters: false,
+						showBan: false 
 					],
 					resultsOpacity: [
 						dimmed: [ opacity: 0.2 ],
