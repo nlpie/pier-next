@@ -326,5 +326,13 @@ input:checked + .slider:before {
   border-radius: 50%;
 }
 
+/* infoWidget */
+.infoWidget {
+	font-style:italic;
+	font-size: 95%;
+	color:gray;
+}
 
-
+.infoWidget span {
+	font-size: 80%;
+}

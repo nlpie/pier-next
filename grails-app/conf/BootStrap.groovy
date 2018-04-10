@@ -57,6 +57,9 @@ class BootStrap {
 			def serviceDate = Field.findByFieldName("service_date")?:new Field(fieldName:"service_date",dataTypeName:"DATE", description:"Date of Service", aggregatable:true)
 			def filingDatetime = Field.findByFieldName("filing_datetime")?:new Field(fieldName:"filing_datetime",dataTypeName:"DATETIME", description:"When note was filed", aggregatable:true, exportable:true)
 			def eds = Field.findByFieldName("encounter_department_specialty")?:new Field(fieldName:"encounter_department_specialty",dataTypeName:"NOT_ANALYZED_STRING", description:"Specialty name in Epic", aggregatable:true, exportable:true)
+			def ec = Field.findByFieldName("encounter_center")?:new Field(fieldName:"encounter_center",dataTypeName:"NOT_ANALYZED_STRING", description:"Encounter center name in Epic", aggregatable:true, exportable:true)
+			def ect = Field.findByFieldName("encounter_clinic_type")?:new Field(fieldName:"encounter_clinic_type",dataTypeName:"NOT_ANALYZED_STRING", description:"Clinic type in Epic", aggregatable:true, exportable:true)			
+			
 			def pt = Field.findByFieldName("prov_type")?:new Field(fieldName:"prov_type",dataTypeName:"NOT_ANALYZED_STRING", description:"Provider type in Epic name", aggregatable:true, exportable:true)
 			
 			def role = Field.findByFieldName("role")?:new Field(fieldName:"role",dataTypeName:"NOT_ANALYZED_STRING", description:"Provider role axis in HL7-LOINC DO", aggregatable:true, exportable:true)
@@ -79,6 +82,8 @@ class BootStrap {
 			noteType.addToFields(contextFilter)
 			noteType.addToFields(cui)
 			noteType.addToFields(eds)
+			noteType.addToFields(ec)
+			noteType.addToFields(ect)
 			noteType.addToFields(pt)
 			noteType.fields.each { f ->
 				println "adding pref for ${f.fieldName}"

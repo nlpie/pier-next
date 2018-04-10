@@ -49,22 +49,37 @@
 						ng-if="corpus.results.docs && !corpus.status.searchingDocs" 
 						ng-switch="corpus.name">
 						<div ng-switch-when="Surgical Pathology Reports" class="panel panel-default panel-body">
-							<pre ng-bind-html="doc.highlight ? doc.highlight[corpus.metadata.defaultSearchField].join('<br>&nbsp;&vellip;<br> ') : doc._source[corpus.metadata.defaultSearchField]"></pre>
+							<pre ng-bind-html="doc.highlight ? doc.highlight[corpus.metadata.defaultSearchField].join('<br>&nbsp;&vellip;<br> ') : doc._source[corpus.metadata.defaultSearchField]">
+							</pre>
 							<!-- <pre 
 								ng-repeat="frag in doc.highlight[corpus.metadata.defaultSearchField] track by $index"
 								ng-bind-html="frag.toString()">
 							</pre>
 							 -->
 						</div>
-						<div ng-switch-default class="panel panel-default panel-body">
-							<div ng-bind-html="doc.highlight ? doc.highlight[corpus.metadata.defaultSearchField].join('<br>&nbsp;&vellip;<br> ') : doc._source[corpus.metadata.defaultSearchField]"></div>
+						<div ng-switch-default class="panel panel-default panel-body" style="border:none">
+							<div>
+								<div class="pull-left" style="width:98%" ng-bind-html="doc.highlight ? doc.highlight[corpus.metadata.defaultSearchField].join('<br>&nbsp;&vellip;<br> ') : doc._source[corpus.metadata.defaultSearchField]">
+								</div>
+								<div class="fa fa-ellipsis-h pull-right" slide-toggle="#doc_{{doc._id}}" ></div>
+							</div>
+							<div class="pull-right">
+								<div id="doc_{{doc._id}}" class="slideable infoWidget" duration="0.3s">
+									{{doc._source.encounter_center}} / {{doc._source.encounter_department_specialty}} / {{doc._source.encounter_clinic_type}} |
+									<span>Service date:</span> {{doc._source.service_date}} |
+									<span>Filed:</span> {{doc._source.filing_datetime}} |
+									<span>Provider type:</span> {{doc._source.prov_type}} | 
+									<span ng-click="rc.search."><a style="cursor:pointer">Encounter view</a></span>
+								</div>
+							</div>
 						</div>
 					</div>
+					
 
 				</div>
 			</div>
-
 		</div>
+
 	
 </body>
 </html>
