@@ -8,9 +8,11 @@
   'use strict'
   /* istanbul ignore next */
   if (typeof define === 'function' && define.amd) {
+console.info("AMD");
     // AMD. Register as an anonymous module.
-    define(['angular'], factory)
+    define(['assets/lib/angular.min'], factory)
   } else if (typeof module === 'object' && module.exports) {
+console.info("MODULE");
     // Node. Does not work with strict CommonJS, but
     // only CommonJS-like environments that support module.exports,
     // like Node.

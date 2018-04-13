@@ -58,7 +58,9 @@ class JsonMarshallerRegistrar {
 					//"count": null,	//filled in client-side if countDistinct is true
 					"aggregate": fpr.aggregate,
 					"export": fpr.export,
-					"filters": [:]
+					"filters": [:],	//TODO move to client side object as an extenstion of data returned by API
+					"min": null,		//TODO move to client side object as an extenstion of data returned by API
+					"max": null		//TODO move to client side object as an extenstion of data returned by API			
 				]
 			}
 			cfg.registerObjectMarshaller (Field) { f ->

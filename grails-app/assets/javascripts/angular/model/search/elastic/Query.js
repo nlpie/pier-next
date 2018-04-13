@@ -1,28 +1,43 @@
 import BoolQuery from './BoolQuery';
 import QuerystringQuery from './QuerystringQuery';
 import TermFilter from './TermFilter';
+import RangeFilter from './RangeFilter';
 
 //do not instantiate, use subclasses instead
 class Query {
     constructor( corpus, userInput ) {
     	this.query = new BoolQuery();
-    	this.query.addToMust( new QuerystringQuery(corpus.metadata.defaultSearchField, userInput) );
-    	this.addFilters( corpus );
+    	this.setContextFilter( corpus );
+    	this.setTextQuery( corpus, userInput );
+    	this.setDiscreteFilters( corpus );
+    	this.setRangeFilters( corpus );
     	this.size = 0;
     }
-
-    addFilters( corpus ) {
-    	if ( corpus.contextFilter ) {
-    		this.query.bool.filter.push( corpus.contextFilter ); //TODO this is not the right reference for a BPIC note set
+    
+    setContextFilter( corpus ) {
+    	if ( corpus.contextFilterValue ) {
+alert("BPIC request context");
+    		this.query.addToFilter( new TermFilter(corpus.metadata.contextFilterField, corpus.contextFilterValue ) ); //TODO this is not the right reference for a BPIC note set
     	}
+    }
+    
+    setTextQuery( corpus, userInput ) {
+//alert("text");
+    	this.query.addToMust( new QuerystringQuery(corpus.metadata.defaultSearchField, userInput) );
+    }
+
+    setDiscreteFilters( corpus ) {
+//alert("discrete");
     	let me = this;
     	corpus.status.userSelectedFilters = false;
     	Object.keys( corpus.metadata.aggregations ).map( function(ontol,index) {
     		let ontology = corpus.metadata.aggregations[ontol];
     		Object.keys( ontology ).map( function(agg,idx) {
     			let aggregation = ontology[agg];
-    			if ( !( JSON.stringify(aggregation.filters) === JSON.stringify({}) ) ) {
+    			//add filter values in a should clause context of new Bool query, then add to this bool query's filter context
+    			if ( !( JSON.stringify(aggregation.filters) === JSON.stringify({}) ) && !aggregation.isTemporal ) {
     				//potential fields to be added
+//alert("agg for " + aggregation.field.fieldName);
     				let filter = undefined;	////defer assignment until proof of need is established
 	    			Object.keys( aggregation.filters ).map( function(value,i) {
 	    				let addFilter = aggregation.filters[value];	//could be false
@@ -42,15 +57,43 @@ class Query {
     	});
     }
     
+    setRangeFilters( corpus ) {
+//alert("range");
+    	let me = this;
+    	//corpus.status.userSelectedFilters = false;
+    	Object.keys( corpus.metadata.aggregations ).map( function(ontol,index) {
+    		let ontology = corpus.metadata.aggregations[ontol];
+    		Object.keys( ontology ).map( function(agg,idx) {
+    			let aggregation = ontology[agg];
+    			if ( !( JSON.stringify(aggregation.filters) === JSON.stringify({}) ) && aggregation.isTemporal ) {	    			
+    				if ( aggregation.filters.max && aggregation.filters.min ) {
+    					//add range filter to filter clause context of this.query
+//alert("range " + aggregation.field.fieldName);
+    					let range = new RangeFilter( aggregation.field.fieldName, aggregation.filters.min, aggregation.filters.max );
+    					me.addFilter( range );
+    				}
+    			}
+        	})
+    	});
+    }
+    
+    //convienience method
     addFilter( filter ) {
     	this.query.bool.filter.push( filter );
     }
-	/*example aggregation.filters object
+	
+    /*example aggregation.filters object for discreet values aggregation
 		{
 			Geriatrics:true,	//result of being selected or re-selected
 			Pediatrics:false	//previously selected, but now de-selected
 		}
     */
+    /*example aggregation.filters object for temporal range aggregation
+	{
+		min:1108771200000,	//lower limit of date/time range
+		max:1108771286400	//upper limit of date/time range
+	}
+     */
 }
 
 export default Query;

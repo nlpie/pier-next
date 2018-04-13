@@ -3,6 +3,7 @@ import '../lib/angular-sanitize.min.js';
 import * as spinners from '../lib/angular-growl.min.js';
 import '../lib/xeditable.min.js';
 import '../lib/angularSlideables.js';
+import '../lib/rzslider.js';
 
 import SearchService from '../angular/service/search/SearchService';
 import Search from '../angular/model/search/Search';
@@ -15,7 +16,7 @@ import UIService from '../angular/service/config/UIService';
 import UIState from '../angular/model/ui/UIState';
 
 
-angular.module( 'app', ['angular-growl', 'ngSanitize', 'xeditable', 'angularSlideables'] )
+angular.module( 'app', ['angular-growl', 'ngSanitize', 'xeditable', 'angularSlideables', 'rzModule'] )
     .service('settings', Settings)
     .service('searchService', SearchService)
     .service('currentSearch', Search)

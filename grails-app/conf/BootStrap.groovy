@@ -89,7 +89,7 @@ class BootStrap {
 				println "adding pref for ${f.fieldName}"
 				def fp = new FieldPreference(user:app, label:PierUtils.labelFromUnderscore(f.fieldName), ontology:epicOntology, applicationDefault:true)
 				if ( f.contextFilterField || f.defaultSearchField ) fp.aggregate=false
-				if ( f.fieldName=="text" || f.fieldName=="filing_datetime" || f.fieldName=="service_date" || f.fieldName=="encounter_id" ) fp.aggregate=false
+				if ( f.fieldName=="text" || f.fieldName=="service_date" || f.fieldName=="encounter_id" ) fp.aggregate=false
 				if ( f.fieldName=="role" || f.fieldName=="smd" ) fp.ontology=epicHL7LoincOntology
 				if ( f.fieldName=="cuis" ) {
 					fp.ontology=biomedicus
@@ -130,7 +130,7 @@ class BootStrap {
 				if ( f.fieldName=="cuis" ) {
 					fp.ontology=biomedicus
 					fp.label = "Medical Concepts"
-					fp.numberOfFilterOptions = 50
+					fp.numberOfFilterOptions = 10
 				}
 				f.addToPreferences(fp)
 			}
