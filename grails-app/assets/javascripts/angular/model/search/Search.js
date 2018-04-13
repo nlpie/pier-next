@@ -2,6 +2,7 @@ import DocumentsResponse from './DocumentsResponse';
 import AggregationsResponse from './AggregationsResponse';
 import DocumentQuery from './elastic/DocumentQuery';
 import AggregationQuery from './elastic/AggregationQuery';
+import PaginationQuery from './elastic/PaginationQuery';
 import BucketCountQuery from './elastic/BucketCountQuery';
 import CardinalityOnlyQuery from './elastic/CardinalityOnlyQuery';
 import SingleFieldScrollCountQuery from './elastic/SingleFieldScrollCountQuery';
@@ -140,9 +141,12 @@ class Search {
     r() {
     	//register
     	//returns search obj/this
-    	//alert("r");
     	var me = this;
-    	return this.$http.post( APP.ROOT + '/audit/register/', JSON.stringify( { "authorizedContext":this.context.label } ) )
+    	if ( this.registration && this.registration.initialUserInput==this.userInput ) {
+    		return this.$q.when( me );
+    	}
+    	//otherwise, register a new search
+    	return this.$http.post( APP.ROOT + '/audit/register/', JSON.stringify( { "authorizedContext":this.context.label, "initialUserInput":this.userInput } ) )
     		.then( function( registrationResponse ) {
     			me.registration = registrationResponse.data;
     			return me;
@@ -182,7 +186,7 @@ class Search {
     	var url = corpus.metadata.url;
     	var docsQuery = new DocumentQuery( corpus, this.userInput );
 //alert("DOC QUERY\n"+JSON.stringify(docsQuery,null,'\t'));
-		return this.$http.post( APP.ROOT + '/search/elastic/', JSON.stringify( {"registration.id":registration.id, "corpus":corpus.name, "type":"document", "url":url, "query":docsQuery} ) )
+		return this.$http.post( APP.ROOT + '/search/elastic/', JSON.stringify( { "registration.id":registration.id, "corpus":corpus.name, "type":docsQuery.constructor.name.toString(), "url":url, "query":docsQuery, "userFiltered":corpus.status.userSelectedFilters } ) )
 			.then( function( docSearchResponse ) {
 				let results = docSearchResponse.data;
 				corpus.results.docs = new DocumentsResponse( results );
@@ -196,6 +200,27 @@ class Search {
 			});
     }
     
+    p( registration, corpus ) { //TODO method calling this sends in fluffed-up DocumentQuery/EncounterQuery
+    	//single corpus doc search
+    	//returns es hits
+    	corpus.status.searchingDocs = true;
+    	var url = corpus.metadata.url;
+    	var pageQuery = new PaginationQuery( corpus, this.userInput );
+//alert("PAGE QUERY\n"+JSON.stringify(pageQuery,null,'\t'));
+		return this.$http.post( APP.ROOT + '/search/elastic/', JSON.stringify( {"registration.id":registration.id, "corpus":corpus.name, "type":pageQuery.constructor.name.toString(), "url":url, "query":pageQuery, "userFiltered":corpus.status.userSelectedFilters } ) )
+			.then( function( pageSearchResponse ) {
+				let results = pageSearchResponse.data;
+				corpus.results.docs = new DocumentsResponse( results );
+				corpus.pagination.update( corpus.results.docs.total );
+				return results;
+			})
+			.finally( function() {
+				corpus.status.dirty = false;
+				corpus.status.searchingDocs = false;
+				corpus.opacity = corpus.resultsOpacity.bright;
+			});
+    }
+
     a( registration, corpus ) {
     	//single corpus agg computation
     	//returns es hits
@@ -203,8 +228,8 @@ class Search {
     	var url = corpus.metadata.url;
     	var aggsQuery = new AggregationQuery( corpus, this.userInput );
     	
-alert("AGGS QUERY\n" + JSON.stringify(aggsQuery,null,'\t'));
-		return this.$http.post( APP.ROOT + '/search/elastic/', JSON.stringify( {"registration.id":registration.id, "corpus":corpus.name, "type":"aggregation", "url":url, "query":aggsQuery} ) )
+//alert("AGGS QUERY\n" + JSON.stringify(aggsQuery,null,'\t'));
+		return this.$http.post( APP.ROOT + '/search/elastic/', JSON.stringify( {"registration.id":registration.id, "corpus":corpus.name, "type":aggsQuery.constructor.name.toString(), "url":url, "query":aggsQuery, "userFiltered":corpus.status.userSelectedFilters } ) )
 			.then( function( aggsSearchResponse ) {
 				let results = aggsSearchResponse.data;
 				corpus.results.aggs = new AggregationsResponse( results, corpus );	//TODO refactoring that will create client-side objects for API data will eventually have a method for putting date slider on corpus.metadata.aggregations
@@ -251,7 +276,7 @@ alert("AGGS QUERY\n" + JSON.stringify(aggsQuery,null,'\t'));
     	//next pg, no aggs
     	if ( !corpus.status.dirty && corpus.pagination.next() ) {
     		let me = this;
-    		this.d( this.registration, corpus )
+    		this.p( this.registration, corpus )
 	    	.catch( function(e) {
 	    		me.clearResults();
 	    		me.remoteError("docs",e);
@@ -265,7 +290,7 @@ alert("AGGS QUERY\n" + JSON.stringify(aggsQuery,null,'\t'));
     lastPage( corpus ) {
 		if ( !corpus.status.dirty && corpus.pagination.last() )  {
 			let me = this;
-			return this.d( this.registration, corpus )
+			return this.p( this.registration, corpus )
 			.catch( function(e) {
 				me.clearResults();
 				me.remoteError("docs",e);
@@ -278,11 +303,11 @@ alert("AGGS QUERY\n" + JSON.stringify(aggsQuery,null,'\t'));
     
     previousPage( corpus ) {
     	//prev pg, composite
-    	if ( !corpus.status.dirty && corpus.pagination.previous() ) this.d( this.registration, corpus );
+    	if ( !corpus.status.dirty && corpus.pagination.previous() ) this.p( this.registration, corpus );
     }
     
     firstPage( corpus ) {
-    	if ( !corpus.status.dirty && corpus.pagination.first() ) this.d( this.registration, corpus );
+    	if ( !corpus.status.dirty && corpus.pagination.first() ) this.p( this.registration, corpus );
     }
     
     forwardCursor( corpus ) {
@@ -394,9 +419,9 @@ alert("AGGS QUERY\n" + JSON.stringify(aggsQuery,null,'\t'));
     	for ( let corpus of this.context.corpora ) {
     		if ( corpus.metadata.searchable ) {}
     			for ( let q of searchRegistration.queries )	{
-    				if ( q.corpus==corpus.name && q.type=="document" ) {
+    				if ( q.corpus==corpus.name && q.type=="DocumentQuery" ) {
 		    			try {
-		    				this.$http.post( APP.ROOT + '/search/elastic/', JSON.stringify( {"registration.id":this.registration.id, "corpus": corpus.name, "type":"document", "url":corpus.metadata.url, "query": JSON.parse(q.query) } ) ) 
+		    				this.$http.post( APP.ROOT + '/search/elastic/', JSON.stringify( {"registration.id":this.registration.id, "corpus": corpus.name, "type":"DocumentQuery", "url":corpus.metadata.url, "query": JSON.parse(q.query) } ) ) 
 				    			.then( function(response) {
 				    				me.assignDocumentsResponse( corpus,response );
 				    				//client-side setting of default corpus, probably should be a property of corpus type

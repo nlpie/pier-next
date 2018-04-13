@@ -37,7 +37,7 @@ class SearchService {
 			} as Long
 		}
 		
-		def results = Query.executeQuery(sql.toString(), ["nouserservice.user", 200, "document", registrationId] )
+		def results = Query.executeQuery(sql.toString(), ["nouserservice.user", 200, "DocumentQuery", registrationId] )
 		def summaries = []
 		results.each {
 			summaries << new HistorySummaryDTO(it)
