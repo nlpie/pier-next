@@ -1,6 +1,7 @@
+import DateRangeSlider from '../ui/DateRangeSlider';
 
 class AggregationsResponse {
-    constructor(data) {	//look into constructing from a data structure passed to constructor
+    constructor( data, corpus ) {	//look into constructing from a data structure passed to constructor
     	this.total = data.hits.total;
     	this.took = data.took/1000 + "s";
     	console.info("aggs took " + this.took);
@@ -9,11 +10,30 @@ class AggregationsResponse {
     	if ( this.total>0 ) {	//do not set if results
     		this.aggs = data.aggregations;
     	}
+    	this.decorateCorpus( corpus );
     }
     
-    clear() { 
-		
-	}
+    clear() { }
+    
+    decorateCorpus( corpus ) {
+    	let me = this;
+    	let aggregations = corpus.metadata.aggregations;
+		Object.keys(aggregations).map( function(key,index) {
+    		let aggregationCategory = aggregations[key];
+    		Object.keys( aggregationCategory ).map( function(agg,index) {
+    			let aggregation = aggregationCategory[agg];
+    			if ( aggregation.isTemporal ) {
+//alert(JSON.stringify(me.aggs[aggregation.label+".min"],null,'\t'));
+    				if ( !aggregation.initialSlider ) {
+    					//first, unfiltered return for this search, cache a DateRangeSlider for later use
+    					aggregation.initialSlider = new DateRangeSlider( me.aggs[aggregation.label+".min"], me.aggs[aggregation.label+".max"] );
+    				}
+    				aggregation.currentSlider = new DateRangeSlider( me.aggs[aggregation.label+".min"], me.aggs[aggregation.label+".max"], aggregation.initialSlider );
+//alert(JSON.stringify(aggregation,null,'\t'));
+    			}
+    		});
+    	});
+    }
 }
 
 export default AggregationsResponse;

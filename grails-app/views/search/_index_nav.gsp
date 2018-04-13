@@ -68,7 +68,7 @@
 						ng-model="sc.uiState.currentSearch.userInput"
 						ng-change="sc.uiState.currentSearch.dirty()"
 						style="border-right:none;-webkit-box-shadow: none !important;-moz-box-shadow: none !important;box-shadow: none !important;
-							position: relative;"
+							position: relative;height:33.1px"
 						ng-model-options="{
     						'updateOn': 'default blur',
     						'debounce': {

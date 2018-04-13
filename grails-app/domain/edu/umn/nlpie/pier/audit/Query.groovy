@@ -31,6 +31,7 @@ class Query {
 	String query	//body of request sent to elastic
 	Integer hashCodedQuery
 	String terms
+	Boolean userFiltered
 	
 	//returned from elastic
 	Integer hits

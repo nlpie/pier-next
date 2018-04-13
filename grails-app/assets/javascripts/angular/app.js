@@ -2,6 +2,8 @@ import * as angular from '../lib/angular.min.js';
 import '../lib/angular-sanitize.min.js';
 import * as spinners from '../lib/angular-growl.min.js';
 import '../lib/xeditable.min.js';
+import '../lib/angularSlideables.js';
+import '../lib/rzslider.js';
 
 import SearchService from '../angular/service/search/SearchService';
 import Search from '../angular/model/search/Search';
@@ -10,13 +12,11 @@ import SearchController from '../angular/controller/search/SearchController';
 import ResultsController from '../angular/controller/search/ResultsController';
 import SettingsController from '../angular/controller/settings/SettingsController';
 
-//import UserService from '../angular/service/UserService';
-//import UserController from '../angular/controller/UserController';
 import UIService from '../angular/service/config/UIService';
 import UIState from '../angular/model/ui/UIState';
 
 
-angular.module( 'app', ['angular-growl', 'ngSanitize', 'xeditable'] )
+angular.module( 'app', ['angular-growl', 'ngSanitize', 'xeditable', 'angularSlideables', 'rzModule'] )
     .service('settings', Settings)
     .service('searchService', SearchService)
     .service('currentSearch', Search)

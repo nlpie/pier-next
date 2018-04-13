@@ -30,6 +30,7 @@
 	<asset:stylesheet src="lib/bootstrap-toggle.min.css" />
 	<asset:javascript src="lib/bootstrap-toggle.min.js" />
 	<asset:stylesheet src="lib/angular-growl.min.css" />
+	<asset:stylesheet src="lib/rzslider.css" />
 	<asset:stylesheet src="lib/xeditable.min.css" />
 	
 	

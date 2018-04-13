@@ -15,4 +15,5 @@ stacktrace.log
 .DS_Store
 /pier-next-documentation
 /test
+/angular-alias
 UMLS2013AB_MRCONSO_ENG_SUBSET_FILTERED.txt

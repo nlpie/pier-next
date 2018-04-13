@@ -17,6 +17,7 @@ class SearchRegistration {
 	
 	String username = "objdefault"
 	String authorizedContext
+	String initialUserInput
 	String uuid = UUID.randomUUID().toString()
 	Boolean saved = false
 
@@ -25,10 +26,10 @@ class SearchRegistration {
 	Date lastUpdated
 	
 	def getDocsQuery() {
-		Query.findBySearchRegistrationAndType(this,"document")
+		Query.findBySearchRegistrationAndType(this,"DocumentQuery")
 	}
 	def getAggsQuery() {
-		Query.findBySearchRegistrationAndType(this,"aggregagte")
+		Query.findBySearchRegistrationAndType(this,"AggregateQuery")
 	}
 	def getCountQueries() {
 		DistinctCount.findAllBySearchRegistrationInList(this)

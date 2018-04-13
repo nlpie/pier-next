@@ -1,4 +1,6 @@
-import TermsAggregation from './TermsAggregation'; 
+import TermsAggregation from './TermsAggregation';
+import MinAggregation from './MinAggregation';
+import MaxAggregation from './MaxAggregation';
 
 class Aggregations {
 	
@@ -13,7 +15,7 @@ class Aggregations {
 	add(label,agg) {
 		this[label] = agg;
 	}
-	
+
 	addAggregations( corpus ) {
 		var me = this;
     	var aggregations = corpus.metadata.aggregations;
@@ -21,7 +23,13 @@ class Aggregations {
     		var aggregationCategory = aggregations[key];
     		Object.keys( aggregationCategory ).map( function(agg,index) {
     			var aggregation = aggregationCategory[agg];
-    			me.add( aggregation.label, new TermsAggregation( aggregation.field.fieldName, aggregation.numberOfFilterOptions ) );
+    			if ( aggregation.isTemporal ) {
+    				//alert("temporal");
+    				me.add( aggregation.label+'.min', new MinAggregation( aggregation.field.fieldName ) );
+    				me.add( aggregation.label+'.max', new MaxAggregation( aggregation.field.fieldName ) );
+    			} else {
+    				me.add( aggregation.label, new TermsAggregation( aggregation.field.fieldName, aggregation.numberOfFilterOptions ) );
+    			}
     		});
     	});
     }

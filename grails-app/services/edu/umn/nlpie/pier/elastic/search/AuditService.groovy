@@ -24,6 +24,7 @@ class AuditService {
 	}
 	
 	def logQueryAndResponse( postBody, elasticResponse ) {
+		println postBody.toString()
 		def json = elasticResponse.json
 		def sr = SearchRegistration.get(postBody["registration.id"].toLong())
 		def q = new Query(postBody)
@@ -36,6 +37,7 @@ class AuditService {
 		q.took = json.took
 		q.timedOut = json.timed_out
 		q.label = Query.createLabel(q)
+		q.userFiltered = postBody.userFiltered
 		q.save(failOnError:true)
 		return q
 	}
@@ -45,6 +47,7 @@ class AuditService {
 		def q = new Query(postBody)
 		q.registration = sr
 		q.query = postBody.query
+		q.userFiltered = postBody.userFiltered
 		q.terms = postBody.query.query.bool.must.query_string.query
 		q.httpStatus = elasticResponse.status
 		q.exceptionMessage = e.message

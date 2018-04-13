@@ -22,7 +22,7 @@ class SettingsService {
     }
 	
 	private preferencesByOntology( index,scope ) {
-		//lookup user
+		//TODO lookup user
 		//verify user has access to these settings
 		def user = User.findByUsername("rmcewan")
 		def ontologies = Ontology.list()
@@ -32,8 +32,8 @@ class SettingsService {
 			def fieldPreferences 
 			switch(scope) {
 				case "ALL": fieldPreferences = FieldPreference.executeQuery('from FieldPreference fp where user=? and fp.field.type.index=? and fp.ontology=? and (field.aggregatable=? or field.exportable=?) order by fp.label',[ user,index,ontology,true,true ], [ readOnly:true ]); break;
-				case "AGGREGATES": fieldPreferences = FieldPreference.executeQuery('from FieldPreference fp where user=? and fp.field.type.index=? and fp.ontology=? and field.aggregatable=? order by fp.label',[ user,index,ontology,true ], [ readOnly:true ]); break;
-				case "EXPORTS": fieldPreferences = FieldPreference.executeQuery('from FieldPreference fp where user=? and fp.field.type.index=? and fp.ontology=? and field.exportable=? order by fp.label',[ user,index,ontology,true ], [ readOnly:true ]); break;
+				case "AGGREGATES": fieldPreferences = FieldPreference.executeQuery('from FieldPreference fp where user=? and fp.field.type.index=? and fp.ontology=? and fp.aggregate=? and field.aggregatable=? order by fp.label',[ user,index,ontology,true, true ], [ readOnly:true ]); break;
+				//case "EXPORTS": fieldPreferences = FieldPreference.executeQuery('from FieldPreference fp where user=? and fp.field.type.index=? and fp.ontology=? and fp.export=? and field.exportable=? order by fp.label',[ user,index,ontology,true,true ], [ readOnly:true ]); break;
 			}
 			if ( fieldPreferences.size()>0 ) {	//put ontology and prefs in o only if there are preferences
 				def p = [:]
