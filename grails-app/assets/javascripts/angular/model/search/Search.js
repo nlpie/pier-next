@@ -122,10 +122,10 @@ class Search {
     	return search.$q.when( search );
 	}
     
-    e() {
+    e() { //TODO ADD A TYPE PARAM TO THIS METHOD AND A BUILDER METHOD FOR RETURNING THE TYPE OF QUERY TO BE PASSED TO searchCorpora
+    	//use this as a template for encounter search - chaining will follow the same steps except searchCorpora replaced by pullEncounterDocuments( search )
     	//execute search 
     	let me = this;
-    	this.fi(); //placeholder for now
     	this.r()	//returns the current Search instance and passes down the promise chain
     		.then( me.searchCorpora )
     		.then( me.dec )	//decorate (results) as appropriate
@@ -149,11 +149,6 @@ class Search {
     		});
     }
     
-    fi() {
-    	//filter setup
-    	//returns? needs some analysis
-    }
-    
     dec( search ) {
     	let decorators = [];
     	for ( let corpus of search.context.corpora ) {
@@ -170,7 +165,7 @@ class Search {
     		}
     	}
     	if ( decorators.length==0 ) {
-    		alert ("decorators is zero");
+    		//alert ("decorators is zero");
     		return search;
     	}
     	return search.$q.all( decorators )
@@ -180,13 +175,13 @@ class Search {
     }
     
     
-    d( registration, corpus ) {
+    d( registration, corpus ) { //TODO method calling this sends in fluffed-up DocumentQuery/EncounterQuery
     	//single corpus doc search
     	//returns es hits
     	corpus.status.searchingDocs = true;
     	var url = corpus.metadata.url;
     	var docsQuery = new DocumentQuery( corpus, this.userInput );
-//alert(JSON.stringify(docsQuery,null,'\t'));
+//alert("DOC QUERY\n"+JSON.stringify(docsQuery,null,'\t'));
 		return this.$http.post( APP.ROOT + '/search/elastic/', JSON.stringify( {"registration.id":registration.id, "corpus":corpus.name, "type":"document", "url":url, "query":docsQuery} ) )
 			.then( function( docSearchResponse ) {
 				let results = docSearchResponse.data;
@@ -207,11 +202,12 @@ class Search {
     	corpus.status.computingAggs = true;
     	var url = corpus.metadata.url;
     	var aggsQuery = new AggregationQuery( corpus, this.userInput );
+    	
+alert("AGGS QUERY\n" + JSON.stringify(aggsQuery,null,'\t'));
 		return this.$http.post( APP.ROOT + '/search/elastic/', JSON.stringify( {"registration.id":registration.id, "corpus":corpus.name, "type":"aggregation", "url":url, "query":aggsQuery} ) )
 			.then( function( aggsSearchResponse ) {
 				let results = aggsSearchResponse.data;
-				corpus.results.aggs = new AggregationsResponse( results );
-				//alert("RESULTS\n"+JSON.stringify(corpus,null,'\t'));
+				corpus.results.aggs = new AggregationsResponse( results, corpus );	//TODO refactoring that will create client-side objects for API data will eventually have a method for putting date slider on corpus.metadata.aggregations
 				return results;
 			})
 			.finally( function() {
