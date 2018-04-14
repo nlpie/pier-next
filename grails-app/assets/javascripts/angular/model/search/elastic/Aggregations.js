@@ -2,8 +2,8 @@ import TermsAggregation from './TermsAggregation';
 import MinAggregation from './MinAggregation';
 import MaxAggregation from './MaxAggregation';
 
+//this class puts aggregations on AggregationQuery using agg data stored in the corpus param passed to constructor
 class Aggregations {
-	
 	constructor( corpus ) {
 		if ( corpus===undefined ) {
 			//noop - do not set configured aggs for corpus

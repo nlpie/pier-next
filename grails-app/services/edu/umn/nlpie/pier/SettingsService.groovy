@@ -49,9 +49,6 @@ class SettingsService {
 	def corpusAggregations( corpusId ) {
 		def corpus = Corpus.get(corpusId.toLong())
 		def index = corpus.index
-		//def m = [:]
-		//m.put( corpus.name, preferencesByOntology(index,'AGGREGATES') )
-		//m
 		preferencesByOntology(index,'AGGREGATES')
 	}
 	
