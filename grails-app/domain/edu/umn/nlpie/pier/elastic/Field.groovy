@@ -44,6 +44,7 @@ class Field {
 	Boolean defaultSearchField = false
 	Boolean contextFilterField = false
 	Boolean aggregatable = false
+	Boolean significantTermsAggregatable = false
 	Boolean exportable = false
 	String dataTypeName
 	String description

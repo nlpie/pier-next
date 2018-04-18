@@ -20,7 +20,7 @@ class UmlsController {//extends RestfulController {
 	def string() {
 		//TODO verify user has access to corpus/index
 		try {
-			println params.id
+			//println params.id
 			if ( request.method!="GET" ) throw new HttpMethodNotAllowedException(message:"issue GET instead")
 			def umlsEntry = umlsService.umlsString( params.id )
 			respond umlsEntry as JSON
