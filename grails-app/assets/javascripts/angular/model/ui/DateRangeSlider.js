@@ -42,12 +42,13 @@ class DateRangeSlider {
     up( aggregation ) {
     	this.maxValue = this.maxValue = this.maxValue + 86400*1000;
     }
-    
+   
     reset( aggregation ) {
     	this.minValue = this.options.floor;
     	this.maxValue = this.options.ceil;
-    	aggregation.filters.min = this.options.floor;
-    	aggregation.filters.max = this.options.ceil;
+    	aggregation.filters = {};
+    	//aggregation.filters.min = this.options.floor;
+    	//aggregation.filters.max = this.options.ceil;
     	aggregation.initialSlider.filtered = false;
     }
 
