@@ -3,10 +3,8 @@ package edu.umn.nlpie.pier.elastic.search
 import edu.umn.nlpie.pier.api.HistorySummaryDTO
 import edu.umn.nlpie.pier.api.ScrollPayload
 import edu.umn.nlpie.pier.api.exception.BadElasticRequestException
-import edu.umn.nlpie.pier.audit.Bucket
 import edu.umn.nlpie.pier.audit.DistinctCount
 import edu.umn.nlpie.pier.audit.Query
-import edu.umn.nlpie.pier.audit.ScrollValue
 import edu.umn.nlpie.pier.audit.SearchRegistration
 import groovy.sql.Sql
 import groovyx.gpars.GParsPool
@@ -18,36 +16,55 @@ class SearchService {
 	def elasticService
 	def dataSource
 	
-    def saveSearch( ) {
-		//get user from spring security
-    }
-	
 	def searchHistory( excludeMostRecent ) {
 		def sql = new StringBuffer()
-		sql << "select distinct max(q.registration.id), q.label, q.registration.authorizedContext from Query q where q.registration.username=? and q.httpStatus=? and q.type=? and q.registration.id not in ( ? ) group by q.hashCodedQuery, q.registration.authorizedContext, q.hashCodedQuery order by max(q.registration.id) desc "
+println "${new Date()} SH"
+ //TODO scope to authenticated user
+		/*sql << """select distinct max(q.registration.id), q.label, q.registration.authorizedContext from Query q 
+where q.registration.username=? and q.httpStatus=? and q.type=? and q.registration.id not in ( ? ) group by q.hashCodedQuery, 
+q.registration.authorizedContext, q.hashCodedQuery order by max(q.registration.id) desc """.toString()*/
 
-		def registrationId = 0.toLong()
+		sql << """
+select distinct q.registration.id as registrationId, q.label, q.registration.authorizedContext, q.id as queryId, q.filters, q.saved
+from Query q
+where q.registration.username=? and q.httpStatus=? and q.type in ( 'DocumentQuery','EncounterQuery' )
+group by q.hashCodedQuery, q.filters, q.registration.authorizedContext
+order by q.dateCreated desc """.toString()
+//and q.id not in ( ? )
+		def lastQueryId = 0.toLong()
 		
-		if ( excludeMostRecent ) {
-			registrationId = SearchRegistration.createCriteria().get {
-				eq ("username", "nouserservice.user")	//TODO change to authenticated user from userService
+		/*if ( excludeMostRecent ) {
+			lastQueryId = Query.createCriteria().get {
+				eq ("registration.username", "nouserservice.user")	//TODO change to authenticated user from userService
 				projections {
 					max "id"
 				}
 			} as Long
+		}*/
+		
+		if ( excludeMostRecent ) {
+			//def result = Query.executeQuery( "select max(q.id) as queryId from Query q where q.registration.username=? and q.type=? ", ["nouserservice.user","DocumentQuery"] )
+			//lastQueryId = result[0]
 		}
 		
-		def results = Query.executeQuery(sql.toString(), ["nouserservice.user", 200, "DocumentQuery", registrationId] )
+		def results = Query.executeQuery(sql.toString(), ["nouserservice.user", 200] )
 		def summaries = []
 		results.each {
 			summaries << new HistorySummaryDTO(it)
+			println "${it[1]} ${it[4]}"
 		}
 		summaries
 		//lookup user from userService
 	}
 	
-	def registeredSearch(id) {
-		SearchRegistration.get(id.toLong())
+//	def registeredSearch(id) {
+//		SearchRegistration.get(id.toLong())
+//	}
+	
+	def recentQuery(id) {
+		def d = Query.get( id.toLong() )
+		def a = Query.findByTermsAndHashCodedQueryAndSequenceAndType(d.terms,d.hashCodedQuery,d.sequence,"AggregationQuery")
+		[ "docsQuery":d, "aggsQuery":a]
 	}
 	
 	def logNoteIdCountInfo( postBody, elasticResponse ) {

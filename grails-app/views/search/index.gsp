@@ -39,7 +39,7 @@
   									<span class="slider round"></span>
 								</label>
 							</div>
-							<rzslider ng-if="aggregation.currentSlider" 
+							<rzslider class="custom-slider" ng-if="aggregation.currentSlider" 
 								rz-slider-model="aggregation.currentSlider.minValue"
 								rz-slider-high="aggregation.currentSlider.maxValue"
 								rz-slider-options="aggregation.currentSlider.options"
@@ -81,7 +81,7 @@
 									<span>Service date:</span> {{doc._source.service_date}} |
 									<span>Filed:</span> {{doc._source.filing_datetime}} |
 									<span>Provider type:</span> {{doc._source.prov_type}} | 
-									<span ng-click="rc.search.e('ENC')"><a style="cursor:pointer">Encounter view</a></span>
+									<span ng-click="rc.search.encSearch(doc._source.service_id)"><a style="cursor:pointer"> Encounter view</a></span>
 								</div>
 							</div>
 						</div>

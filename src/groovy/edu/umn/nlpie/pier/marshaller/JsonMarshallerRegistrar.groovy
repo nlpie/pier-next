@@ -101,8 +101,20 @@ class JsonMarshallerRegistrar {
 				"httpStatus": dc.httpStatus
 			]
 		}
+		
+		/*JSON.registerObjectMarshaller(AuthorizedContext) { dc ->
+			[
+				"requestId": c.requestId,
+				"label": c.label,
+				"contextFilterValue": c.filterValue,
+				"description": c.description?:"description unavailable",
+				"username": c.username,
+				"corpora": c.annotatedCorpora()
+			]
+		}*/
 			
 		JSON.createNamedConfig ('authorized.context') { DefaultConverterConfiguration<JSON> cfg ->
+			//TODO can this AuthorizedContext config piggyback on the standalone config above?
 			cfg.registerObjectMarshaller (AuthorizedContext) { c ->
 				[
 					//"id": c.id,
@@ -189,6 +201,8 @@ class JsonMarshallerRegistrar {
 				authorizedContext: sr.authorizedContext,
 				username: sr.username,
 				uuid: sr.uuid,
+				initialUserInput: sr.initialUserInput,
+				searchType: sr.searchType,
 				queries: sr.queries
 			]
 		}
@@ -255,6 +269,28 @@ class JsonMarshallerRegistrar {
 					warmers: [:]
 				]
 			}
+		}
+		
+		JSON.createNamedConfig ('recent.query') { DefaultConverterConfiguration<JSON> cfg ->
+			cfg.registerObjectMarshaller (Query) { Query q ->
+				[ 	id: q.id,
+					query: q.query,
+					terms: q.terms,
+					type: q.type,
+					registration: q.registration
+				]
+			}
+			cfg.registerObjectMarshaller (SearchRegistration) { SearchRegistration sr ->
+				[ 	id: sr.id,
+					searchType: sr.searchType,
+					initialUserInput: sr.initialUserInput,
+					authorizedContext: sr.authorizedContext,
+					username: sr.username
+				]
+			}
+			/*cfg.registerObjectMarshaller (AuthorizedContext) { AuthorizedContext ac ->
+			
+			}*/
 		}
 		
 		def marshallers = []

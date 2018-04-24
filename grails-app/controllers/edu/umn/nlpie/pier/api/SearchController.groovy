@@ -3,8 +3,8 @@ package edu.umn.nlpie.pier.api
 import edu.umn.nlpie.pier.api.exception.BadElasticRequestException
 import edu.umn.nlpie.pier.api.exception.HttpMethodNotAllowedException
 import edu.umn.nlpie.pier.api.exception.PierApiException
-import edu.umn.nlpie.pier.audit.DistinctCount
-import grails.async.Promise
+import grails.converters.JSON
+import grails.transaction.Transactional;
 import grails.validation.ValidationException
 
 class SearchController {//extends RestfulController {
@@ -285,8 +285,15 @@ expansion formula:
 		respond searchService.searchHistory( jsonBody.excludeMostRecent )	//projection 
 	}
 	
-	def registeredSearch() {
+	/*def registeredSearch() {
 		respond searchService.registeredSearch(params.id)
+	}
+	*/
+	
+	def recentQuery() {
+		JSON.use ('recent.query') {
+			respond searchService.recentQuery(params.id)
+		}
 	}
 	
 }

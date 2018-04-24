@@ -1,5 +1,7 @@
 package edu.umn.nlpie.pier
 
+import edu.umn.nlpie.pier.audit.Query
+import edu.umn.nlpie.pier.audit.SearchRegistration
 import edu.umn.nlpie.pier.elastic.Index
 import edu.umn.nlpie.pier.springsecurity.User
 import edu.umn.nlpie.pier.ui.Corpus
@@ -57,4 +59,12 @@ class SettingsService {
 		fp.properties = properties
 		fp.save()
     }
+	
+	def saveQuery( registrationId ) {
+		//TODO get user from spring security
+		def reg = SearchRegistration.get(registrationId.toLong())
+		Query.executeUpdate("update Query q set q.saved=true where q.registration.id=?", [reg.id] )
+		reg
+	}
+	
 }
