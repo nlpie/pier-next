@@ -9,7 +9,7 @@ class Query {
     	this.query = new BoolQuery();
     	this.setContextFilter( corpus );
     	this.setTextQuery( corpus, userInput );
-    	this.setDiscreteFilters( corpus );
+    	this.setDiscreteValueFilters( corpus );
     	this.setRangeFilters( corpus );
     	this.size = 0;
     }
@@ -17,7 +17,7 @@ class Query {
     setContextFilter( corpus ) {
     	if ( corpus.contextFilterValue ) {
 alert("BPIC request context");
-    		this.query.addToFilter( new TermFilter(corpus.metadata.contextFilterField, corpus.contextFilterValue ) ); //TODO this is not the right reference for a BPIC note set
+    		this.query.addToFilter( new TermFilter( corpus.metadata.contextFilterField, corpus.contextFilterValue ) ); //TODO this is not the right reference for a BPIC note set
     	}
     }
     
@@ -26,7 +26,7 @@ alert("BPIC request context");
     	this.query.addToMust( new QuerystringQuery(corpus.metadata.defaultSearchField, userInput) );
     }
 
-    setDiscreteFilters( corpus ) {
+    setDiscreteValueFilters( corpus ) {
 //alert("discrete");
     	let me = this;
     	corpus.status.userSelectedFilters = false;
@@ -82,6 +82,8 @@ alert("BPIC request context");
     	this.query.bool.filter.push( filter );
     }
 	
+}
+export default Query;
     /*example aggregation.filters object for discreet values aggregation
 		{
 			Geriatrics:true,	//result of being selected or re-selected
@@ -94,9 +96,7 @@ alert("BPIC request context");
 		max:1108771286400	//upper limit of date/time range
 	}
      */
-}
 
-export default Query;
 /*
 {
 	"query": {

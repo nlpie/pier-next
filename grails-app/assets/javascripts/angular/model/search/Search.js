@@ -137,33 +137,7 @@ class Search {
     	//alert( terms.join(', '));
     	return terms.join(', ');
     }
-/*    
-    [
-		{
-			"bool": {
-				"filter": [],
-				"must": [],
-				"should": [
-					{
-						"term": {
-							"encounter_department_specialty": "Geriatrics"
-						}
-					}
-				],
-				"must_not": []
-			}
-		},
-		{
-			"range": {
-				"filing_datetime": {
-					"lte": 1520964420000,
-					"gte": 1108771200000,
-					"format": "epoch_millis"
-				}
-			}
-		}
-	]
-*/   
+
     //----------------- refactored search ------------------------------
     //each should return a promise? or be its own self-contained process that returns a promise?
     
@@ -215,8 +189,6 @@ class Search {
     			me.recentDocsQuery = JSON.parse(queries.docsQuery.query);
     			me.recentAggsQuery = JSON.parse(queries.aggsQuery.query);
     			//get aggs query
-    			//alert(JSON.stringify(me.recentDocsQuery,null,'\t'));
-    			//alert(JSON.stringify(me.recentAggsQuery,null,'\t'));
     			//temp assignment hold return for use in the next  couple of .thens
     			me.uiService.fetchAuthorizedContextByLabel( queries.docsQuery.registration.authorizedContext )
     				.then( function( response ) { 
@@ -239,16 +211,11 @@ class Search {
     	this.serviceId = serviceId;
     	let me = this;
     	this.userInput = "*";
-    	/*this.uiService.fetchAuthorizedContextByLabel( this.registration.authorizedContext )
-    		.then( function( response ) { 
-    			me.setContext( response.data );
-    		});*/
     	this.r("encounter")	//returns the current Search instance and passes down the promise chain
     		.then( me.searchCorpora )
     		.then( me.dec )	//decorate (results) as appropriate
     		.then( me.complete )		//LOOK into switching order of these this and next stmt and being able to fetch hist from Search.js (this); would be nice for complete to actally be the end of the promise chain.
     		.then( me.searchService.fetchHistory() )
-    		//.then( me.searchService.fetchHistoryExcludingMostRecent() )
     		.catch( function(e) {
     			me.clearResults();
     			me.remoteError("docs",e);
@@ -563,129 +530,6 @@ class Search {
     		corpus.results = {};
     	}
     }
-        
-    //deprecated
-    /*conductPastSearch( queryId ) {
-    	//use registrationId to lookup registration to get the auth context label
-    	var me = this;
-    	this.clearResults();
-    	this.searchService.fetchRegisteredSearch( registrationId )
-    		.then( function( response ) { 
-    			var registeredSearch = response.data;	//temp assignment hold return for use in the next  couple of .thens
-    			me.uiService.fetchAuthorizedContextByLabel( registeredSearch.authorizedContext )
-    				.then( function( response ) { 
-    					me.setContext( response.data );
-    					me.parsePastSearchRegistration( registeredSearch );
-    					me.register()
-    		    			.then( function(response) {
-    		    				me.assignRegistration(response.data);
-    		    			});
-    					me.reExecute( registeredSearch );
-    			});
-    		});
-    }*/
-    
-    //deprecated
-    /*parsePastSearchRegistration( searchRegistration ) {
-    	var elasticQuery = JSON.parse( searchRegistration.queries[0].query ); 	//doesn't matter which query, all will have used the same querystring query
-    	console.log(elasticQuery);
-    	this.userInput = elasticQuery.query.bool.must.query_string.query;
-    	var filters = elasticQuery.query.bool.filter;	//returns an array
-    	console.log(filters);
-    	//this.prepareCorpora();//find corpus and put filters on it (corpus.appliedFilters=?)
-    	//assign parsed query here
-    }*/
-    //deprecated
-   /* reExecute( searchRegistration ) {
-    	//notesPerPage [and .offset] need to be parsed from searchRegistration and put on uiState
-    	var me = this;
-    	var defaultCorpusSet = false;
-    	for ( let corpus of this.context.corpora ) {
-    		if ( corpus.metadata.searchable ) {}
-    			for ( let q of searchRegistration.queries )	{
-    				if ( q.corpus==corpus.name && q.type=="DocumentQuery" ) {
-		    			try {
-		    				this.$http.post( APP.ROOT + '/search/elastic/', JSON.stringify( {"registration.id":this.registration.id, "corpus": corpus.name, "type":"DocumentQuery", "url":corpus.metadata.url, "query": JSON.parse(q.query) } ) ) 
-				    			.then( function(response) {
-				    				me.assignDocumentsResponse( corpus,response );
-				    				//client-side setting of default corpus, probably should be a property of corpus type
-				    				if ( !defaultCorpusSet ) {
-				    					//corpus.status.active = true;
-				    					defaultCorpusSet = true;
-				    				} else {
-				    					//corpus.status.active = false;
-				    				}
-				    			})
-				    			.catch( function(e) {
-			    					//catches non-200 status errors
-			    					me.remoteError("docs",e);
-			    				})
-								.finally( function() {
-									corpus.status.searchingDocs = false;
-								});
-		    			} catch(e) {
-		    				//need  better return from controller, json response if !=200
-							me.error("full",e);
-						}
-    				} else if ( q.corpus==corpus.name && q.type=="aggregation" ) {
-    					try {
-		    				this.$http.post( APP.ROOT + '/search/elastic/', JSON.stringify( {"registration.id":this.registration.id, "corpus": corpus.name, "type":"aggregation", "url":corpus.metadata.url, "query": JSON.parse(q.query) } ) ) 
-			    				.then( function(response) {
-				    				me.assignAggregationsResponse( corpus,response );
-			    				})
-			    				.catch( function(e) {
-			    					//catches non-200 status errors
-			    					me.remoteError("aggs",e);
-			    				})
-								.finally( function() {
-			    					corpus.status.computingAggs = false;
-			    				});	
-		    			} catch(e) {
-		    				//need  better return from controller, json response if !=200
-							me.error("full",e);
-						}
-    				}
-    			}
-			}
-    	this.complete();
-    	this.searchService.fetchHistoryExcludingMostRecent();
-    }
-    */
-    
-   /* deprecated
-    register() {
-    	return this.$http.post( APP.ROOT + '/audit/register/', JSON.stringify( { "authorizedContext":this.context.label } ) );
-    }
-    
-    assignRegistration( registrationResponse ) {
-    	console.log("assigning registration");
-    	this.registration = registrationResponse.data; 	//TODO fluff up a RegistrationResponse object
-    }
-    
-    searchCorpus( corpus ) {
-		//return promise and let the client resolve it
-    	//console.log(JSON.stringify(corpus,null,'\t'));
-    	corpus.status.searchingDocs = true;
-    	var url = corpus.metadata.url;
-    	var docsQuery = new DocumentQuery(corpus, this.userInput, this.pagination);
-		return this.$http.post( APP.ROOT + '/search/elastic/', JSON.stringify( {"registration.id":this.registration.id, "corpus": corpus.name, "type":"document", "url":url, "query": docsQuery} ) );
-	}
-    fetchAggregations( corpus ) {
-    	//return promise and let the client resolve it
-    	corpus.status.computingAggs = true;
-    	var url = corpus.metadata.url;
-    	var aggsQuery = new AggregationQuery(corpus, this.userInput);
-    	//alert(JSON.stringify(aggsQuery));
-		return this.$http.post( APP.ROOT + '/search/elastic/', JSON.stringify( {"registration.id":this.registration.id, "corpus": corpus.name, "type":"aggregation", "url":url, "query": aggsQuery} ) );
-    }
-    
-    assignDocumentsResponse(corpus,response) {
-    	//console.log(JSON.stringify(response,null,'\t'));
-    	corpus.results.docs = new DocumentsResponse(response.data);
-    }
-    assignAggregationsResponse(corpus,response) {
-    	corpus.results.aggs = new AggregationsResponse(response.data);
-    }*/
     
     distinctCounts( corpus, maxCount ) {
     	var url = corpus.metadata.url;
