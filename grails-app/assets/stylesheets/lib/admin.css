@@ -336,3 +336,48 @@ input:checked + .slider:before {
 .infoWidget span {
 	font-size: 80%;
 }
+
+/* rzslider */
+.custom-slider.rzslider .rz-bar {
+  background: lightgray;
+  height: 2px;
+}
+.custom-slider.rzslider .rz-selection {
+  background: #428bca;
+}
+
+.custom-slider.rzslider .rz-pointer {
+  width: 8px;
+  height: 16px;
+  top: auto; /* to remove the default positioning */
+  bottom: 0;
+  background-color: gray;
+  border-top-left-radius: 3px;
+  border-top-right-radius: 3px;
+}
+
+.custom-slider.rzslider .rz-pointer:after {
+  display: none;
+}
+
+.custom-slider.rzslider .rz-bubble {
+  bottom: 14px;
+}
+
+.custom-slider.rzslider .rz-limit {
+  font-weight: bold;
+  color: orange;
+}
+
+.custom-slider.rzslider .rz-tick {
+  width: 1px;
+  height: 10px;
+  margin-left: 4px;
+  border-radius: 0;
+  background: #428bca;
+  top: -1px;
+}
+
+.custom-slider.rzslider .rz-tick.rz-selected {
+  background: #428bca;
+}
