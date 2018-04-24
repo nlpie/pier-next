@@ -54,7 +54,7 @@ class BootStrap {
 			def noteId = Field.findByFieldName("note_id")?:new Field(fieldName:"note_id",dataTypeName:"LONG", description:"Epic note id", aggregatable:false)
 			def mrn = Field.findByFieldName("mrn")?:new Field(fieldName:"mrn",dataTypeName:"NOT_ANALYZED_STRING", description:"Epic patient identifier", aggregatable:true)
 			def encounterId = Field.findByFieldName("encounter_id")?:new Field(fieldName:"encounter_id",dataTypeName:"LONG", description:"Epic visit number", aggregatable:true)
-			def serviceDate = Field.findByFieldName("service_date")?:new Field(fieldName:"service_date",dataTypeName:"DATE", description:"Date of Service", aggregatable:true)
+			def serviceDate = Field.findByFieldName("service_date")?:new Field(fieldName:"service_date",dataTypeName:"DATE", description:"Date of Service", aggregatable:true, exportable:true)
 			def filingDatetime = Field.findByFieldName("filing_datetime")?:new Field(fieldName:"filing_datetime",dataTypeName:"DATETIME", description:"When note was filed", aggregatable:true, exportable:true)
 			def eds = Field.findByFieldName("encounter_department_specialty")?:new Field(fieldName:"encounter_department_specialty",dataTypeName:"NOT_ANALYZED_STRING", description:"Specialty name in Epic", aggregatable:true, exportable:true)
 			def ec = Field.findByFieldName("encounter_center")?:new Field(fieldName:"encounter_center",dataTypeName:"NOT_ANALYZED_STRING", description:"Encounter center name in Epic", aggregatable:true, exportable:true)
@@ -66,7 +66,7 @@ class BootStrap {
 			def smd = Field.findByFieldName("smd")?:new Field(fieldName:"smd",dataTypeName:"NOT_ANALYZED_STRING", description:"subject matter domain", aggregatable:true, exportable:true)
 			def text = Field.findByFieldName("text")?:new Field(fieldName:"text",dataTypeName:"SNOWBALL_ANALYZED_STRING", description:"document text", defaultSearchField:true, aggregatable:false)
 			def contextFilter = Field.findByFieldName("authorized_context_filter_value")?:new Field(fieldName:"authorized_context_filter_value",dataTypeName:"NOT_ANALYZED_STRING", description:"Array of search contexts that include this note",contextFilterField:true, aggregatable:false )
-			def cui = Field.findByFieldName("cuis")?:new Field(fieldName:"cuis", dataTypeName:"NOT_ANALYZED_STRING", description:"UMLS CUIs identified by BioMedICUS NLP pipeline", aggregatable:true)
+			def cui = Field.findByFieldName("cuis")?:new Field(fieldName:"cuis", dataTypeName:"NOT_ANALYZED_STRING", description:"UMLS CUIs identified by BioMedICUS NLP pipeline", aggregatable:true, significantTermsAggregatable:true)
 
 			def clinicalCorpus = Corpus.findByName("Clinical Notes")?: new Corpus(name:"Clinical Notes", description:"notes from Epic", enabled:true, glyph:"fa-file-text-o").save(flush:true, failOnError:true)
 			
@@ -89,7 +89,7 @@ class BootStrap {
 				println "adding pref for ${f.fieldName}"
 				def fp = new FieldPreference(user:app, label:PierUtils.labelFromUnderscore(f.fieldName), ontology:epicOntology, applicationDefault:true)
 				if ( f.contextFilterField || f.defaultSearchField ) fp.aggregate=false
-				if ( f.fieldName=="text" || f.fieldName=="service_date" || f.fieldName=="encounter_id" ) fp.aggregate=false
+				if ( f.fieldName=="text" || f.fieldName=="filing_datetime" || f.fieldName=="encounter_id" ) fp.aggregate=false
 				if ( f.fieldName=="role" || f.fieldName=="smd" ) fp.ontology=epicHL7LoincOntology
 				if ( f.fieldName=="cuis" ) {
 					fp.ontology=biomedicus
@@ -118,10 +118,22 @@ class BootStrap {
 			def surgPathType = Type.findByTypeName("report")?:new Type(typeName:"report", description:"CDR surgical path report", environment:Environment.current.toString())//, Corpus:surgPathCorpus)
 			def report = Field.findByFieldName("report")?:new Field(fieldName:"report",dataTypeName:"SNOWBALL_ANALYZED_STRING", description:"surgical pathology report text", defaultSearchField:true,, aggregatable:false)
 			def surgPathContextFilterField = Field.findByFieldNameAndType("authorized_context_filter_value", null)?:new Field(fieldName:"authorized_context_filter_value",dataTypeName:"NOT_ANALYZED_STRING", description:"Array of search contexts that include this note",contextFilterField:true, aggregatable:false )
-			def pathCui = Field.findByFieldNameAndType("cuis", null)?:new Field(fieldName:"cuis", dataTypeName:"NOT_ANALYZED_STRING", description:"UMLS CUIs identified by BioMedICUS NLP pipeline", aggregatable:true, exportable:true)
+			def pathCui = Field.findByFieldNameAndType("cuis", null)?:new Field(fieldName:"cuis", dataTypeName:"NOT_ANALYZED_STRING", description:"UMLS CUIs identified by BioMedICUS NLP pipeline", aggregatable:true, exportable:true, significantTermsAggregatable:true)
+			
+			def pathCollDate = Field.findByFieldNameAndType("collection_datetime", null)?:new Field(fieldName:"collection_datetime", dataTypeName:"DATETIME", description:"Specimen collection time", aggregatable:true, exportable:true)
+			def procCode = Field.findByFieldNameAndType("proc_code", null)?:new Field(fieldName:"proc_code", dataTypeName:"NOT_ANALYZED_STRING", description:"Specimen collection procedure code", aggregatable:true, exportable:true)
+			def procName = Field.findByFieldNameAndType("proc_name", null)?:new Field(fieldName:"proc_name", dataTypeName:"NOT_ANALYZED_STRING", description:"Specimen collection procedure name", aggregatable:true, exportable:true)
+			def authProv = Field.findByFieldNameAndType("authorizing_prov_name", null)?:new Field(fieldName:"authorizing_prov_name", dataTypeName:"NOT_ANALYZED_STRING", description:"Authorizing provider", aggregatable:true, exportable:true)
+			def resultsInterp = Field.findByFieldNameAndType("rslts_interpreter", null)?:new Field(fieldName:"rslts_interpreter", dataTypeName:"NOT_ANALYZED_STRING", description:"Name of provider interpreting results ", aggregatable:true, exportable:true)
+			
 			surgPathType.addToFields(report)
 			surgPathType.addToFields(surgPathContextFilterField)
-			surgPathType.addToFields(pathCui)
+			surgPathType.addToFields(pathCollDate)
+			surgPathType.addToFields(procCode)
+			surgPathType.addToFields(procName)
+			surgPathType.addToFields(authProv)
+			surgPathType.addToFields(resultsInterp)
+			//surgPathType.addToFields(pathCui)
 			surgPathType.fields.each { f ->
 				println "adding surg path pref for ${f.fieldName}"
 				def fp = new FieldPreference(user:app, label:PierUtils.labelFromUnderscore(f.fieldName), ontology:epicOntology, applicationDefault:true)

@@ -68,6 +68,7 @@ class JsonMarshallerRegistrar {
 					id: f.id,
 					fieldName: f.fieldName,
 					aggregatable: f.aggregatable,
+					significantTermsAggregatable: f.significantTermsAggregatable,
 					exportable: f.exportable,
 					contextFilterField: f.contextFilterField,
 					dataTypeName: f.dataTypeName,

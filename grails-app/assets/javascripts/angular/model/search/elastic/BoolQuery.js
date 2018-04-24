@@ -2,9 +2,9 @@
 class BoolQuery {
     constructor() {
     	this.bool = {
-    		"filter": [],
-    		"must": [],
-    		"should":[],
+    		"filter": [],	//does not affect doc score
+    		"must": [],		//affects doc score
+    		"should":[],	//affects doc score
     		"must_not": []
     	};
     }

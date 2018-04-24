@@ -1,9 +1,10 @@
 import TermsAggregation from './TermsAggregation';
+import SignificantTermsAggregation from './SignificantTermsAggregation';
 import MinAggregation from './MinAggregation';
 import MaxAggregation from './MaxAggregation';
 
+//this class puts aggregations on AggregationQuery using agg data stored in the corpus param passed to constructor
 class Aggregations {
-	
 	constructor( corpus ) {
 		if ( corpus===undefined ) {
 			//noop - do not set configured aggs for corpus
@@ -27,6 +28,8 @@ class Aggregations {
     				//alert("temporal");
     				me.add( aggregation.label+'.min', new MinAggregation( aggregation.field.fieldName ) );
     				me.add( aggregation.label+'.max', new MaxAggregation( aggregation.field.fieldName ) );
+    			} else if ( aggregation.field.significantTermsAggregatable ) {
+    				me.add( aggregation.label, new SignificantTermsAggregation( aggregation.field.fieldName, aggregation.numberOfFilterOptions ) );
     			} else {
     				me.add( aggregation.label, new TermsAggregation( aggregation.field.fieldName, aggregation.numberOfFilterOptions ) );
     			}
