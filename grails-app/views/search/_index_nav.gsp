@@ -27,7 +27,7 @@
 				<a><i class="fa fa-download fa-lg" data-container="body" data-toggle="tooltip" data-placement="bottom" title="download query results"></i></a>
 			</li>
 			<li>
-				<a><i class="fa fa-floppy-o fa-lg" data-container="body" data-toggle="tooltip" data-placement="bottom" title="save query for later use"></i></a>
+				<a><i class="fa fa-floppy-o fa-lg" ng-click="sc.searchService.saveQuery(sc.uiState.currentSearch.registration.id)" data-container="body" data-toggle="tooltip" data-placement="bottom" title="save query for later use"></i></a>
 			</li>
 		</ul>
 
@@ -64,7 +64,7 @@
                         </ul>
                     </div>
 					<input id="user-input" type="text" name="query" class="form-control" 
-						placeholder="Search words and/or phrases anywhere in the note text" 
+						placeholder="term1 AND (term2 OR term3) NOT (term4 OR &#34;multiterm phrase&#34;)" 
 						ng-model="sc.uiState.currentSearch.userInput"
 						ng-change="sc.uiState.currentSearch.dirty()"
 						style="border-right:none;-webkit-box-shadow: none !important;-moz-box-shadow: none !important;box-shadow: none !important;
@@ -85,11 +85,13 @@
 						<ul class="dropdown-menu pull-right">
                             <li role="presentation" class="dropdown-header pull-right">Recent Searches</li>
                         	<li ng-repeat="sh in sc.searchService.searchHistory track by $index">
-								<a ng-click="sc.uiState.currentSearch.conductPastSearch(sh.registration.id)">
-                        			<div title="replace me">
-	                        			{{sh.query.label}}
+								<a ng-click="sc.uiState.currentSearch.recentSearch(sh.query.id)">
+                        			<div title="click to search">
+	                        			<sub style="color:gray">{{sh.registration.authorizedContext}}</sub>
 	                        			<br>
-	                        			<sup style="padding-left:2em">{{sh.registration.authorizedContext}}</sup>
+	                        			<span style="text-decoration:underline">{{sh.query.label}}</span> 
+	                        				<span style="font-style:italic" ng-if="sh.query.saved">[saved]</span> 
+	                        				<small style="color:gray" ng-if="sh.query.filters"><i>Filters: {{sh.query.filters}}</i></small>
                         			</div>
                         		</a>
                             </li>

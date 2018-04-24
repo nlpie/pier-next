@@ -17,9 +17,9 @@ class SearchRegistration {
 	
 	String username = "objdefault"
 	String authorizedContext
+	String searchType
 	String initialUserInput
 	String uuid = UUID.randomUUID().toString()
-	Boolean saved = false
 
 	
 	Date dateCreated

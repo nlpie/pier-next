@@ -12,6 +12,7 @@ class Query {
 		timedOut nullable:true
 		label nullable:true
 		hashCodedQuery nullable:true
+		filters nullable:true
     }
 	
 	static mapping = {
@@ -31,7 +32,9 @@ class Query {
 	String query	//body of request sent to elastic
 	Integer hashCodedQuery
 	String terms
-	Boolean userFiltered
+	String filters
+	Integer sequence
+	Boolean saved = false
 	
 	//returned from elastic
 	Integer hits

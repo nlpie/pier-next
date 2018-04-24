@@ -77,4 +77,21 @@ class SettingsController {//extends RestfulController {
 		}
 	}
 	
+	@Transactional
+	def saveQuery() {
+		//lookup user
+		//verify user has access to these settings
+		try {
+			if ( request.method!="GET" ) throw new HttpMethodNotAllowedException(message:"issue POST instead")
+			respond settingsService.saveQuery( params.id )
+		} catch (PierApiException e) {
+			println "pier exception"
+			exceptionResponse(e)
+		} catch (Exception e) {
+			println "reg exception"
+			e.printStackTrace()
+			exceptionResponse( new PierApiException(message:e.message) )
+		}
+	}
+	
 }

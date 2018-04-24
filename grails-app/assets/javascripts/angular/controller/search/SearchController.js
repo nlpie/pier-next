@@ -11,6 +11,11 @@ class SearchController {
 		this.uiState = uiState;
 	}
 	
+	//convenience method for easily proofing state of objects
+	show( obj ){
+		alert(JSON.stringify(obj,null,'\t'));
+	}
+	
 }
 
 SearchController.$inject = [ '$scope', 'searchService', 'uiState', 'uiService' ];
