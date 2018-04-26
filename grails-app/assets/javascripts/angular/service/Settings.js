@@ -2,9 +2,11 @@
 
 class Settings {
 	
-	constructor( $http, growl ) {
+	constructor( $http, $q, growl ) {
 		this.$http = $http;
+		this.$q = $q;
 		this.growl = growl;
+		
 		this.styles = {
 				filters: "",
 				exports: ""
@@ -28,6 +30,7 @@ class Settings {
 		this.view = Object.keys(this.views)[0];		//filters
 		
 		this.swap('filters');
+		console.info("Settings.js complete");
 	}
 	
 	fetchPrefs() {
@@ -37,14 +40,6 @@ class Settings {
 				me.prefs = response.data;
 				if (!me.corpus) me.corpus = Object.keys(response.data)[0];
     		});
-		/*
-    	this.uiService.fetchPreferences()
-    		.then( function(response) {
-    			//alert(me.hasOwnProperty("styles"));
-    			me.prefs = response.data;
-    			me.prefs = { f:'f' };
-    			alert(JSON.stringify(me));
-    		});*/
     }
 	
 	remoteError( e ) {
@@ -61,7 +56,7 @@ class Settings {
 			me.growl.success( successMsg, {ttl:1000} );
 		})
 		.catch( function(e) {
-			me.remoteError( e, {ttl:1000} );
+			me.remoteError( e, {ttl:3000} );
 		});
 	}
 	
@@ -90,6 +85,6 @@ class Settings {
 	
 }
 
-Settings.$inject = [ '$http', 'growl' ];
+Settings.$inject = [ '$http', '$q', 'growl' ];
 
 export default Settings;

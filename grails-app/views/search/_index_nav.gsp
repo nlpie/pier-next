@@ -18,7 +18,7 @@
 		<ul class="nav navbar-nav navbar-right">
 			<!-- configure links in NavCtrl links property -->
 			<li>
-				<a><i class="fa fa-expand fa-lg" ng-click="sc.uiState.currentSearch.toggleRelatednessExpansion()" ng-style="sc.uiState.currentSearch.options.relatednessExpansion.style" data-container="body" data-toggle="tooltip" data-placement="bottom" data-html="true" title="expand query using semantic similarity"></i></a>
+				<a><i class="fa fa-expand fa-lg" ng-click="sc.currentSearch.toggleRelatednessExpansion()" ng-style="sc.currentSearch.options.relatednessExpansion.style" data-container="body" data-toggle="tooltip" data-placement="bottom" data-html="true" title="expand query using semantic similarity"></i></a>
 			</li>
 			<li>
 				<a><i class="fa fa-language fa-lg" data-container="body" data-toggle="tooltip" data-placement="bottom" data-html="true" title="expand query using UMLS CUIs"></i></a>
@@ -27,7 +27,7 @@
 				<a><i class="fa fa-download fa-lg" data-container="body" data-toggle="tooltip" data-placement="bottom" title="download query results"></i></a>
 			</li>
 			<li>
-				<a><i class="fa fa-floppy-o fa-lg" ng-click="sc.searchService.saveQuery(sc.uiState.currentSearch.registration.id)" data-container="body" data-toggle="tooltip" data-placement="bottom" title="save query for later use"></i></a>
+				<a><i class="fa fa-floppy-o fa-lg" ng-click="sc.searchService.saveQuery(sc.currentSearch.registration.id)" data-container="body" data-toggle="tooltip" data-placement="bottom" title="save query for later use"></i></a>
 			</li>
 		</ul>
 
@@ -35,38 +35,38 @@
        		<div class="form-group" style="display:inline;" >
        			<div class="input-group" style="display:table;">
 					<div class="input-group-btn" class="input-group-addon" style="width:1%;">
-				<button ng-repeat="corpus in sc.uiState.currentSearch.context.corpora track by $index" type="button" class="btn btn-default" 
+				<button ng-repeat="corpus in sc.currentSearch.context.corpora track by $index" type="button" class="btn btn-default" 
 						ng-if="corpus.status.active && corpus.status.userSelectedFilters"
 						style="border-right:none"
   						ng-mouseover="corpus.status.showBan=true" 
   						ng-mouseleave="corpus.status.showBan=false"
   						title="remove filters for this corpus"
-  						ng-click="sc.uiService.removeFilters( corpus );sc.uiState.currentSearch.dirty( corpus )">
+  						ng-click="sc.searchService.removeFilters( corpus );sc.currentSearch.dirty( corpus )">
 					<i class="fa fa-filter"></i>
 					<i class="fa fa-ban" style="color:red;cursor:hand" ng-if="corpus.status.showBan==true"></i>
 				</button>
 						<button type="button" class="btn btn-default" data-toggle="dropdown" style="border-right:none;border-left:none">
-                            <span class="label-icon" title="{{sc.uiState.currentSearch.context.description}}" >{{sc.uiState.currentSearch.context.label}}</span>
+                            <span class="label-icon" title="{{sc.currentSearch.context.description}}" >{{sc.currentSearch.context.label}}</span>
                             <span class="caret"></span>
                         </button>
                         <ul class="dropdown-menu" role="menu">
                             <li role="presentation" class="dropdown-header">Authorized Search Contexts</li>
-                        	<li ng-repeat="ctx in sc.uiState.authorizedContexts track by $index" class="pull-left">
+                        	<li ng-repeat="ctx in sc.currentSearch.authorizedContexts track by $index" class="pull-left">
                         		<a>
 		                        	<i ng-repeat="corpus in ctx.corpora track by $index" 
 		                        		class="fa {{corpus.glyph}} pier-li-left-padded-icon"
 		                        		ng-style="(corpus.metadata.searchable) ? {'color':'green'} : {'color': 'lightgray'}"
 		                        		ng-attr-title="{{corpus.metadata.tooltip}}">
 		                        	</i> 
-                        			<span class="pier-li-left-padded-content" ng-click="sc.uiState.changeContext(ctx)" title="{{ctx.description}}">{{ctx.label}}</span>
+                        			<span class="pier-li-left-padded-content" ng-click="sc.currentSearch.setContext(ctx)" title="{{ctx.description}}">{{ctx.label}}</span>
                         		</a>
                             </li>
                         </ul>
                     </div>
 					<input id="user-input" type="text" name="query" class="form-control" 
 						placeholder="term1 AND (term2 OR term3) NOT (term4 OR &#34;multiterm phrase&#34;)" 
-						ng-model="sc.uiState.currentSearch.userInput"
-						ng-change="sc.uiState.currentSearch.dirty()"
+						ng-model="sc.currentSearch.userInput"
+						ng-change="sc.currentSearch.dirty()"
 						style="border-right:none;-webkit-box-shadow: none !important;-moz-box-shadow: none !important;box-shadow: none !important;
 							position: relative;height:33.1px"
 						ng-model-options="{
@@ -85,7 +85,7 @@
 						<ul class="dropdown-menu pull-right">
                             <li role="presentation" class="dropdown-header pull-right">Recent Searches</li>
                         	<li ng-repeat="sh in sc.searchService.searchHistory track by $index">
-								<a ng-click="sc.uiState.currentSearch.recentSearch(sh.query.id)">
+								<a ng-click="sc.currentSearch.recentSearch(sh.query.id)">
                         			<div title="click to search">
 	                        			<sub style="color:gray">{{sh.registration.authorizedContext}}</sub>
 	                        			<br>
@@ -96,25 +96,25 @@
                         		</a>
                             </li>
                         </ul>
-						<button class="btn btn-default" type="submit" ng-click="sc.uiState.currentSearch.e()">
-							<i class="fa fa-search" ng-class="sc.uiState.currentSearch.searchIconClass" aria-hidden="true"></i>
+						<button class="btn btn-default" type="submit" ng-click="sc.currentSearch.e()">
+							<i class="fa fa-search" ng-class="sc.currentSearch.searchIconClass" aria-hidden="true"></i>
 						</button>
 					</div>
 				</div>
 			</div>
 		</form>
 
-		<div ng-repeat="corpus in sc.uiState.currentSearch.context.corpora track by $index"
+		<div ng-repeat="corpus in sc.currentSearch.context.corpora track by $index"
 			 ng-if="corpus.results.docs" class="btn-group pull-right" role="group" style="margin-right:170px">
 			<div ng-if="corpus.metadata.searchable">
-				<button type="button" class="btn btn-default btn-result-pagination" ng-click="sc.uiState.currentSearch.firstPage( corpus )" ng-style="{cursor:sc.uiState.currentSearch.backwardCursor( corpus )}"> <i class="fa fa-angle-double-left"> </i></button>
-				<button type="button" class="btn btn-default btn-result-pagination" ng-click="sc.uiState.currentSearch.previousPage( corpus )" ng-style="{cursor:sc.uiState.currentSearch.backwardCursor( corpus )}"> <i class="fa fa-angle-left"> </i></button>
+				<button type="button" class="btn btn-default btn-result-pagination" ng-click="sc.currentSearch.firstPage( corpus )" ng-style="{cursor:sc.currentSearch.backwardCursor( corpus )}"> <i class="fa fa-angle-double-left"> </i></button>
+				<button type="button" class="btn btn-default btn-result-pagination" ng-click="sc.currentSearch.previousPage( corpus )" ng-style="{cursor:sc.currentSearch.backwardCursor( corpus )}"> <i class="fa fa-angle-left"> </i></button>
 				
   				<span class="fa-stack" ng-if="corpus.status.userSelectedFilters" 
   						ng-mouseover="corpus.status.showBan=true" 
   						ng-mouseleave="corpus.status.showBan=false"
   						title="remove filters for this corpus"
-  						ng-click="sc.uiService.removeFilters( corpus );sc.uiState.currentSearch.dirty( corpus )">
+  						ng-click="sc.searchService.removeFilters( corpus );sc.currentSearch.dirty( corpus )">
 					<i class="fa fa-filter fa-stack-1x"></i>
 					<i class="fa fa-ban fa-stack-1x" style="color:red;cursor:hand" ng-if="corpus.status.showBan==true"></i>
 				</span>
@@ -130,8 +130,8 @@
 				</button>
 				
 				
-				<button type="button" class="btn btn-default btn-result-pagination" ng-click="sc.uiState.currentSearch.nextPage( corpus )" ng-style="{cursor:sc.uiState.currentSearch.forwardCursor( corpus )}"> <i class="fa fa-angle-right"></i> </button>
-				<button type="button" class="btn btn-default btn-result-pagination" ng-click="sc.uiState.currentSearch.lastPage( corpus )" ng-style="{cursor:sc.uiState.currentSearch.forwardCursor( corpus )}"> <i class="fa fa-angle-double-right"> </i></button>
+				<button type="button" class="btn btn-default btn-result-pagination" ng-click="sc.currentSearch.nextPage( corpus )" ng-style="{cursor:sc.currentSearch.forwardCursor( corpus )}"> <i class="fa fa-angle-right"></i> </button>
+				<button type="button" class="btn btn-default btn-result-pagination" ng-click="sc.currentSearch.lastPage( corpus )" ng-style="{cursor:sc.currentSearch.forwardCursor( corpus )}"> <i class="fa fa-angle-double-right"> </i></button>
 				
 			</div>
 		</div>

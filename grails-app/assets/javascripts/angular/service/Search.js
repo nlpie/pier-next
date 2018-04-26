@@ -1,26 +1,26 @@
-import DocumentsResponse from './DocumentsResponse';
-import AggregationsResponse from './AggregationsResponse';
-import DocumentQuery from './elastic/DocumentQuery';
-import AggregationQuery from './elastic/AggregationQuery';
-import PaginationQuery from './elastic/PaginationQuery';
-import BucketCountQuery from './elastic/BucketCountQuery';
-import CardinalityOnlyQuery from './elastic/CardinalityOnlyQuery';
-import SingleFieldScrollCountQuery from './elastic/SingleFieldScrollCountQuery';
-import TermsAggregation from './elastic/TermsAggregation';
-import Pagination from './Pagination';
-import TermFilter from './elastic/TermFilter';
-import EncounterDocQuery from './elastic/clinical/EncounterDocQuery';
-import EncounterAggQuery from './elastic/clinical/EncounterAggQuery';
+import DocumentsResponse from '../model/search/DocumentsResponse';
+import AggregationsResponse from '../model/search/AggregationsResponse';
+import DocumentQuery from '../model/search/elastic/DocumentQuery';
+import AggregationQuery from '../model/search/elastic/AggregationQuery';
+import PaginationQuery from '../model/search/elastic/PaginationQuery';
+import BucketCountQuery from '../model/search/elastic/BucketCountQuery';
+import CardinalityOnlyQuery from '../model/search/elastic/CardinalityOnlyQuery';
+import SingleFieldScrollCountQuery from '../model/search/elastic/SingleFieldScrollCountQuery';
+import TermsAggregation from '../model/search/elastic/TermsAggregation';
+import Pagination from '../model/search/Pagination';
+import TermFilter from '../model/search/elastic/TermFilter';
+import EncounterDocQuery from '../model/search/elastic/clinical/EncounterDocQuery';
+import EncounterAggQuery from '../model/search/elastic/clinical/EncounterAggQuery';
 
 class Search {
-    constructor( $http, $q, growl, searchService, uiService ) {
+    constructor( $http, $q, growl, searchService ) {
     	this.$http = $http;
     	this.$q = $q;
     	this.growl = growl;
     	this.searchService = searchService;
-    	this.uiService = uiService;
     	
     	this.userInput = "iliitis";// "iliitis";
+    	this.authorizedContexts = undefined;
     	this.context = undefined;
     	this.registration = undefined;
     	
@@ -32,6 +32,8 @@ class Search {
         	uuid: undefined,
         	sequence: 0
         }
+        this.init();
+        console.info("Search.js complete");
         /*
         this.cuiExpansionEnabled = false;				
 		this.similarityExpansionEnabled = false; 
@@ -44,6 +46,15 @@ class Search {
     		}
     	}
          */
+    }
+    
+    init() {
+    	let me = this;
+    	this.searchService.fetchContexts()
+    		.then ( function(response) {
+    			me.authorizedContexts = response.data;
+    			me.setContext(me.authorizedContexts[0]);	//set to first in list
+    		});
     }
 	    
     toggleRelatednessExpansion() {
@@ -85,7 +96,7 @@ class Search {
     	for ( let corpus of this.context.corpora ) {
     		if ( corpus.metadata.searchable ) {
     			if ( !activeSet ) {
-    				this.uiService.setActiveCorpus( corpus, this.context.corpora );	//TODO refactor active assignments to a user pref?
+    				this.searchService.setActiveCorpus( corpus, this.context.corpora );	//TODO refactor active assignments to a user pref?
     				activeSet = true;
     			}
     			//if ( corpus.metadata.filtered ) {
@@ -190,7 +201,7 @@ class Search {
     			me.recentAggsQuery = JSON.parse(queries.aggsQuery.query);
     			//get aggs query
     			//temp assignment hold return for use in the next  couple of .thens
-    			me.uiService.fetchAuthorizedContextByLabel( queries.docsQuery.registration.authorizedContext )
+    			me.searchService.fetchAuthorizedContextByLabel( queries.docsQuery.registration.authorizedContext )
     				.then( function( response ) { 
     					me.setContext( response.data );
     					me.r("recent")
@@ -597,6 +608,6 @@ class Search {
     
 }
 
-Search.$inject = [ '$http', '$q', 'growl', 'searchService', 'uiService' ];
+Search.$inject = [ '$http', '$q', 'growl', 'searchService' ];
 
 export default Search;

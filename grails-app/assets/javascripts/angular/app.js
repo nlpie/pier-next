@@ -5,23 +5,18 @@ import '../lib/xeditable.min.js';
 import '../lib/angularSlideables.js';
 import '../lib/rzslider.js';
 
-import SearchService from '../angular/service/search/SearchService';
-import Search from '../angular/model/search/Search';
+import SearchService from '../angular/service/SearchService';
+import Search from '../angular/service/Search';
 import Settings from '../angular/service/Settings';
 import SearchController from '../angular/controller/search/SearchController';
 import ResultsController from '../angular/controller/search/ResultsController';
 import SettingsController from '../angular/controller/settings/SettingsController';
 
-import UIService from '../angular/service/config/UIService';
-import UIState from '../angular/model/ui/UIState';
-
 
 angular.module( 'app', ['angular-growl', 'ngSanitize', 'xeditable', 'angularSlideables', 'rzModule'] )
-    .service('settings', Settings)
+	.service('settings', Settings)
     .service('searchService', SearchService)
     .service('currentSearch', Search)
-    .service('uiService', UIService)
-    .service('uiState', UIState)
 	.controller('resultsController', ResultsController)
 	.controller('searchController', SearchController)
 	.controller('settingsController', SettingsController)

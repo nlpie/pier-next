@@ -1,5 +1,4 @@
 //only need to import if you are new-ing up an instance, or injecting and using a class in the context of this code
-import UserService from '../service/search/SearchService';
 import User from '../model/User';
 
 class UserController {

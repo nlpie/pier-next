@@ -1,14 +1,9 @@
-import SearchService from '../../service/search/SearchService';
-import UIService from '../../service/config/UIService';
-import UIState from '../../model/ui/UIState';
 
 class SearchController {
 	
-	constructor( $scope, searchService, uiState, uiService ) {
-		//'ngInject';
+	constructor( $scope, searchService, currentSearch ) {
 		this.searchService = searchService;
-		this.uiService = uiService;
-		this.uiState = uiState;
+		this.currentSearch = currentSearch;
 	}
 	
 	//convenience method for easily proofing state of objects
@@ -18,6 +13,6 @@ class SearchController {
 	
 }
 
-SearchController.$inject = [ '$scope', 'searchService', 'uiState', 'uiService' ];
+SearchController.$inject = [ '$scope', 'searchService', 'currentSearch' ];
 
 export default SearchController;
