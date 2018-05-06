@@ -9,6 +9,7 @@ class SearchRegistration {
 	static mapping = {
     	version false
 		uuid column:'uuid', index:'uuid_idx'
+		initialUserInput sqlType: "mediumtext"
 	}
 	
 	static hasMany = [ queries:Query, counts:DistinctCount ]
@@ -36,6 +37,14 @@ class SearchRegistration {
 	}
 	def getCountQueries( List registrationList ) {
 		DistinctCount.findAllBySearchRegistrationInList(this)
+	}
+	def getMaxSequence() {
+		def seq = 0
+		this.queries.each {
+			seq = ( it.sequence>seq ) ? it.sequence : seq
+		}
+		println seq
+		seq
 	}
 
 }

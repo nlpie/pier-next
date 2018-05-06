@@ -62,7 +62,7 @@ class SearchService {
 			});
 	}
 	
-	removeFilters( corpus ) {
+	/*removeFilters( corpus ) {
     	Object.keys( corpus.metadata.aggregations ).map( function(ontol,index) {
     		let ontology = corpus.metadata.aggregations[ontol];
     		Object.keys( ontology ).map( function(agg,idx) {
@@ -72,10 +72,8 @@ class SearchService {
     			}
         	})
     	});
-    	corpus.status.userSelectedFilters = false;
-    	corpus.status.showBan = false;
-    	corpus.status.dirty = true;
-    }
+    	corpus.resetFilters();
+    }*/
 	
 }
 

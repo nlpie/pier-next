@@ -11,6 +11,7 @@ import Pagination from '../model/search/Pagination';
 import TermFilter from '../model/search/elastic/TermFilter';
 import EncounterDocQuery from '../model/search/elastic/clinical/EncounterDocQuery';
 import EncounterAggQuery from '../model/search/elastic/clinical/EncounterAggQuery';
+import AuthorizedContextsResponse from '../model/rest/response/AuthorizedContextsResponse';
 
 class Search {
     constructor( $http, $q, growl, searchService ) {
@@ -34,9 +35,11 @@ class Search {
         }
         this.init();
         console.info("Search.js complete");
-        /*
+
+        
+        
+        this.similarityExpansionEnabled = false; 
         this.cuiExpansionEnabled = false;				
-		this.similarityExpansionEnabled = false; 
 		this.cuiExpansion = {};				//{ heart:[], valve:[] } or { enabled:false, expansionMap: { heart:[], valve:[] } }
 		this.relatednessExpansion = {}; 		//{ heart:[], valve:[] } or { enabled:false, expansionMap: { heart:[], valve:[] } 
 		this.options = {
@@ -45,14 +48,15 @@ class Search {
     			style: {}
     		}
     	}
-         */
+        
     }
     
     init() {
     	let me = this;
     	this.searchService.fetchContexts()
     		.then ( function(response) {
-    			me.authorizedContexts = response.data;
+    			me.authorizedContexts = new AuthorizedContextsResponse( response.data );	//response.data;
+//alert(JSON.stringify(me.authorizedContexts[0],null,'\t'));
     			me.setContext(me.authorizedContexts[0]);	//set to first in list
     		});
     }
@@ -74,13 +78,11 @@ class Search {
 		this.searchIconClass = "fa fa-refresh fa-spin";
 		if ( corpus ) {
 			//dim only this corpus
-			corpus.opacity = corpus.resultsOpacity.dimmed;
-			corpus.status.dirty = true;
+			corpus.dim();
 		} else {
 			//dim doc results for all copora
 			for (let corpus of this.context.corpora) {
-				corpus.opacity = corpus.resultsOpacity.dimmed;
-				corpus.status.dirty = true;
+				corpus.dim();
 			}
 		}
 	}
@@ -105,13 +107,15 @@ class Search {
     			//}
     			if ( !corpus.appliedFilters ) {
     				corpus.appliedFilters = {};
-    				corpus.opacity = corpus.resultsOpacity.bright;
+    				corpus.brighten();
+    				//corpus.opacity = corpus.resultsOpacity.bright;
     				corpus.pagination = new Pagination();
     				corpus.results = {};
     				this.complete();
     			}
 				this.corpusAggregations( corpus )
 	    			.then( function(response) {
+//alert(JSON.stringify(response.data,null,'\t'));
 	    				corpus.metadata.aggregations = response.data;
 	    				console.log("AUTHORIZED CONTEXT SET");
 	    			});
@@ -294,9 +298,8 @@ class Search {
 				return results;
 			})
 			.finally( function() {
-				corpus.status.dirty = false;
 				corpus.status.searchingDocs = false;
-				corpus.opacity = corpus.resultsOpacity.bright;
+				corpus.brighten();
 			});
     }
     
@@ -316,9 +319,8 @@ class Search {
 				return results;
 			})
 			.finally( function() {
-				corpus.status.dirty = false;
 				corpus.status.searchingDocs = false;
-				corpus.opacity = corpus.resultsOpacity.bright;
+				corpus.brighten();
 			});
     }
     
@@ -351,9 +353,8 @@ class Search {
 				return results;
 			})
 			.finally( function() {
-				corpus.status.dirty = false;
+				corpus.brighten();
 				corpus.status.searchingDocs = false;
-				corpus.opacity = corpus.resultsOpacity.bright;
 			});
     }
     
@@ -388,9 +389,8 @@ class Search {
 				return results;
 			})
 			.finally( function() {
-				corpus.status.dirty = false;
+				corpus.brighten();
 				corpus.status.searchingDocs = false;
-				corpus.opacity = corpus.resultsOpacity.bright;
 			});
     }
     
@@ -403,11 +403,19 @@ class Search {
     	var url = corpus.metadata.url;
     	var aggsQuery = new AggregationQuery( corpus, this.userInput );
     	var filterDesc = this.filterDistiller( aggsQuery );
+    	let me = this;
 //alert("AGGS QUERY\n" + JSON.stringify(aggsQuery,null,'\t'));
 		return this.$http.post( APP.ROOT + '/search/elastic/', JSON.stringify( {"registration.id":registration.id, "corpus":corpus.name, "type":aggsQuery.constructor.name.toString(), "url":url, "query":aggsQuery, "filters":filterDesc, "sequence":this.status.sequence  } ) )
 			.then( function( aggsSearchResponse ) {
 				let results = aggsSearchResponse.data;
 				corpus.results.aggs = new AggregationsResponse( results, corpus );	//TODO refactoring that will create client-side objects for API data will eventually have a method for putting date slider on corpus.metadata.aggregations
+				
+				if ( me.options.relatednessExpansion.on ) {
+					var maxCount = corpus.results.aggs.total;
+					console.log("max distinct count " + maxCount);
+					me.distinctCounts( corpus, maxCount );
+				}
+				
 				return results;
 			})
 			.finally( function() {
@@ -457,7 +465,7 @@ class Search {
     //pagination
     nextPage( corpus ) {
     	//next pg, no aggs
-    	if ( !corpus.status.dirty && corpus.pagination.next() ) {
+    	if ( !corpus.isDirty() && corpus.pagination.next() ) {
     		let me = this;
     		this.p( this.registration, corpus )
 	    	.catch( function(e) {
@@ -471,7 +479,7 @@ class Search {
     }
     
     lastPage( corpus ) {
-		if ( !corpus.status.dirty && corpus.pagination.last() )  {
+		if ( !corpus.isDirty() && corpus.pagination.last() )  {
 			let me = this;
 			return this.p( this.registration, corpus )
 			.catch( function(e) {
@@ -486,18 +494,18 @@ class Search {
     
     previousPage( corpus ) {
     	//prev pg, composite
-    	if ( !corpus.status.dirty && corpus.pagination.previous() ) this.p( this.registration, corpus );
+    	if ( !corpus.isDirty() && corpus.pagination.previous() ) this.p( this.registration, corpus );
     }
     
     firstPage( corpus ) {
-    	if ( !corpus.status.dirty && corpus.pagination.first() ) this.p( this.registration, corpus );
+    	if ( !corpus.isDirty() && corpus.pagination.first() ) this.p( this.registration, corpus );
     }
     
     forwardCursor( corpus ) {
-		return ( !corpus.status.dirty && corpus.pagination.hasNext() ) ? "pointer" : "not-allowed";
+		return ( !corpus.isDirty() && corpus.pagination.hasNext() ) ? "pointer" : "not-allowed";
 	}
 	backwardCursor( corpus ) {
-		return ( !corpus.status.dirty && corpus.pagination.hasPrevious() ) ? "pointer" : "not-allowed";
+		return ( !corpus.isDirty() && corpus.pagination.hasPrevious() ) ? "pointer" : "not-allowed";
 	}
     
     
@@ -544,20 +552,23 @@ class Search {
     
     distinctCounts( corpus, maxCount ) {
     	var url = corpus.metadata.url;
+//alert(JSON.stringify(corpus.metadata.aggregations));
     	var aggregations = corpus.metadata.aggregations;
     	var me = this;
     	Object.keys(aggregations).map( function(key,index) {
     		var aggregationCategory = corpus.metadata.aggregations[key];
-    		for (const aggregation of aggregationCategory) {
+    		for (let aggPropName in aggregationCategory) {
+    			let aggregation = aggregationCategory[aggPropName];
     			if ( aggregation.countDistinct ) {
+//alert(JSON.stringify(aggregation,null,'\t'));
     				var countType = ( maxCount<=15000000 ) ? "bucket" : "scroll";	//TODO externalize maxBuckets threshold
     				var query;
     				if ( countType=='scroll' ) query = new SingleFieldScrollCountQuery( corpus, me.userInput, aggregation.label, aggregation.fieldName );
     				if ( countType=='bucket' ) {
-    					if ( aggregation.fieldName=='note_id' ) {
-    						query = new CardinalityOnlyQuery( corpus, me.userInput, aggregation.label, aggregation.fieldName );
+    					if ( aggregation.field.fieldName=='note_id' ) {
+    						query = new CardinalityOnlyQuery( corpus, me.userInput, aggregation.label, aggregation.field.fieldName );
     					} else {
-    						query = new BucketCountQuery( corpus, me.userInput, aggregation.label, aggregation.fieldName, maxCount );
+    						query = new BucketCountQuery( corpus, me.userInput, aggregation.label, aggregation.field.fieldName, maxCount );
     					}
     				}
     				var payload = { 
@@ -569,7 +580,7 @@ class Search {
     					"query": query
     				};
     				if ( countType=="bucket" ) {
-    					//alert(JSON.stringify( payload, null, '\t' ));
+//alert(JSON.stringify( payload, null, '\t' ));
 		    			if ( aggregation.fieldName=="note_id" ) {		    				
 		    				me.$http.post( APP.ROOT + '/search/noteCount/', JSON.stringify( payload ) )
 		    				.then( function(response) {

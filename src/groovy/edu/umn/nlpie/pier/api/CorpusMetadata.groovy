@@ -35,9 +35,5 @@ class CorpusMetadata {
 	String defaultSearchField 
 	String contextFilterField
 	String tooltip
-	Map aggregations = [:]	//placeholder to be filled by subsequent, client-side initiated request; alias for default or userConfigured filter set
-	Map appliedFilters = [:]	//placeholder for user-specified filters to be used in a search of this corpus
-	
-	static transients = [ 'aggregations', 'appliedFilters' ]
 	
 }

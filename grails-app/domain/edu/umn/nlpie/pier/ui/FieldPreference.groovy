@@ -43,12 +43,12 @@ class FieldPreference {
 	}
 	
 	//TODO - this method still necessary?
-	static List preferencesByIndexAndUser( index, user ) {
+	/*static List preferencesByIndexAndUser( index, user ) {
 		def grailsEnv = Environment.current.toString()	// != Environment.PRODUCTION
 		def prefs = FieldPreference.executeQuery(
 						'select fp from FieldPreference fp where user=? and fp.field.type.index=?', [ index,user ]
 					)
 		
-	}
+	}*/
 	
 }

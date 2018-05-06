@@ -41,7 +41,7 @@
   						ng-mouseover="corpus.status.showBan=true" 
   						ng-mouseleave="corpus.status.showBan=false"
   						title="remove filters for this corpus"
-  						ng-click="sc.searchService.removeFilters( corpus );sc.currentSearch.dirty( corpus )">
+  						ng-click="corpus.removeFilters();sc.currentSearch.dirty( corpus )">
 					<i class="fa fa-filter"></i>
 					<i class="fa fa-ban" style="color:red;cursor:hand" ng-if="corpus.status.showBan==true"></i>
 				</button>
@@ -114,7 +114,7 @@
   						ng-mouseover="corpus.status.showBan=true" 
   						ng-mouseleave="corpus.status.showBan=false"
   						title="remove filters for this corpus"
-  						ng-click="sc.searchService.removeFilters( corpus );sc.currentSearch.dirty( corpus )">
+  						ng-click="corpus.removeFilters();sc.currentSearch.dirty( corpus )">
 					<i class="fa fa-filter fa-stack-1x"></i>
 					<i class="fa fa-ban fa-stack-1x" style="color:red;cursor:hand" ng-if="corpus.status.showBan==true"></i>
 				</span>

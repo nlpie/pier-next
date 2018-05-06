@@ -93,9 +93,11 @@ order by q.dateCreated desc """.toString()
 	def logBucketCountInfo( postBody, elasticResponse ) {
 		def b = new Date().time
 		def json = elasticResponse.json
-		//println postBody.toString(2)
+//println postBody.toString(2)
+//println elasticResponse.json
 		def sr = SearchRegistration.get(postBody["registration.id"].toLong())
 		def c = new DistinctCount(registration:sr)
+//println postBody.query.toString(2)
 		c.query = postBody.query
 		c.terms = postBody.query.query.bool.must.query_string.query
 		c.httpStatus = elasticResponse.status

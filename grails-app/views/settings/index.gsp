@@ -23,69 +23,61 @@
 				<div class="col-md-12">&nbsp;</div>
 			</div>
 			
-			<div ng-if="sc.settings.view=='filters'" ng-repeat="(corpus, ontologies) in sc.settings.prefs">
-				<div ng-repeat="(ontology, prefs) in ontologies">
-					<div ng-if="corpus==sc.settings.corpus">
-						<div class="row" style="background-color:#e6e6e6;color:black">
-							<div class="col-md-1">{{ ontology }}</div>
-							<div class="col-md-2">Filter category</div>
-							<div class="col-md-1">Enabled</div>
-							<div class="col-md-1">Filter values displayed </div>
-							<div class="col-md-7">Description</div>
-						</div>
-						<div class="row" ng-repeat="(label, pref) in prefs" ng-if="pref.field.aggregatable">
-							<div class="col-md-1"></div>
-							<div class="col-md-2">{{ label }}</div>
-							<div class="col-md-1">
-								<label class="switch">
-  									<input type="checkbox" 
-  										ng-change="sc.settings.update( pref.id,'aggregate',pref.aggregate, 'Filter category updated' )"
-  										ng-model="pref.aggregate">
-  									<span class="slider round"></span>
-								</label>
-							</div>
-							<div class="col-md-1">
-								<a class="editable-select" editable-select="pref.numberOfFilterOptions" buttons="no" 
-									onbeforesave="sc.settings.update( pref.id,'numberOfFilterOptions',$data,'Number of values updated' )"
-									e-ng-options="s.value as s.text for s in sc.settings.filterOptionSizes">
-									{{ pref.numberOfFilterOptions }}
-								</a>
-							</div>
-							<div class="col-md-7">{{ pref.field.description }}</div>
-						</div>
+			<div ng-if="sc.settings.view=='filters'" ng-repeat="ontology in sc.settings.prefs[sc.settings.corpus] track by $index">
+				<div class="row" style="background-color:#e6e6e6;color:black">
+					<div class="col-md-1">{{ ontology.name }}</div>
+					<div class="col-md-2">Filter category</div>
+					<div class="col-md-1">Enabled</div>
+					<div class="col-md-1">Filter values displayed </div>
+					<div class="col-md-7">Description</div>
+				</div>
+				<div class="row" ng-repeat="agg in ontology.aggregations track by $index" ng-if="agg.field.aggregatable">
+					<div class="col-md-1"></div>
+					<div class="col-md-2">{{ agg.label }}</div>
+					<div class="col-md-1">
+						<label class="switch">
+							<input type="checkbox" 
+								ng-change="sc.settings.update( agg.id, 'aggregate', agg.aggregate, 'Filter category updated' )"
+								ng-model="agg.aggregate">
+							<span class="slider round"></span>
+						</label>
 					</div>
-					<div class="row" ng-if="corpus==sc.settings.corpus">
-						<div class="col-md-12">&nbsp;</div>
+					<div class="col-md-1">
+						<a class="editable-select" editable-select="agg.numberOfFilterOptions" buttons="no" 
+							onbeforesave="sc.settings.update( agg.id, 'numberOfFilterOptions', $data, 'Number of values updated' )"
+							e-ng-options="s.value as s.text for s in sc.settings.filterOptionSizes">
+							{{ agg.numberOfFilterOptions }}
+						</a>
 					</div>
+					<div class="col-md-7">{{ agg.field.description }}</div>
+				</div>
+				<div class="row">
+					<div class="col-md-12">&nbsp;</div>
 				</div>
 			</div>
 			
-			<div ng-if="sc.settings.view=='exports'" ng-repeat="(corpus, ontologies) in sc.settings.prefs">
-				<div ng-repeat="(ontology, prefs) in ontologies">
-					<div ng-if="corpus==sc.settings.corpus">
-						<div class="row" style="background-color:#e6e6e6;color:black">
-							<div class="col-md-1">{{ ontology }}</div>
-							<div class="col-md-2">Filter category</div>
-							<div class="col-md-5">Description</div>
-							<div class="col-md-4">Include in export</div>
-						</div>
-						<div class="row" ng-repeat="(label, pref) in prefs" ng-if="pref.field.exportable==true">
-							<div class="col-md-1"></div>
-							<div class="col-md-2">{{ label }}</div>
-							<div class="col-md-5">{{ pref.fieldDescription }}</div>
-							<div class="col-md-4">
-								<label class="switch">
-  									<input type="checkbox" 
-  										ng-change="sc.settings.update( pref.id,'export',pref.export, 'Export status updated' )" 
-										ng-model="pref.export" />
-									<span class="slider round"></span>
-								</label>
-							</div>
-						</div>
+			<div ng-if="sc.settings.view=='exports'" ng-repeat="ontology in sc.settings.prefs[sc.settings.corpus] track by $index">
+				<div class="row" style="background-color:#e6e6e6;color:black">
+					<div class="col-md-1">{{ ontology.name }}</div>
+					<div class="col-md-2">Filter category</div>
+					<div class="col-md-5">Description</div>
+					<div class="col-md-4">Include in export</div>
+				</div>
+				<div class="row" ng-repeat="agg in ontology.aggregations track by $index" ng-if="agg.field.exportable==true">
+					<div class="col-md-1"></div>
+					<div class="col-md-2">{{ agg.label }}</div>
+					<div class="col-md-5">{{ agg.field.description }}</div>
+					<div class="col-md-4">
+						<label class="switch">
+							<input type="checkbox" 
+								ng-change="sc.settings.update( agg.id,'export',agg.export, 'Export status updated' )" 
+								ng-model="agg.export" />
+							<span class="slider round"></span>
+						</label>
 					</div>
-					<div class="row" ng-if="corpus==sc.settings.corpus">
-						<div class="col-md-12">&nbsp;</div>
-					</div>
+				</div>
+				<div class="row">
+					<div class="col-md-12">&nbsp;</div>
 				</div>
 			</div>
 			

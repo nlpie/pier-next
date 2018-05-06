@@ -1,4 +1,3 @@
-//import UIService from '../../service/config/UIService';
 
 class Settings {
 	
@@ -12,6 +11,7 @@ class Settings {
 				exports: ""
 		}
 		this.corpus = undefined;
+		this.prefs = undefined;
 		this.filterOptionSizes = [
 		                          {value: 1, text: '1'},
 		                          {value: 5, text: '5'},

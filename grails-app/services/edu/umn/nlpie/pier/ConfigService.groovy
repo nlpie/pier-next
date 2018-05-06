@@ -1,6 +1,7 @@
 package edu.umn.nlpie.pier
 
 import org.apache.commons.lang.RandomStringUtils
+import org.codehaus.groovy.grails.web.json.JSONArray
 
 import edu.umn.nlpie.pier.api.AvailableAggregations
 import edu.umn.nlpie.pier.context.AuthorizedContext
@@ -21,7 +22,9 @@ class ConfigService {
 
     //keep
 	def getAuthorizedContexts() {
-		def list = AuthorizedContext.list(sort:'label')
+		def list = new ArrayList()
+		//def list = new JSONArray()
+		//def list = AuthorizedContext.list(sort:'label')
 		//TODO get user from spring security service
 		//TODO check if user has ROLE_ADMIN, if yes, add each enabled corpus for the current env for corpus-wide searching
 		def corpora = Corpus.availableCorpora
@@ -40,9 +43,9 @@ class ConfigService {
 	}
 	
 	
-	def getCorpusAggregations(corpusId) {
+	/*def getCorpusAggregations(corpusId) {
 		new AvailableAggregations(corpusId).aggregations
-	}
+	}*/
 	
 	def getDefaultPreferences() {
 		FieldPreference.findAllByApplicationDefault(true)

@@ -5,7 +5,7 @@
 		<title><g:meta name="admin.title"/></title>
 	</head>
 	<body>
-
+		<div growl></div>
 		<div class="container-fluid" ng-controller="resultsController as rc">
 			
 			<div ng-attr-id="{{ corpus.name }}" ng-show="corpus.status.active" class="row" ng-repeat="corpus in rc.search.context.corpora track by $index">
@@ -16,9 +16,9 @@
 					</div>
 					<div class="pier-ontology"
 						ng-if="corpus.results.aggs.aggs && !corpus.status.computingAggs" 
-						ng-repeat="(ontology, aggregations) in corpus.metadata.aggregations track by $index">
-						<label class="pier-ontology-label">{{ontology}}</label>
-						<div class="pier-aggregate" ng-repeat="(aggLabel, aggregation) in aggregations track by $index">
+						ng-repeat="ontology in corpus.metadata.aggregations track by $index">
+						<label class="pier-ontology-label">{{ontology.name}}</label>
+						<div class="pier-aggregate" ng-repeat="aggregation in ontology.aggregations track by $index">
 							<div>
 								<label ng-click="rc.show(corpus.status)">{{aggregation.label}} 
 									<i class="fa fa-question-circle" title="{{aggregation.field.description}}"></i>
@@ -51,7 +51,7 @@
 					</div>
 				</div>
 
-				<div id="doc-column" class="col-xs-9" ng-style="corpus.opacity">
+				<div id="doc-column" class="col-xs-9" ng-style="corpus.status.opacity">
 					<div growl reference="docs"></div>
 					<div growl limit-messages="1" reference="full"></div>
 					<div ng-show="corpus.status.searchingDocs" id="docs-spinner" style="padding-top:25px">
