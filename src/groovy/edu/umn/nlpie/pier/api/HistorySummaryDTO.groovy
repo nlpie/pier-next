@@ -10,7 +10,6 @@ import groovy.transform.InheritConstructors
 class HistorySummaryDTO {
 	
 	HistorySummaryDTO( Object o ) {
-		//q.registration.id as registrationId, q.label, q.registration.authorizedContext, q.id as queryId, q.filters
 		this.registration["id"] = o[0]
 		this.query["label"] = o[1]
 		this.registration["authorizedContext"] = o[2]

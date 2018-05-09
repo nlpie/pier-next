@@ -62,19 +62,6 @@ class SearchService {
 			});
 	}
 	
-	/*removeFilters( corpus ) {
-    	Object.keys( corpus.metadata.aggregations ).map( function(ontol,index) {
-    		let ontology = corpus.metadata.aggregations[ontol];
-    		Object.keys( ontology ).map( function(agg,idx) {
-    			let aggregation = ontology[agg];
-    			if ( !( JSON.stringify(aggregation.filters) === JSON.stringify({}) ) ) {
-	    			aggregation.filters = {};
-    			}
-        	})
-    	});
-    	corpus.resetFilters();
-    }*/
-	
 }
 
 SearchService.$inject = [ '$http', '$q', 'growl' ];

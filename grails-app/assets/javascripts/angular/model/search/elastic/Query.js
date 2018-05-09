@@ -73,57 +73,6 @@ alert("BPIC request context");
     	}
     }
     
-    setDiscreteValueFilters_orig( corpus ) {
-    	//alert("discrete");
-    	let me = this;
-    	corpus.status.userSelectedFilters = false;
-    	Object.keys( corpus.metadata.aggregations ).map( function(ontol,index) {
-    		let ontology = corpus.metadata.aggregations[ontol];
-    		Object.keys( ontology ).map( function(agg,idx) {
-    			let aggregation = ontology[agg];
-    			//add filter values in a should clause context of new Bool query, then add to this bool query's filter context
-    			if ( !( JSON.stringify(aggregation.filters) === JSON.stringify({}) ) && !aggregation.isTemporal ) {
-    				//potential fields to be added
-//alert("agg for " + aggregation.field.fieldName);
-    				let filter = undefined;	////defer assignment until proof of need is established
-	    			Object.keys( aggregation.filters ).map( function(value,i) {
-	    				let addFilter = aggregation.filters[value];	//could be false
-	    				if ( addFilter ) {
-	    					if ( !filter ) {
-	    						filter = new BoolQuery();	//need is established, assign
-	    						corpus.status.userSelectedFilters = true; //TODO move filtered status to corpus
-	    					}
-	    					//alert(JSON.stringify(filter,null,'\t'));
-	    					filter.addToShould( new TermFilter( aggregation.field.fieldName,value ) );
-	    				}
-	    			});
-	    			//alert(JSON.stringify(filter,null,'\t'));
-	    			if ( filter ) me.addFilter( filter );	//at least one TermFilter added to should clause of bool
-    			}
-        	})
-    	});
-    }
-    
-    setRangeFilters_orig( corpus ) {
-    	//alert("range");
-    	    	let me = this;
-    	    	//corpus.status.userSelectedFilters = false;
-    	    	Object.keys( corpus.metadata.aggregations ).map( function(ontol,index) {
-    	    		let ontology = corpus.metadata.aggregations[ontol];
-    	    		Object.keys( ontology ).map( function(agg,idx) {
-    	    			let aggregation = ontology[agg];
-    	    			if ( !( JSON.stringify(aggregation.filters) === JSON.stringify({}) ) && aggregation.isTemporal ) {	    			
-    	    				if ( aggregation.filters.max && aggregation.filters.min ) {
-    	    					//add range filter to filter clause context of this.query
-    	//alert("range " + aggregation.field.fieldName);
-    	    					let range = new RangeFilter( aggregation.field.fieldName, aggregation.filters.min, aggregation.filters.max );
-    	    					me.addFilter( range );
-    	    				}
-    	    			}
-    	        	})
-    	    	});
-    	    }
-    
     //convienience method
     addFilter( filter ) {
     	this.query.bool.filter.push( filter );
@@ -131,7 +80,7 @@ alert("BPIC request context");
 	
 }
 export default Query;
-    /*example aggregation.filters object for discreet values aggregation
+    /*example aggregation.filters object for discrete values aggregation
 		{
 			Geriatrics:true,	//result of being selected or re-selected
 			Pediatrics:false	//previously selected, but now de-selected
