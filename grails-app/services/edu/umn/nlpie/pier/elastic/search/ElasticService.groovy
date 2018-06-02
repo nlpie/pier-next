@@ -19,4 +19,10 @@ class ElasticService {
 		def rest = new RestBuilder()
 		rest.post( scrollUrl ) { json JsonOutput.toJson(sp) }
 	}
+	
+	def fetchRelated( url, term ) {
+		println url+term
+		def rest = new RestBuilder()
+		rest.get( url + term ) 
+	}
 }

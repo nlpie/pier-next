@@ -12,7 +12,7 @@ import EncounterDocQuery from '../model/search/elastic/clinical/EncounterDocQuer
 import EncounterAggQuery from '../model/search/elastic/clinical/EncounterAggQuery';
 import AuthorizedContextsResponse from '../model/rest/response/AuthorizedContextsResponse';
 import CorpusAggregationsResponse from '../model/rest/response/CorpusAggregationsResponse';
-
+import InputExpansion from '../model/search/InputExpansion';
 
 class Search {
     constructor( $http, $q, growl, searchService ) {
@@ -22,6 +22,7 @@ class Search {
     	this.searchService = searchService;
     	
     	this.userInput = "iliitis";// "iliitis";
+    	this.inputExpansion = new InputExpansion(); //IE contains array of Term objects, property is called 'terms'
     	this.authorizedContexts = undefined;
     	this.context = undefined;
     	this.registration = undefined;
@@ -36,8 +37,6 @@ class Search {
         }
         this.init();
         console.info("Search.js complete");
-
-        
         
         this.similarityExpansionEnabled = false; 
         this.cuiExpansionEnabled = false;				
@@ -49,6 +48,8 @@ class Search {
     			style: {}
     		}
     	}
+		
+		this.template = "myPopoverTemplate.html"
         
     }
     
@@ -288,7 +289,7 @@ class Search {
     	//returns es hits
     	corpus.status.searchingDocs = true;
     	var url = corpus.metadata.url;
-    	var docsQuery = new DocumentQuery( corpus, this.userInput );
+    	var docsQuery = new DocumentQuery( corpus, this.inputExpansion.expandUserInput(this.userInput) );
     	var filterDesc = this.filterDistiller( docsQuery );
 //alert("DOC QUERY\n"+JSON.stringify(docsQuery,null,'\t'));
 		return this.$http.post( APP.ROOT + '/search/elastic/', JSON.stringify( { "registration.id":registration.id, "corpus":corpus.name, "type":docsQuery.constructor.name.toString(), "url":url, "query":docsQuery, "filters":filterDesc, "sequence":this.status.sequence } ) )
@@ -501,14 +502,6 @@ class Search {
     	if ( !corpus.isDirty() && corpus.results.pagination.first() ) this.p( this.registration, corpus );
     }
     
-    forwardCursor( corpus ) {
-		return ( !corpus.isDirty() && corpus.pagination.hasNext() ) ? "pointer" : "not-allowed";
-	}
-	backwardCursor( corpus ) {
-		return ( !corpus.isDirty() && corpus.pagination.hasPrevious() ) ? "pointer" : "not-allowed";
-	}
-    
-    
     //past searches
     ps() {
     	//search item is search history, past search
@@ -549,7 +542,7 @@ class Search {
     		corpus.results = {};
     	}
     }
-    
+  
     distinctCounts( corpus, maxCount ) {
     	var url = corpus.metadata.url;
 //alert(JSON.stringify(corpus.metadata.aggregations));
