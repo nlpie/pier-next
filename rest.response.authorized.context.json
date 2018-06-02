@@ -1,0 +1,71 @@
+{
+	"requestId": null,
+	"label": "Clinical Notes",
+	"contextFilterValue": "0",
+	"description": "description unavailable",
+	"username": null,
+	"corpora": [
+		{
+			"id": 2,
+			"name": "Surgical Pathology Reports",
+			"glyph": "icon-i-pathology",
+			"metadata": {
+				"tooltip": "Excludes Surgical Pathology Reports",
+				"searchable": false,
+				"filtered": null,
+				"url": null,
+				"scrollUrl": null,
+				"defaultSearchField": null,
+				"contextFilterField": null
+			},
+			"status": {
+				"searchingDocs": false,
+				"computingAggs": false,
+				"active": false,
+				"dirty": false,
+				"userSelectedFilters": false,
+				"showBan": false
+			},
+			"resultsOpacity": {
+				"dimmed": {
+					"opacity": 0.2
+				},
+				"bright": {
+					"opacity": 1
+				}
+			},
+			"opacity": null
+		},
+		{
+			"id": 1,
+			"name": "Clinical Notes",
+			"glyph": "fa-file-text-o",
+			"metadata": {
+				"tooltip": "Includes Clinical Notes",
+				"searchable": true,
+				"filtered": false,
+				"url": "http://nlp05.ahc.umn.edu:9200/notes_v3/note/_search",
+				"scrollUrl": "http://nlp05.ahc.umn.edu:9200/_search/scroll",
+				"defaultSearchField": "text",
+				"contextFilterField": "authorized_context_filter_value"
+			},
+			"status": {
+				"searchingDocs": false,
+				"computingAggs": false,
+				"active": false,
+				"dirty": false,
+				"userSelectedFilters": false,
+				"showBan": false
+			},
+			"resultsOpacity": {
+				"dimmed": {
+					"opacity": 0.2
+				},
+				"bright": {
+					"opacity": 1
+				}
+			},
+			"opacity": null
+		}
+	]
+}

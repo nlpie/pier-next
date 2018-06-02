@@ -1,0 +1,44 @@
+{
+	"id": 1,
+	"name": "Clinical Notes",
+	"glyph": "fa-file-text-o",
+	"metadata": {
+		"tooltip": "Includes Clinical Notes",
+		"searchable": true,
+		"filtered": false,
+		"url": "http://nlp05.ahc.umn.edu:9200/notes_v3/note/_search",
+		"scrollUrl": "http://nlp05.ahc.umn.edu:9200/_search/scroll",
+		"defaultSearchField": "text",
+		"contextFilterField": "authorized_context_filter_value"
+	},
+	"status": {
+		"searchingDocs": false,
+		"computingAggs": false,
+		"active": true,
+		"dirty": false,
+		"userSelectedFilters": false,
+		"showBan": false
+	},
+	"resultsOpacity": {
+		"dimmed": {
+			"opacity": 0.2
+		},
+		"bright": {
+			"opacity": 1
+		}
+	},
+	"opacity": {
+		"opacity": 1
+	},
+	"results": {},
+	"appliedFilters": {},
+	"pagination": {
+		"notesPerPage": 10,
+		"from": 0,
+		"maxDocs": 0,
+		"maxPage": 0,
+		"maxFrom": 10000,
+		"currentPage": 0,
+		"truncated": false
+	}
+}

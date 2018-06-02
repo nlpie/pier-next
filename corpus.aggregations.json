@@ -1,0 +1,272 @@
+{
+	"Epic Categories": {
+		"Encounter Center": {
+			"id": 22,
+			"label": "Encounter Center",
+			"corpus": {
+				"id": 1,
+				"name": "Epic Notes"
+			},
+			"ontology": {
+				"id": 1,
+				"name": "Epic Categories",
+				"description": "what shows in Epic"
+			},
+			"field": {
+				"id": 1,
+				"fieldName": "encounter_center",
+				"aggregatable": true,
+				"significantTermsAggregatable": false,
+				"exportable": true,
+				"contextFilterField": false,
+				"dataTypeName": "NOT_ANALYZED_STRING",
+				"description": "Encounter center name in Epic"
+			},
+			"displayOrder": 10,
+			"numberOfFilterOptions": 5,
+			"isTemporal": false,
+			"isNumeric": false,
+			"countDistinct": false,
+			"aggregate": true,
+			"export": false,
+			"filters": {},
+			"min": null,
+			"max": null
+		},
+		"Encounter Clinic Type": {
+			"id": 34,
+			"label": "Encounter Clinic Type",
+			"corpus": {
+				"id": 1,
+				"name": "Epic Notes"
+			},
+			"ontology": {
+				"id": 1,
+				"name": "Epic Categories",
+				"description": "what shows in Epic"
+			},
+			"field": {
+				"id": 13,
+				"fieldName": "encounter_clinic_type",
+				"aggregatable": true,
+				"significantTermsAggregatable": false,
+				"exportable": true,
+				"contextFilterField": false,
+				"dataTypeName": "NOT_ANALYZED_STRING",
+				"description": "Clinic type in Epic"
+			},
+			"displayOrder": 10,
+			"numberOfFilterOptions": 5,
+			"isTemporal": false,
+			"isNumeric": false,
+			"countDistinct": false,
+			"aggregate": true,
+			"export": false,
+			"filters": {},
+			"min": null,
+			"max": null
+		},
+		"Encounter Department Specialty": {
+			"id": 30,
+			"label": "Encounter Department Specialty",
+			"corpus": {
+				"id": 1,
+				"name": "Epic Notes"
+			},
+			"ontology": {
+				"id": 1,
+				"name": "Epic Categories",
+				"description": "what shows in Epic"
+			},
+			"field": {
+				"id": 9,
+				"fieldName": "encounter_department_specialty",
+				"aggregatable": true,
+				"significantTermsAggregatable": false,
+				"exportable": true,
+				"contextFilterField": false,
+				"dataTypeName": "NOT_ANALYZED_STRING",
+				"description": "Specialty name in Epic"
+			},
+			"displayOrder": 10,
+			"numberOfFilterOptions": 5,
+			"isTemporal": false,
+			"isNumeric": false,
+			"countDistinct": false,
+			"aggregate": true,
+			"export": false,
+			"filters": {},
+			"min": null,
+			"max": null
+		},
+		"Prov Type": {
+			"id": 23,
+			"label": "Prov Type",
+			"corpus": {
+				"id": 1,
+				"name": "Epic Notes"
+			},
+			"ontology": {
+				"id": 1,
+				"name": "Epic Categories",
+				"description": "what shows in Epic"
+			},
+			"field": {
+				"id": 2,
+				"fieldName": "prov_type",
+				"aggregatable": true,
+				"significantTermsAggregatable": false,
+				"exportable": true,
+				"contextFilterField": false,
+				"dataTypeName": "NOT_ANALYZED_STRING",
+				"description": "Provider type in Epic name"
+			},
+			"displayOrder": 10,
+			"numberOfFilterOptions": 5,
+			"isTemporal": false,
+			"isNumeric": false,
+			"countDistinct": false,
+			"aggregate": true,
+			"export": false,
+			"filters": {},
+			"min": null,
+			"max": null
+		},
+		"Service Date": {
+			"id": 26,
+			"label": "Service Date",
+			"corpus": {
+				"id": 1,
+				"name": "Epic Notes"
+			},
+			"ontology": {
+				"id": 1,
+				"name": "Epic Categories",
+				"description": "what shows in Epic"
+			},
+			"field": {
+				"id": 5,
+				"fieldName": "service_date",
+				"aggregatable": true,
+				"significantTermsAggregatable": false,
+				"exportable": true,
+				"contextFilterField": false,
+				"dataTypeName": "DATE",
+				"description": "Date of Service"
+			},
+			"displayOrder": 10,
+			"numberOfFilterOptions": 5,
+			"isTemporal": true,
+			"isNumeric": false,
+			"countDistinct": false,
+			"aggregate": true,
+			"export": false,
+			"filters": {},
+			"min": null,
+			"max": null
+		}
+	},
+	"HL7 LOINC": {
+		"Role": {
+			"id": 27,
+			"label": "Role",
+			"corpus": {
+				"id": 1,
+				"name": "Epic Notes"
+			},
+			"ontology": {
+				"id": 2,
+				"name": "HL7 LOINC",
+				"description": "DO Axis values"
+			},
+			"field": {
+				"id": 6,
+				"fieldName": "role",
+				"aggregatable": true,
+				"significantTermsAggregatable": false,
+				"exportable": true,
+				"contextFilterField": false,
+				"dataTypeName": "NOT_ANALYZED_STRING",
+				"description": "Provider role axis in HL7-LOINC DO"
+			},
+			"displayOrder": 10,
+			"numberOfFilterOptions": 5,
+			"isTemporal": false,
+			"isNumeric": false,
+			"countDistinct": false,
+			"aggregate": true,
+			"export": false,
+			"filters": {},
+			"min": null,
+			"max": null
+		},
+		"Smd": {
+			"id": 32,
+			"label": "Smd",
+			"corpus": {
+				"id": 1,
+				"name": "Epic Notes"
+			},
+			"ontology": {
+				"id": 2,
+				"name": "HL7 LOINC",
+				"description": "DO Axis values"
+			},
+			"field": {
+				"id": 11,
+				"fieldName": "smd",
+				"aggregatable": true,
+				"significantTermsAggregatable": false,
+				"exportable": true,
+				"contextFilterField": false,
+				"dataTypeName": "NOT_ANALYZED_STRING",
+				"description": "subject matter domain"
+			},
+			"displayOrder": 10,
+			"numberOfFilterOptions": 5,
+			"isTemporal": false,
+			"isNumeric": false,
+			"countDistinct": false,
+			"aggregate": true,
+			"export": false,
+			"filters": {},
+			"min": null,
+			"max": null
+		}
+	},
+	"NLP Annotations": {
+		"Medical Concepts": {
+			"id": 24,
+			"label": "Medical Concepts",
+			"corpus": {
+				"id": 1,
+				"name": "Epic Notes"
+			},
+			"ontology": {
+				"id": 3,
+				"name": "NLP Annotations",
+				"description": "NLP annotations"
+			},
+			"field": {
+				"id": 3,
+				"fieldName": "cuis",
+				"aggregatable": true,
+				"significantTermsAggregatable": true,
+				"exportable": false,
+				"contextFilterField": false,
+				"dataTypeName": "NOT_ANALYZED_STRING",
+				"description": "UMLS CUIs identified by BioMedICUS NLP pipeline"
+			},
+			"displayOrder": 10,
+			"numberOfFilterOptions": 25,
+			"isTemporal": false,
+			"isNumeric": false,
+			"countDistinct": false,
+			"aggregate": true,
+			"export": false,
+			"filters": {},
+			"min": null,
+			"max": null
+		}
+	}
+}
