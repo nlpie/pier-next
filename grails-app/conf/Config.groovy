@@ -100,28 +100,8 @@ grails.hibernate.osiv.readonly = false
 environments {
     development {
         grails.logging.jul.usebridge = true
-		
-		/*elasticSearch.client.mode = 'transport'
-		elasticSearch.client.hosts = [
-			   [host:'nlp05.ahc.umn.edu', port:9300]
-		]
-		elasticSearch.migration.strategy = 'none'
-		elasticSearch.bulkIndexOnStartup=false
-		elasticSearch.cluster.name = 'green'
-		elasticSearch.index.name = 'pier.next.gen'
-		elasticSearch.datastoreImpl="hibernateDatastore"*/
     }
 	test {
-		/*def elasticsearchVersion = '1.0.1'
-		ext['elasticsearch.version'] = elasticsearchVersion
-		elasticSearch.client.mode = 'transport'
-		elasticSearch.client.hosts = [
-			   [host:'localhost', port:9300]
-		]
-		elasticSearch.migration.strategy = 'alias'
-		//elasticSearch.cluster.name = 'green'
-		//elasticSearch.index.name = 'pier.next.gen'
-		elasticSearch.datastoreImpl="hibernateDatastore"*/
 		grails.serverURL = "https://nlp01.ahc.umn.edu/notes_test"
 		grails.assets.minifyJs = false
 		grails.assets.minifyCss = false
@@ -130,6 +110,14 @@ environments {
         grails.logging.jul.usebridge = false
         // TODO: grails.serverURL = "http://www.changeme.com"
     }
+	fvdev {
+		//issue ssh -N -f rmcewan1@nlp02.fairview.org -L 9200:nlp02.fairview.org:9200 prior to spinning up this env, then the FV ES cluster is available on localhost:9200
+		disable.auto.recompile=false
+		grails.gsp.enable.reload=true
+		grails.logging.jul.usebridge = false
+		grails.assets.minifyJs = false
+		// TODO: grails.serverURL = "http://www.changeme.com"
+	}
 }
 
 // log4j configuration

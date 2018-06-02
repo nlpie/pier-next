@@ -15,6 +15,7 @@ class BootStrap {
     def init = { servletContext ->
 		
 		if (Environment.current != Environment.PRODUCTION) {
+			println "Bootstrap: ${Environment.current.name}"
 			//indexService.createAdminConfigurationFromIndexMapping("nlp05.ahc.umn.edu","notes_v0")
 			/*
 			{
@@ -48,8 +49,9 @@ class BootStrap {
 			def biomedicus = Ontology.findByName('NLP Annotations')?:new Ontology(name:'NLP Annotations', description:"NLP annotations").save(flush:true, failOnError:true)
 			
 			
-			def nlp05 = Cluster.findByClusterName("nlp05")?:new Cluster(clusterName:"nlp05",uri:"http://nlp05.ahc.umn.edu:9200",environment:Environment.current.toString(),description:"test cluster (to be prod)", commonName:"test cluster")
-			def epicNotesIdx = Index.findByCommonName("Epic Notes")?:		new Index(commonName:"Epic Notes", 		  indexName:"notes_v3",  status:"Available", description:"clinical epic notes", 	numberOfShards:6, numberOfReplicas:0,environment:Environment.current.toString())//.save(flush:true, failOnError:true)
+			//def nlp05 = Cluster.findByClusterName("nlp05")?:new Cluster(clusterName:"nlp05",uri:"http://nlp05.ahc.umn.edu:9200",environment:Environment.current.name,description:"test cluster (to be prod)", commonName:"test cluster")
+			def nlp05 = Cluster.findByClusterName("nlp05")?:new Cluster(clusterName:"nlp05",uri:"http://localhost:9200",environment:Environment.current.name,description:"test cluster (to be prod)", commonName:"test cluster")
+			def epicNotesIdx = Index.findByCommonName("Epic Notes")?:		new Index(commonName:"Epic Notes", 		  indexName:"notes_v3",  status:"Available", description:"clinical epic notes", 	numberOfShards:6, numberOfReplicas:0,environment:Environment.current.name)//.save(flush:true, failOnError:true)
 			
 			def noteId = Field.findByFieldName("note_id")?:new Field(fieldName:"note_id",dataTypeName:"LONG", description:"Epic note id", aggregatable:false)
 			def mrn = Field.findByFieldName("mrn")?:new Field(fieldName:"mrn",dataTypeName:"NOT_ANALYZED_STRING", description:"Epic patient identifier", aggregatable:true)
@@ -70,7 +72,7 @@ class BootStrap {
 
 			def clinicalCorpus = Corpus.findByName("Clinical Notes")?: new Corpus(name:"Clinical Notes", description:"notes from Epic", enabled:true, glyph:"fa-file-text-o").save(flush:true, failOnError:true)
 			
-			def noteType = Type.findByTypeName("note")?:new Type(typeName:"note", description:"CDR note", environment:Environment.current.toString())//, Corpus:clinicalCorpus)
+			def noteType = Type.findByTypeName("note")?:new Type(typeName:"note", description:"CDR note", environment:Environment.current.name)//, Corpus:clinicalCorpus)
 			noteType.addToFields(noteId)
 			noteType.addToFields(mrn)
 			noteType.addToFields(encounterId)
@@ -99,7 +101,7 @@ class BootStrap {
 				}
 				if ( f.fieldName=="mrn" || f.fieldName=="note_id") {
 					fp.computeDistinct = true
-					if ( f.fieldName=="note_id" || f.fieldName=="mrn" ) fp.aggregate = false
+					//if ( f.fieldName=="note_id" || f.fieldName=="mrn" ) fp.aggregate = false
 				}
 				f.addToPreferences(fp)
 			}
@@ -114,8 +116,8 @@ class BootStrap {
 			//SURG PATH REPORTS INDEX
 			def surgPathCorpus = Corpus.findByName("Surgical Pathology Reports")?: new Corpus(name:"Surgical Pathology Reports", description:"surgical path reports from CDR", enabled:true, glyph:"icon-i-pathology").save(flush:true, failOnError:true)
 			
-			def surgPathIdx = Index.findByCommonName("Surgical Pathology Reports")?:new Index(commonName:"Surgical Pathology Reports", indexName:"surgical-path_v1", status:"Available", description:"surgical pathology reports", numberOfShards:6, numberOfReplicas:0,environment:Environment.current.toString())
-			def surgPathType = Type.findByTypeName("report")?:new Type(typeName:"report", description:"CDR surgical path report", environment:Environment.current.toString())//, Corpus:surgPathCorpus)
+			def surgPathIdx = Index.findByCommonName("Surgical Pathology Reports")?:new Index(commonName:"Surgical Pathology Reports", indexName:"surgical-path_v1", status:"Available", description:"surgical pathology reports", numberOfShards:6, numberOfReplicas:0,environment:Environment.current.name)
+			def surgPathType = Type.findByTypeName("report")?:new Type(typeName:"report", description:"CDR surgical path report", environment:Environment.current.name)//, Corpus:surgPathCorpus)
 			def report = Field.findByFieldName("report")?:new Field(fieldName:"report",dataTypeName:"SNOWBALL_ANALYZED_STRING", description:"surgical pathology report text", defaultSearchField:true,, aggregatable:false)
 			def surgPathContextFilterField = Field.findByFieldNameAndType("authorized_context_filter_value", null)?:new Field(fieldName:"authorized_context_filter_value",dataTypeName:"NOT_ANALYZED_STRING", description:"Array of search contexts that include this note",contextFilterField:true, aggregatable:false )
 			def pathCui = Field.findByFieldNameAndType("cuis", null)?:new Field(fieldName:"cuis", dataTypeName:"NOT_ANALYZED_STRING", description:"UMLS CUIs identified by BioMedICUS NLP pipeline", aggregatable:true, exportable:true, significantTermsAggregatable:true)

@@ -56,10 +56,10 @@ grails.project.dependency.resolution = {
 		/*compile 'org.elasticsearch:elasticsearch-groovy:2.1.2', {
 			excludes 'org.codehaus.groovy:groovy-all'	//see https://github.com/elastic/elasticsearch-groovy/issues/30
 		}*/
-		compile 'org.elasticsearch:elasticsearch:2.3.3'
+		//compile 'org.elasticsearch:elasticsearch:2.3.3'
 		//compile "org.elasticsearch:elasticsearch-groovy:2.1.2"
 		//compile group: 'org.elasticsearch', name: 'elasticsearch-groovy', version: '2.3.0-SNAPSHOT', classifier: 'grails'
-		compile 'org.asynchttpclient:async-http-client:2.1.0-alpha19'
+		//compile 'org.asynchttpclient:async-http-client:2.1.0-alpha19'
 		//compile "org.codehaus.groovy.modules.http-builder:http-builder:0.7"
 		//compile "org.grails:http-client:2.4.5"
     }
