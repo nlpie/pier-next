@@ -1,4 +1,3 @@
-import Search from './Search';
 
 class SearchService {
 	
@@ -8,6 +7,7 @@ class SearchService {
 		this.$q = $q;
 		this.growl = growl;
 		this.searchHistory = undefined;
+		this.relatedTerms = undefined;
 	}
 	
 	fetchContexts() {

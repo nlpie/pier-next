@@ -24,7 +24,7 @@ class AbstractHydrator {
 		}
 	}
 	
-	hydrateComplexNodes( prop, obj ) {
+	hydrateObjectProperties( prop, obj ) {
 		alert("super hydrate");
 		//override in subclasses
 	}

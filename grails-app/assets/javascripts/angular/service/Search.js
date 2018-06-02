@@ -1,5 +1,5 @@
-import DocumentsResponse from '../model/search/DocumentsResponse';
-import AggregationsResponse from '../model/search/AggregationsResponse';
+import DocumentsResponse from '../model/rest/response/DocumentsResponse';
+import AggregationsResponse from '../model/rest/response/AggregationsResponse';
 import DocumentQuery from '../model/search/elastic/DocumentQuery';
 import AggregationQuery from '../model/search/elastic/AggregationQuery';
 import PaginationQuery from '../model/search/elastic/PaginationQuery';
@@ -7,11 +7,12 @@ import BucketCountQuery from '../model/search/elastic/BucketCountQuery';
 import CardinalityOnlyQuery from '../model/search/elastic/CardinalityOnlyQuery';
 import SingleFieldScrollCountQuery from '../model/search/elastic/SingleFieldScrollCountQuery';
 import TermsAggregation from '../model/search/elastic/TermsAggregation';
-import Pagination from '../model/search/Pagination';
 import TermFilter from '../model/search/elastic/TermFilter';
 import EncounterDocQuery from '../model/search/elastic/clinical/EncounterDocQuery';
 import EncounterAggQuery from '../model/search/elastic/clinical/EncounterAggQuery';
 import AuthorizedContextsResponse from '../model/rest/response/AuthorizedContextsResponse';
+import CorpusAggregationsResponse from '../model/rest/response/CorpusAggregationsResponse';
+
 
 class Search {
     constructor( $http, $q, growl, searchService ) {
@@ -109,14 +110,14 @@ class Search {
     				corpus.appliedFilters = {};
     				corpus.brighten();
     				//corpus.opacity = corpus.resultsOpacity.bright;
-    				corpus.pagination = new Pagination();
-    				corpus.results = {};
+    				//corpus.results.pagination = new Pagination();
+    				//corpus.results = {};
     				this.complete();
     			}
 				this.corpusAggregations( corpus )
 	    			.then( function(response) {
 //alert(JSON.stringify(response.data,null,'\t'));
-	    				corpus.metadata.aggregations = response.data;
+	    				corpus.metadata.aggregations = new CorpusAggregationsResponse( response.data );
 	    				console.log("AUTHORIZED CONTEXT SET");
 	    			});
 	    				
@@ -294,7 +295,7 @@ class Search {
 			.then( function( docSearchResponse ) {
 				let results = docSearchResponse.data;
 				corpus.results.docs = new DocumentsResponse( results );
-				corpus.pagination.update( corpus.results.docs.total );
+				corpus.results.pagination.update( corpus.results.docs.total );
 				return results;
 			})
 			.finally( function() {
@@ -315,7 +316,7 @@ class Search {
 			.then( function( docSearchResponse ) {
 				let results = docSearchResponse.data;
 				corpus.results.docs = new DocumentsResponse( results );
-				corpus.pagination.update( corpus.results.docs.total );
+				corpus.results.pagination.update( corpus.results.docs.total );
 				return results;
 			})
 			.finally( function() {
@@ -349,7 +350,7 @@ class Search {
 			.then( function( docSearchResponse ) {
 				let results = docSearchResponse.data;
 				corpus.results.docs = new DocumentsResponse( results );
-				corpus.pagination.update( corpus.results.docs.total );
+				corpus.results.pagination.update( corpus.results.docs.total );
 				return results;
 			})
 			.finally( function() {
@@ -385,7 +386,7 @@ class Search {
 			.then( function( pageSearchResponse ) {
 				let results = pageSearchResponse.data;
 				corpus.results.docs = new DocumentsResponse( results );
-				corpus.pagination.update( corpus.results.docs.total );
+				corpus.results.pagination.update( corpus.results.docs.total );
 				return results;
 			})
 			.finally( function() {
@@ -434,8 +435,7 @@ class Search {
     	let corporaSearch = [];
     	for ( let corpus of search.context.corpora ) {
     		if ( corpus.metadata.searchable ) {
-    			//alert( corpus.name );
-    			corpus.pagination = new Pagination();
+    			corpus.prepare();
     			let searches = [];
     			if (search.registration.searchType=="recent") {
     				searches.push( search.d_recent( search.recentDocsQuery, corpus, search.registration ) );
@@ -465,28 +465,28 @@ class Search {
     //pagination
     nextPage( corpus ) {
     	//next pg, no aggs
-    	if ( !corpus.isDirty() && corpus.pagination.next() ) {
+    	if ( !corpus.isDirty() && corpus.results.pagination.next() ) {
     		let me = this;
     		this.p( this.registration, corpus )
 	    	.catch( function(e) {
 	    		me.clearResults();
 	    		me.remoteError("docs",e);
 			});
-    		if ( corpus.pagination.truncated ) {
+    		if ( corpus.results.pagination.truncated ) {
     			this.info( "docs", "Pagination limited to " + this.paginationLimit + " pages of results" );
     		}
     	}
     }
     
     lastPage( corpus ) {
-		if ( !corpus.isDirty() && corpus.pagination.last() )  {
+		if ( !corpus.isDirty() && corpus.results.pagination.last() )  {
 			let me = this;
 			return this.p( this.registration, corpus )
 			.catch( function(e) {
 				me.clearResults();
 				me.remoteError("docs",e);
 			});
-			if ( corpus.pagination.truncated ) {
+			if ( corpus.results.pagination.truncated ) {
     			this.info( "docs", "Pagination limited to " + this.paginationLimit + " pages of results" );
     		}
 		}
@@ -494,11 +494,11 @@ class Search {
     
     previousPage( corpus ) {
     	//prev pg, composite
-    	if ( !corpus.isDirty() && corpus.pagination.previous() ) this.p( this.registration, corpus );
+    	if ( !corpus.isDirty() && corpus.results.pagination.previous() ) this.p( this.registration, corpus );
     }
     
     firstPage( corpus ) {
-    	if ( !corpus.isDirty() && corpus.pagination.first() ) this.p( this.registration, corpus );
+    	if ( !corpus.isDirty() && corpus.results.pagination.first() ) this.p( this.registration, corpus );
     }
     
     forwardCursor( corpus ) {

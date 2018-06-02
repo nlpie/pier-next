@@ -1,37 +1,38 @@
 import AbstractHydrator from './AbstractHydrator';
-import Corpus from './Corpus';
+import Field from './Field';
 
-class AuthorizedContext extends AbstractHydrator {
+class Aggregation extends AbstractHydrator {
     
-	//pass in response.data object from $http call
 	constructor( obj ) {
 		super( obj );
-		this.corpora = [];
+		this.filters = {};
+		this.min = null;
+		this.max = null;
+		this.count = null;
+		this.field = undefined;
 		this.hydrateObjectProperties( obj );
 //alert(JSON.stringify(this,null,'\t'));
 	}
 	
 	hydrateObjectProperties( obj ) {
-		let complexNodes = [ "corpora" ];
+		let complexNodes = [ "field" ];
 		for ( let prop in obj ) {
 			let objType = typeof( obj[prop] );
 			switch ( objType ) {
 				case "object":
-					if ( obj[prop]!=null && prop=="corpora" ) {
-						let corpora = obj[prop];
-						for ( let c of corpora ) {
-							this.corpora.push( new Corpus( c ) );
-						}
+					if ( obj[prop]!=null && prop=="field" ) {
+						let field = obj[prop];
+						this.field = new Field( obj[prop] )
 					}
 					break;
 				default:
 			}
 		}
 	}
-
+	
 }
 
-export default AuthorizedContext;
+export default Aggregation;
 
 //iterable: for ( let value of [10, 20, 30] ) {}
 //Object: for (var prop in obj) { obj[prop]; }

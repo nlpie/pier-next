@@ -1,6 +1,7 @@
 import AbstractHydrator from './AbstractHydrator';
 import CorpusMetadata from './CorpusMetadata';
 import CorpusStatus from './CorpusStatus';
+import Results from './Results';
 
 class Corpus extends AbstractHydrator {
     
@@ -8,11 +9,12 @@ class Corpus extends AbstractHydrator {
 	constructor( obj ) {
 		super( obj );
 		this.status = new CorpusStatus();
-		this.hydrateComplexNodes( obj );
+		this.results = new Results();
+		this.hydrateObjectProperties( obj );
 //alert(JSON.stringify(this,null,'\t'));
 	}
 	
-	hydrateComplexNodes( obj ) {
+	hydrateObjectProperties( obj ) {
 		let complexNodes = [ "metadata" ];
 		for ( let prop in obj ) {
 			let objType = typeof( obj[prop] );
@@ -39,15 +41,13 @@ class Corpus extends AbstractHydrator {
 	
 	removeFilters() {
 		let me = this;
-		Object.keys( this.metadata.aggregations ).map( function(ontol,index) {
-    		let ontology = me.metadata.aggregations[ontol];
-    		Object.keys( ontology ).map( function(agg,idx) {
-    			let aggregation = ontology[agg];
+		for ( let ontology of this.metadata.aggregations ) {
+    		for ( let aggregation of ontology.aggregations ) {
     			if ( !( JSON.stringify(aggregation.filters) === JSON.stringify({}) ) ) {
 	    			aggregation.filters = {};
     			}
-        	})
-    	});
+        	}
+    	}
 		this.status.userSelectedFilters = false;
     	this.status.showBan = false;
     	this.status.dirty = true;
@@ -55,6 +55,10 @@ class Corpus extends AbstractHydrator {
 	
 	isDirty() {
 		return this.status.dirty;
+	}
+	
+	prepare() {
+		this.results = new Results();
 	}
 
 }

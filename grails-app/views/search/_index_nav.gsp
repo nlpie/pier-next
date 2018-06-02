@@ -107,8 +107,8 @@
 		<div ng-repeat="corpus in sc.currentSearch.context.corpora track by $index"
 			 ng-if="corpus.results.docs" class="btn-group pull-right" role="group" style="margin-right:170px">
 			<div ng-if="corpus.metadata.searchable">
-				<button type="button" class="btn btn-default btn-result-pagination" ng-click="sc.currentSearch.firstPage( corpus )" ng-style="{cursor:sc.currentSearch.backwardCursor( corpus )}"> <i class="fa fa-angle-double-left"> </i></button>
-				<button type="button" class="btn btn-default btn-result-pagination" ng-click="sc.currentSearch.previousPage( corpus )" ng-style="{cursor:sc.currentSearch.backwardCursor( corpus )}"> <i class="fa fa-angle-left"> </i></button>
+				<button type="button" class="btn btn-default btn-result-pagination" ng-click="sc.currentSearch.firstPage( corpus )" ng-style="{cursor:corpus.results.backwardCursor( corpus )}"> <i class="fa fa-angle-double-left"> </i></button>
+				<button type="button" class="btn btn-default btn-result-pagination" ng-click="sc.currentSearch.previousPage( corpus )" ng-style="{cursor:corpus.results.backwardCursor( corpus )}"> <i class="fa fa-angle-left"> </i></button>
 				
   				<span class="fa-stack" ng-if="corpus.status.userSelectedFilters" 
   						ng-mouseover="corpus.status.showBan=true" 
@@ -126,9 +126,11 @@
 					data-container="body" data-toggle="tooltip" data-placement="top"
 					data-html="true">
 					{{corpus.name}}
-					<span style="font-size: 0.6em">{{ corpus.pagination.currentPageInfo() }} of {{corpus.pagination.maxDocs | number}}</span>
+					<span style="font-size: 0.6em">{{ corpus.results.pagination.currentPageInfo() }} of {{corpus.results.pagination.maxDocs | number}}</span>
 				</button>
 				
+				<button type="button" class="btn btn-default btn-result-pagination" ng-click="sc.currentSearch.nextPage( corpus )" ng-style="{cursor:corpus.results.forwardCursor( corpus )}"> <i class="fa fa-angle-right"></i> </button>
+				<button type="button" class="btn btn-default btn-result-pagination" ng-click="sc.currentSearch.lastPage( corpus )" ng-style="{cursor:corpus.results.forwardCursor( corpus )}"> <i class="fa fa-angle-double-right"> </i></button>
 				
 				<button type="button" class="btn btn-default btn-result-pagination" ng-click="sc.currentSearch.nextPage( corpus )" ng-style="{cursor:sc.currentSearch.forwardCursor( corpus )}"> <i class="fa fa-angle-right"></i> </button>
 				<button type="button" class="btn btn-default btn-result-pagination" ng-click="sc.currentSearch.lastPage( corpus )" ng-style="{cursor:sc.currentSearch.forwardCursor( corpus )}"> <i class="fa fa-angle-double-right"> </i></button>

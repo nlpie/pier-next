@@ -1,3 +1,4 @@
+import CorpusAggregationsResponse from '../model/rest/response/CorpusAggregationsResponse';
 
 class Settings {
 	
@@ -33,11 +34,13 @@ class Settings {
 		console.info("Settings.js complete");
 	}
 	
+	//TODO this method used?
 	fetchPrefs() {
 		var me = this;
 		this.$http.get( APP.ROOT + '/settings/preferences/', { "noop": true } )
 		.then( function(response) {
-				me.prefs = response.data;
+			alert("dpne");
+				me.prefs = new CorpusAggregationsResponse( response.data );
 				if (!me.corpus) me.corpus = Object.keys(response.data)[0];
     		});
     }

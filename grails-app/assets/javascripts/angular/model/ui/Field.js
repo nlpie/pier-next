@@ -1,11 +1,9 @@
 import AbstractHydrator from './AbstractHydrator';
 
-class CorpusMetadata extends AbstractHydrator {
+class Field extends AbstractHydrator {
     
 	constructor( obj ) {
 		super( obj );
-		this.aggregations = {};//TODO aggregationsByOntology ?
-		this.appliedFilters = [];//TODO move to aggregation level?
 		this.hydrateObjectProperties( obj );
 	}
 	
@@ -13,11 +11,9 @@ class CorpusMetadata extends AbstractHydrator {
 		//noop
 	}
 	
-	
-
 }
 
-export default CorpusMetadata;
+export default Field;
 
 //iterable: for ( let value of [10, 20, 30] ) {}
 //Object: for (var prop in obj) { obj[prop]; }
