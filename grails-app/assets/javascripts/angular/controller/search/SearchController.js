@@ -1,8 +1,9 @@
 
 class SearchController {
 	
-	constructor( $scope, searchService, currentSearch ) {
+	constructor( $scope, searchService, currentSearch, modalService ) {
 		this.searchService = searchService;
+		this.modalService = modalService;
 		this.currentSearch = currentSearch;
 	}
 	
@@ -13,6 +14,6 @@ class SearchController {
 	
 }
 
-SearchController.$inject = [ '$scope', 'searchService', 'currentSearch' ];
+SearchController.$inject = [ '$scope', 'searchService', 'currentSearch', 'modalService' ];
 
 export default SearchController;

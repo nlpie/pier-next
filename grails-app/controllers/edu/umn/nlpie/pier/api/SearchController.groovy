@@ -277,8 +277,6 @@ expansion formula:
     
 	*/
 	
-	
-	
 	def historySummary() {
 		def jsonBody = request.JSON
 		//TODO put exception handling in place
@@ -294,6 +292,11 @@ expansion formula:
 		JSON.use ('recent.query') {
 			respond searchService.recentQuery(params.id)
 		}
+	}
+	
+	def related() {
+		def jsonBody = request.JSON
+		respond elasticService.fetchRelated(jsonBody.url, jsonBody.term).json
 	}
 	
 }

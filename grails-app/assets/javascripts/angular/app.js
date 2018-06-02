@@ -4,22 +4,29 @@ import * as spinners from '../lib/angular-growl.min.js';
 import '../lib/xeditable.min.js';
 import '../lib/angularSlideables.js';
 import '../lib/rzslider.js';
+import '../lib/ui-bootstrap-tpls-2.5.0.min.js';
 
 import SearchService from '../angular/service/SearchService';
+import ExpansionService from '../angular/service/ExpansionService';
+import ModalService from '../angular/service/ModalService';
 import Search from '../angular/service/Search';
 import Settings from '../angular/service/Settings';
 import SearchController from '../angular/controller/search/SearchController';
 import ResultsController from '../angular/controller/search/ResultsController';
 import SettingsController from '../angular/controller/settings/SettingsController';
+import ModalController from '../angular/controller/search/ModalController';
 
 
-angular.module( 'app', ['angular-growl', 'ngSanitize', 'xeditable', 'angularSlideables', 'rzModule'] )
+angular.module( 'app', ['angular-growl', 'ngSanitize', 'xeditable', 'angularSlideables', 'rzModule', 'ui.bootstrap'] )
 	.service('settings', Settings)
     .service('searchService', SearchService)
     .service('currentSearch', Search)
+    .service('expansionService', ExpansionService)
+    .service('modalService', ModalService)
 	.controller('resultsController', ResultsController)
 	.controller('searchController', SearchController)
 	.controller('settingsController', SettingsController)
+	.controller('modalController', ModalController)
 	.run(function(editableOptions) {
 		editableOptions.theme = 'default';	//bs3
 		editableOptions.icon_set = 'font-awesome';

@@ -7,6 +7,8 @@ class UmlsService {
 	
 
     def umlsString( cui ) {
-		Umls.findByCuiAndTsAndIspref( cui.substring(0,8), 'P', 'Y'  )
+		//Umls.findByCuiAndTsAndIspref( cui.substring(0,8), 'P', 'Y'  )
+		//Umls.findByCuiAndTs( cui.substring(0,8), 'P'  )
+		Umls.findByCui( cui.substring(0,8)  )
     }
 }

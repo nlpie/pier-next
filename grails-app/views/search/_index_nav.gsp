@@ -17,12 +17,27 @@
 
 		<ul class="nav navbar-nav navbar-right">
 			<!-- configure links in NavCtrl links property -->
-			<li>
+			<!-- <li>
 				<a><i class="fa fa-expand fa-lg" ng-click="sc.currentSearch.toggleRelatednessExpansion()" ng-style="sc.currentSearch.options.relatednessExpansion.style" data-container="body" data-toggle="tooltip" data-placement="bottom" data-html="true" title="expand query using semantic similarity"></i></a>
 			</li>
+			 -->
 			<li>
-				<a><i class="fa fa-language fa-lg" data-container="body" data-toggle="tooltip" data-placement="bottom" data-html="true" title="expand query using UMLS CUIs"></i></a>
+				<a ng-style="sc.currentSearch.inputExpansion.style">
+					<i class="fa fa-expand fa-lg" ng-click="sc.modalService.vectorExpansions('lg','modalController')" 	
+					data-container="body" data-toggle="tooltip" data-placement="bottom" data-html="true" 
+					title="query expansion suggestions"></i> 
+					<sup>{{sc.currentSearch.inputExpansion.cardinality()}}</sup>
+				</a>
 			</li>
+			<!-- <li>
+				<a>
+					<i class="fa fa-language fa-lg" title="potential expansion terms" uib-popover-template="sc.currentSearch.template" 
+						popover-placement="bottom-right" popover-append-to-body="true" popover-title="Query Expansion Choices"
+						data-toggle="tooltip" data-placement="bottom" data-html="true"
+						ng-click="sc.searchService.fetchRelated(sc.currentSearch.userInput)">
+					</i>
+				</a>
+			</li> -->
 			<li>
 				<a><i class="fa fa-download fa-lg" data-container="body" data-toggle="tooltip" data-placement="bottom" title="download query results"></i></a>
 			</li>
@@ -30,6 +45,128 @@
 				<a><i class="fa fa-floppy-o fa-lg" ng-click="sc.searchService.saveQuery(sc.currentSearch.registration.id)" data-container="body" data-toggle="tooltip" data-placement="bottom" title="save query for later use"></i></a>
 			</li>
 		</ul>
+				
+		<!-- 
+		<script type="text/ng-template" id="myPopoverTemplate.html">
+        	<div>
+				<div> <small> click words to add to search terms</small> </div>
+        		<div>
+					<div><b>Related misspellings:</b></div>
+					<span 
+						ng-repeat="item in sc.searchService.relatedTerms._source.misspelling_relatedness track by $index"
+						ng-click="sc.currentSearch.addRelatedTerm(item.term)">
+						{{item.term}}
+					</span>
+					<div><b>Semantically related terms:</b></div>
+					<span 
+						ng-repeat="item in sc.searchService.relatedTerms._source.semantic_relatedness"
+						ng-click="sc.currentSearch.addRelatedTerm(item.term)">
+						{{item.term}} 
+					</span>
+        		</div>
+			</div>
+    	</script>
+    	 -->
+    	<script type="text/ng-template" id="myModalContent.html">
+        	<div class="modal-header">
+            	<h3 class="modal-title" id="modal-title">Word vector-based suggestions</h3>
+				<small> selected suggestions are added to the current search </small>
+        	</div>
+        	<div class="modal-body" id="modal-body">
+            	
+				
+				<uib-tabset active="active">
+    				<uib-tab ng-repeat="embedding in ctrl.embeddings track by $index" index="$index" heading="{{ctrl.currentSearch.inputExpansion.targetLabel(embedding.word)}}">
+
+						<div class="row">
+							<div class="col-md-12" ng-if="ctrl.currentSearch.inputExpansion.targetHasExpansions(embedding.word)">
+								<br/>&nbsp;
+								<b>Selected expansion terms:</b> {{ ctrl.currentSearch.inputExpansion.flatten(embedding.word) }}
+								<br/>&nbsp;
+							</div>
+							<div class="col-md-12" ng-if="!ctrl.currentSearch.inputExpansion.targetHasExpansions(embedding.word)">
+								<br/>&nbsp;
+								No expansions selected
+								<br>&nbsp;
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-md-12"><b>Related misspellings</b></div>
+            			</div>
+						<div class="row">
+							<div class="col-md-3">
+								<ul>
+                					<li ng-repeat="suggestion in ctrl.embeddings[$index].relatedMisspellings | limitTo:8:0">
+                    					<a ng-click="ctrl.currentSearch.inputExpansion.add(embedding.word, suggestion.term)">{{ suggestion.term }}</a>
+                					</li>
+            					</ul>
+							</div>
+							<div class="col-md-3">
+								<ul>
+                					<li ng-repeat="suggestion in ctrl.embeddings[$index].relatedMisspellings | limitTo:8:8">
+                    					<a ng-click="ctrl.currentSearch.inputExpansion.add(embedding.word, suggestion.term)">{{ suggestion.term }}</a>
+                					</li>
+            					</ul>
+							</div>
+
+							<div class="col-md-3">
+								<ul>
+                					<li ng-repeat="suggestion in ctrl.embeddings[$index].relatedMisspellings | limitTo:8:16">
+                    					<a ng-click="ctrl.currentSearch.inputExpansion.add(embedding.word, suggestion.term)">{{ suggestion.term }}</a>
+                					</li>
+            					</ul>
+							</div>
+							<div class="col-md-3">
+								<ul>
+                					<li ng-repeat="suggestion in ctrl.embeddings[$index].relatedMisspellings | limitTo:8:24">
+                    					<a ng-click="ctrl.currentSearch.inputExpansion.add(embedding.word, suggestion.term)">{{ suggestion.term }}</a>
+                					</li>
+            					</ul>
+							</div>
+						</div>
+
+						<div class="row">
+							<div class="col-md-12"><b>Semantically related terms</b></div>
+            			</div>
+						<div class="row">
+							<div class="col-md-3">
+								<ul>
+                					<li ng-repeat="suggestion in ctrl.embeddings[$index].semanticallyRelatedTerms | limitTo:25:0">
+                    					<a ng-click="ctrl.currentSearch.inputExpansion.add(embedding.word, suggestion.term)">{{ suggestion.term }}</a>
+                					</li>
+            					</ul>
+							</div>
+							<div class="col-md-3">
+								<ul>
+                					<li ng-repeat="suggestion in ctrl.embeddings[$index].semanticallyRelatedTerms | limitTo:25:25">
+                    					<a ng-click="ctrl.currentSearch.inputExpansion.add(embedding.word, suggestion.term)">{{ suggestion.term }}</a>
+                					</li>
+            					</ul>
+							</div>
+							<div class="col-md-3">
+								<ul>
+                					<li ng-repeat="suggestion in ctrl.embeddings[$index].semanticallyRelatedTerms | limitTo:25:50">
+                    					<a ng-click="ctrl.currentSearch.inputExpansion.add(embedding.word, suggestion.term)">{{ suggestion.term }}</a>
+                					</li>
+            					</ul>
+							</div>
+							<div class="col-md-3">
+								<ul>
+                					<li ng-repeat="suggestion in ctrl.embeddings[$index].semanticallyRelatedTerms | limitTo:25:75">
+                    					<a ng-click="ctrl.currentSearch.inputExpansion.add(embedding.word, suggestion.term)">{{ suggestion.term }}</a>
+                					</li>
+            					</ul>
+							</div>
+						</div>
+
+					</uib-tab>
+				</uib-tabset>
+        	</div>
+        	<div class="modal-footer">
+            	<button class="btn btn-primary" type="button" ng-click="ctrl.modalService.ok()">OK</button>
+            	<button class="btn btn-warning" type="button" ng-click="ctrl.modalService.cancel()">Cancel</button>
+        	</div>
+    	</script>
 
 		<form class="navbar-form">
        		<div class="form-group" style="display:inline;" >
@@ -103,7 +240,7 @@
 				</div>
 			</div>
 		</form>
-
+{{sc.currentSearch.inputExpansion.expandUserInput(sc.currentSearch.userInput)}}
 		<div ng-repeat="corpus in sc.currentSearch.context.corpora track by $index"
 			 ng-if="corpus.results.docs" class="btn-group pull-right" role="group" style="margin-right:170px">
 			<div ng-if="corpus.metadata.searchable">
@@ -131,9 +268,6 @@
 				
 				<button type="button" class="btn btn-default btn-result-pagination" ng-click="sc.currentSearch.nextPage( corpus )" ng-style="{cursor:corpus.results.forwardCursor( corpus )}"> <i class="fa fa-angle-right"></i> </button>
 				<button type="button" class="btn btn-default btn-result-pagination" ng-click="sc.currentSearch.lastPage( corpus )" ng-style="{cursor:corpus.results.forwardCursor( corpus )}"> <i class="fa fa-angle-double-right"> </i></button>
-				
-				<button type="button" class="btn btn-default btn-result-pagination" ng-click="sc.currentSearch.nextPage( corpus )" ng-style="{cursor:sc.currentSearch.forwardCursor( corpus )}"> <i class="fa fa-angle-right"></i> </button>
-				<button type="button" class="btn btn-default btn-result-pagination" ng-click="sc.currentSearch.lastPage( corpus )" ng-style="{cursor:sc.currentSearch.forwardCursor( corpus )}"> <i class="fa fa-angle-double-right"> </i></button>
 				
 			</div>
 		</div>
