@@ -8,10 +8,7 @@ class DocumentsResponse {
     	console.info("docs took " + this.took);
     	this.timedOut = data.timed_out;
     }
-    
-    clear() { 
-		
-	}
+
 }
 
 export default DocumentsResponse;

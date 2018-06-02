@@ -1,4 +1,4 @@
-import DateRangeSlider from '../ui/DateRangeSlider';
+import DateRangeSlider from '../../ui/DateRangeSlider';
 
 class AggregationsResponse {
     constructor( data, corpus ) {	//look into constructing from a data structure passed to constructor

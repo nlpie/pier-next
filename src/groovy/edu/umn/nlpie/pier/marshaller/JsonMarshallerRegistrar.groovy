@@ -52,11 +52,10 @@ class JsonMarshallerRegistrar {
 				]
 			}
 			cfg.registerObjectMarshaller (FieldPreference) { fpr ->
+				//fp returned has 2 client-side use cases: 1) display/update user settings for corpus metadata fields, 2) as set of aggregations to be queried for each corpus
 				[
 					"id": fpr.id,
 					"label": fpr.label,
-					//"corpus": fpr.field.type.index,
-					//"ontology": fpr.ontology,
 					"field": fpr.field,
 					"displayOrder": fpr.displayOrder,
 					"numberOfFilterOptions": fpr.numberOfFilterOptions,
@@ -65,10 +64,6 @@ class JsonMarshallerRegistrar {
 					"countDistinct": fpr.computeDistinct,
 					"aggregate": fpr.aggregate,
 					"export": fpr.export,
-					"filters": [:],	//TODO move to client side object as an extenstion of data returned by API
-					"min": null,		//TODO move to client side object as an extenstion of data returned by API
-					"max": null		//TODO move to client side object as an extenstion of data returned by API			
-					//"count ": null,	//filled in client-side if countDistinct is true
 				]
 			}
 			cfg.registerObjectMarshaller (Field) { f ->
@@ -83,12 +78,6 @@ class JsonMarshallerRegistrar {
 					description: f.description
 				]
 			}
-			/*cfg.registerObjectMarshaller (Index) { i ->
-				[
-					id: i.id,
-					name: i.commonName
-				]
-			}*/
 		}
 		
 		JSON.registerObjectMarshaller(DistinctCount) { dc ->

@@ -8,7 +8,7 @@ class AuthorizedContextsResponse extends Array {
 		for ( let obj of responseData ) {
 			this.push( new AuthorizedContext( obj ) );
 		}
-alert(JSON.stringify(this,null,'\t'));
+//alert(JSON.stringify(this,null,'\t'));
 	}
 
 }
