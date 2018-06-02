@@ -1,0 +1,1024 @@
+BaseQuery
+{
+	"query": {
+		"bool": {
+			"must": {
+				"query_string": {
+					"query": "iliitis",
+					"default_operator": "AND",
+					"default_field": "text"
+				}
+			},
+			"filter": [
+				{
+					"term": {
+						"encounter_department_specialty": "Geriatrics"
+					}
+				},
+				{
+					"term": {
+						"encounter_department_specialty": "Pediatrics"
+					}
+				}
+			]
+		}
+	},
+	"size": 0
+}
+
+/settings/preferences
+{
+  "Epic Notes": {
+    "Epic Categories": {
+      "Encounter Department Specialty": {
+        "id": 27,
+        "label": "Encounter Department Specialty",
+        "ontology": {
+          "id": 1,
+          "name": "Epic Categories",
+          "description": "what shows in Epic"
+        },
+        "displayOrder": 10,
+        "aggregate": false,
+        "countDistinct": false,
+        "numberOfFilterOptions": 5,
+        "includeInExport": false,
+        "isTemporal": false,
+        "isNumeric": false,
+        "corpus": {
+          "id": 1,
+          "name": "Epic Notes"
+        },
+        "field": {
+          "id": 12,
+          "fieldName": "encounter_department_specialty",
+          "aggregatable": true,
+          "exportable": false,
+          "contextFilterField": false,
+          "dataTypeName": "NOT_ANALYZED_STRING",
+          "description": "Specialty name in Epic"
+        }
+      },
+      "Encounter Id": {
+        "id": 23,
+        "label": "Encounter Id",
+        "ontology": {
+          "id": 1,
+          "name": "Epic Categories",
+          "description": "what shows in Epic"
+        },
+        "displayOrder": 10,
+        "aggregate": false,
+        "countDistinct": false,
+        "numberOfFilterOptions": 5,
+        "includeInExport": false,
+        "isTemporal": false,
+        "isNumeric": true,
+        "corpus": {
+          "id": 1,
+          "name": "Epic Notes"
+        },
+        "field": {
+          "id": 8,
+          "fieldName": "encounter_id",
+          "aggregatable": true,
+          "exportable": false,
+          "contextFilterField": false,
+          "dataTypeName": "LONG",
+          "description": "Epic visit number"
+        }
+      },
+      "Filing Datetime": {
+        "id": 21,
+        "label": "Filing Datetime",
+        "ontology": {
+          "id": 1,
+          "name": "Epic Categories",
+          "description": "what shows in Epic"
+        },
+        "displayOrder": 10,
+        "aggregate": false,
+        "countDistinct": false,
+        "numberOfFilterOptions": 5,
+        "includeInExport": false,
+        "isTemporal": true,
+        "isNumeric": false,
+        "corpus": {
+          "id": 1,
+          "name": "Epic Notes"
+        },
+        "field": {
+          "id": 6,
+          "fieldName": "filing_datetime",
+          "aggregatable": true,
+          "exportable": false,
+          "contextFilterField": false,
+          "dataTypeName": "DATETIME",
+          "description": "When note was filed"
+        }
+      },
+      "Mrn": {
+        "id": 22,
+        "label": "Mrn",
+        "ontology": {
+          "id": 1,
+          "name": "Epic Categories",
+          "description": "what shows in Epic"
+        },
+        "displayOrder": 10,
+        "aggregate": false,
+        "countDistinct": true,
+        "numberOfFilterOptions": 5,
+        "includeInExport": false,
+        "isTemporal": false,
+        "isNumeric": false,
+        "corpus": {
+          "id": 1,
+          "name": "Epic Notes"
+        },
+        "field": {
+          "id": 7,
+          "fieldName": "mrn",
+          "aggregatable": true,
+          "exportable": false,
+          "contextFilterField": false,
+          "dataTypeName": "NOT_ANALYZED_STRING",
+          "description": "Epic patient identifier"
+        }
+      },
+      "Prov Type": {
+        "id": 19,
+        "label": "Prov Type",
+        "ontology": {
+          "id": 1,
+          "name": "Epic Categories",
+          "description": "what shows in Epic"
+        },
+        "displayOrder": 10,
+        "aggregate": true,
+        "countDistinct": false,
+        "numberOfFilterOptions": 5,
+        "includeInExport": false,
+        "isTemporal": false,
+        "isNumeric": false,
+        "corpus": {
+          "id": 1,
+          "name": "Epic Notes"
+        },
+        "field": {
+          "id": 4,
+          "fieldName": "prov_type",
+          "aggregatable": true,
+          "exportable": false,
+          "contextFilterField": false,
+          "dataTypeName": "NOT_ANALYZED_STRING",
+          "description": "Provider type in Epic name"
+        }
+      },
+      "Service Date": {
+        "id": 20,
+        "label": "Service Date",
+        "ontology": {
+          "id": 1,
+          "name": "Epic Categories",
+          "description": "what shows in Epic"
+        },
+        "displayOrder": 10,
+        "aggregate": false,
+        "countDistinct": false,
+        "numberOfFilterOptions": 5,
+        "includeInExport": false,
+        "isTemporal": true,
+        "isNumeric": false,
+        "corpus": {
+          "id": 1,
+          "name": "Epic Notes"
+        },
+        "field": {
+          "id": 5,
+          "fieldName": "service_date",
+          "aggregatable": true,
+          "exportable": false,
+          "contextFilterField": false,
+          "dataTypeName": "DATE",
+          "description": "Date of Service"
+        }
+      }
+    },
+    "HL7 LOINC": {
+      "Role": {
+        "id": 18,
+        "label": "Role",
+        "ontology": {
+          "id": 2,
+          "name": "HL7 LOINC",
+          "description": "DO Axis values"
+        },
+        "displayOrder": 10,
+        "aggregate": true,
+        "countDistinct": false,
+        "numberOfFilterOptions": 5,
+        "includeInExport": false,
+        "isTemporal": false,
+        "isNumeric": false,
+        "corpus": {
+          "id": 1,
+          "name": "Epic Notes"
+        },
+        "field": {
+          "id": 3,
+          "fieldName": "role",
+          "aggregatable": true,
+          "exportable": false,
+          "contextFilterField": false,
+          "dataTypeName": "NOT_ANALYZED_STRING",
+          "description": "Provider role axis in HL7-LOINC DO"
+        }
+      },
+      "Smd": {
+        "id": 26,
+        "label": "Smd",
+        "ontology": {
+          "id": 2,
+          "name": "HL7 LOINC",
+          "description": "DO Axis values"
+        },
+        "displayOrder": 10,
+        "aggregate": true,
+        "countDistinct": false,
+        "numberOfFilterOptions": 5,
+        "includeInExport": false,
+        "isTemporal": false,
+        "isNumeric": false,
+        "corpus": {
+          "id": 1,
+          "name": "Epic Notes"
+        },
+        "field": {
+          "id": 11,
+          "fieldName": "smd",
+          "aggregatable": true,
+          "exportable": false,
+          "contextFilterField": false,
+          "dataTypeName": "NOT_ANALYZED_STRING",
+          "description": "subject matter domain"
+        }
+      }
+    },
+    "NLP Annotations": {
+      "Medical Concepts": {
+        "id": 25,
+        "label": "Medical Concepts",
+        "ontology": {
+          "id": 3,
+          "name": "NLP Annotations",
+          "description": "NLP annotations"
+        },
+        "displayOrder": 10,
+        "aggregate": true,
+        "countDistinct": false,
+        "numberOfFilterOptions": 25,
+        "includeInExport": false,
+        "isTemporal": false,
+        "isNumeric": false,
+        "corpus": {
+          "id": 1,
+          "name": "Epic Notes"
+        },
+        "field": {
+          "id": 10,
+          "fieldName": "cuis",
+          "aggregatable": true,
+          "exportable": false,
+          "contextFilterField": false,
+          "dataTypeName": "NOT_ANALYZED_STRING",
+          "description": "UMLS CUIs identified by BioMedICUS NLP pipeline"
+        }
+      }
+    }
+  },
+  "Surgical Pathology Reports": {
+    "NLP Annotations": {
+      "Medical Concepts": {
+        "id": 30,
+        "label": "Medical Concepts",
+        "ontology": {
+          "id": 3,
+          "name": "NLP Annotations",
+          "description": "NLP annotations"
+        },
+        "displayOrder": 10,
+        "aggregate": true,
+        "countDistinct": false,
+        "numberOfFilterOptions": 50,
+        "includeInExport": false,
+        "isTemporal": false,
+        "isNumeric": false,
+        "corpus": {
+          "id": 2,
+          "name": "Surgical Pathology Reports"
+        },
+        "field": {
+          "id": 15,
+          "fieldName": "cuis",
+          "aggregatable": true,
+          "exportable": false,
+          "contextFilterField": false,
+          "dataTypeName": "NOT_ANALYZED_STRING",
+          "description": "UMLS CUIs identified by BioMedICUS NLP pipeline"
+        }
+      }
+    }
+  }
+}
+
+Search.js
+{
+	"growl": {},
+	"searchService": {
+		"searchHistory": [
+			{
+				"query": {
+					"label": "plate"
+				},
+				"registration": {
+					"id": 8,
+					"authorizedContext": "Clinical Notes"
+				}
+			},
+			{
+				"query": {
+					"label": "iliitis"
+				},
+				"registration": {
+					"id": 7,
+					"authorizedContext": "Clinical Notes"
+				}
+			},
+			{
+				"query": {
+					"label": "iliitis"
+				},
+				"registration": {
+					"id": 6,
+					"authorizedContext": "Clinical Notes"
+				}
+			},
+			{
+				"query": {
+					"label": "iliitis"
+				},
+				"registration": {
+					"id": 4,
+					"authorizedContext": "Clinical Notes"
+				}
+			}
+		]
+	},
+	"uiService": {},
+	"userInput": "plate",
+	"context": {
+		"requestId": null,
+		"label": "Clinical Notes",
+		"contextFilterValue": "0",
+		"description": "description unavailable",
+		"username": null,
+		"candidateCorpora": [
+			{
+				"id": 1,
+				"name": "Clinical Notes",
+				"glyph": "fa-file-text-o",
+				"metadata": {
+					"tooltip": "Includes Clinical Notes",
+					"searchable": true,
+					"filtered": false,
+					"url": "http://nlp05.ahc.umn.edu:9200/notes_v3/note/_search",
+					"scrollUrl": "http://nlp05.ahc.umn.edu:9200/_search/scroll",
+					"defaultSearchField": "text",
+					"contextFilterField": "authorized_context_filter_value",
+					"aggregations": {
+						"Epic Categories": [
+							{
+								"id": 4,
+								"label": "Prov Type",
+								"fieldName": "prov_type",
+								"fieldDescription": "Provider type in Epic name",
+								"ontology": "Epic Categories",
+								"username": "nlppier",
+								"displayOrder": 10,
+								"aggregate": true,
+								"countDistinct": false,
+								"count": null,
+								"numberOfFilterOptions": 5,
+								"includeInExport": false,
+								"isTemporal": false,
+								"isNumeric": false
+							},
+							{
+								"id": 12,
+								"label": "Encounter Department Specialty",
+								"fieldName": "encounter_department_specialty",
+								"fieldDescription": "Specialty name in Epic",
+								"ontology": "Epic Categories",
+								"username": "nlppier",
+								"displayOrder": 10,
+								"aggregate": true,
+								"countDistinct": false,
+								"count": null,
+								"numberOfFilterOptions": 5,
+								"includeInExport": false,
+								"isTemporal": false,
+								"isNumeric": false
+							}
+						],
+						"HL7 LOINC": [
+							{
+								"id": 3,
+								"label": "Role",
+								"fieldName": "role",
+								"fieldDescription": "Provider role axis in HL7-LOINC DO",
+								"ontology": "HL7 LOINC",
+								"username": "nlppier",
+								"displayOrder": 10,
+								"aggregate": true,
+								"countDistinct": false,
+								"count": null,
+								"numberOfFilterOptions": 5,
+								"includeInExport": false,
+								"isTemporal": false,
+								"isNumeric": false
+							},
+							{
+								"id": 11,
+								"label": "Smd",
+								"fieldName": "smd",
+								"fieldDescription": "subject matter domain",
+								"ontology": "HL7 LOINC",
+								"username": "nlppier",
+								"displayOrder": 10,
+								"aggregate": true,
+								"countDistinct": false,
+								"count": null,
+								"numberOfFilterOptions": 5,
+								"includeInExport": false,
+								"isTemporal": false,
+								"isNumeric": false
+							}
+						],
+						"NLP Annotations": [
+							{
+								"id": 10,
+								"label": "Medical Concepts",
+								"fieldName": "cuis",
+								"fieldDescription": "UMLS CUIs identified by BioMedICUS NLP pipeline",
+								"ontology": "NLP Annotations",
+								"username": "nlppier",
+								"displayOrder": 10,
+								"aggregate": true,
+								"countDistinct": false,
+								"count": null,
+								"numberOfFilterOptions": 25,
+								"includeInExport": false,
+								"isTemporal": false,
+								"isNumeric": false
+							}
+						]
+					}
+				},
+				"status": {
+					"searchingDocs": false,
+					"computingAggs": false,
+					"dirty": false
+				},
+				"resultsOpacity": {
+					"dimmed": {
+						"opacity": 0.2
+					},
+					"bright": {
+						"opacity": 1
+					}
+				},
+				"opacity": {
+					"opacity": 1
+				},
+				"results": {},
+				"appliedFilters": {
+					"Prov Type": [
+						{
+							"term": {
+								"prov_type": "Physician"
+							}
+						},
+						{
+							"term": {
+								"prov_type": "Registered Dietitian"
+							}
+						}
+					]
+				},
+				"pagination": {
+					"notesPerPage": 100,
+					"from": 0,
+					"maxDocs": 0,
+					"maxPage": 0,
+					"maxFrom": 10000,
+					"currentPage": 0,
+					"truncated": false
+				},
+				"selected": true
+			},
+			{
+				"id": 2,
+				"name": "Surgical Pathology Reports",
+				"glyph": "icon-i-pathology",
+				"metadata": {
+					"tooltip": "Excludes Surgical Pathology Reports",
+					"searchable": false,
+					"filtered": null,
+					"url": null,
+					"scrollUrl": null,
+					"defaultSearchField": null,
+					"contextFilterField": null
+				},
+				"status": {
+					"searchingDocs": false,
+					"computingAggs": false,
+					"dirty": true
+				},
+				"resultsOpacity": {
+					"dimmed": {
+						"opacity": 0.2
+					},
+					"bright": {
+						"opacity": 1
+					}
+				},
+				"opacity": {
+					"opacity": 0.2
+				},
+				"results": {}
+			}
+		]
+	},
+	"registration": {
+		"id": 10,
+		"authorizedContext": "Clinical Notes",
+		"username": "nouserservice.user",
+		"uuid": "7877d74d-e470-452e-901c-3c1a214e9989",
+		"queries": null
+	},
+	"searchIconClass": "fa fa-search",
+	"status": {
+		"dirty": true,
+		"version": 1
+	},
+	"cuiExpansionEnabled": false,
+	"similarityExpansionEnabled": false,
+	"cuiExpansion": {},
+	"relatednessExpansion": {},
+	"options": {
+		"relatednessExpansion": {
+			"on": false,
+			"style": {}
+		}
+	}
+}
+
+
+----refactor
+CORPUS
+{
+	"id": 1,
+	"name": "Clinical Notes",
+	"glyph": "fa-file-text-o",
+	"metadata": {
+		"tooltip": "Includes Clinical Notes",
+		"searchable": true,
+		"filtered": false,
+		"url": "http://nlp05.ahc.umn.edu:9200/notes_v3/note/_search",
+		"scrollUrl": "http://nlp05.ahc.umn.edu:9200/_search/scroll",
+		"defaultSearchField": "text",
+		"contextFilterField": "authorized_context_filter_value",
+		"aggregations": {
+			"Clinical Notes": {
+				"Epic Categories": {
+					"Encounter Department Specialty": {
+						"id": 16,
+						"label": "Encounter Department Specialty",
+						"ontology": {
+							"id": 1,
+							"name": "Epic Categories",
+							"description": "what shows in Epic"
+						},
+						"displayOrder": 10,
+						"aggregate": true,
+						"countDistinct": false,
+						"numberOfFilterOptions": 5,
+						"includeInExport": false,
+						"isTemporal": false,
+						"isNumeric": false,
+						"corpus": {
+							"id": 1,
+							"name": "Epic Notes"
+						},
+						"field": {
+							"id": 1,
+							"fieldName": "encounter_department_specialty",
+							"aggregatable": true,
+							"exportable": true,
+							"contextFilterField": false,
+							"dataTypeName": "NOT_ANALYZED_STRING",
+							"description": "Specialty name in Epic"
+						}
+					},
+					"Encounter Id": {
+						"id": 18,
+						"label": "Encounter Id",
+						"ontology": {
+							"id": 1,
+							"name": "Epic Categories",
+							"description": "what shows in Epic"
+						},
+						"displayOrder": 10,
+						"aggregate": false,
+						"countDistinct": false,
+						"numberOfFilterOptions": 5,
+						"includeInExport": false,
+						"isTemporal": false,
+						"isNumeric": true,
+						"corpus": {
+							"id": 1,
+							"name": "Epic Notes"
+						},
+						"field": {
+							"id": 3,
+							"fieldName": "encounter_id",
+							"aggregatable": true,
+							"exportable": false,
+							"contextFilterField": false,
+							"dataTypeName": "LONG",
+							"description": "Epic visit number"
+						}
+					},
+					"Filing Datetime": {
+						"id": 21,
+						"label": "Filing Datetime",
+						"ontology": {
+							"id": 1,
+							"name": "Epic Categories",
+							"description": "what shows in Epic"
+						},
+						"displayOrder": 10,
+						"aggregate": false,
+						"countDistinct": false,
+						"numberOfFilterOptions": 5,
+						"includeInExport": false,
+						"isTemporal": true,
+						"isNumeric": false,
+						"corpus": {
+							"id": 1,
+							"name": "Epic Notes"
+						},
+						"field": {
+							"id": 6,
+							"fieldName": "filing_datetime",
+							"aggregatable": true,
+							"exportable": true,
+							"contextFilterField": false,
+							"dataTypeName": "DATETIME",
+							"description": "When note was filed"
+						}
+					},
+					"Mrn": {
+						"id": 26,
+						"label": "Mrn",
+						"ontology": {
+							"id": 1,
+							"name": "Epic Categories",
+							"description": "what shows in Epic"
+						},
+						"displayOrder": 10,
+						"aggregate": false,
+						"countDistinct": true,
+						"numberOfFilterOptions": 5,
+						"includeInExport": false,
+						"isTemporal": false,
+						"isNumeric": false,
+						"corpus": {
+							"id": 1,
+							"name": "Epic Notes"
+						},
+						"field": {
+							"id": 11,
+							"fieldName": "mrn",
+							"aggregatable": true,
+							"exportable": false,
+							"contextFilterField": false,
+							"dataTypeName": "NOT_ANALYZED_STRING",
+							"description": "Epic patient identifier"
+						}
+					},
+					"Prov Type": {
+						"id": 25,
+						"label": "Prov Type",
+						"ontology": {
+							"id": 1,
+							"name": "Epic Categories",
+							"description": "what shows in Epic"
+						},
+						"displayOrder": 10,
+						"aggregate": true,
+						"countDistinct": false,
+						"numberOfFilterOptions": 5,
+						"includeInExport": false,
+						"isTemporal": false,
+						"isNumeric": false,
+						"corpus": {
+							"id": 1,
+							"name": "Epic Notes"
+						},
+						"field": {
+							"id": 10,
+							"fieldName": "prov_type",
+							"aggregatable": true,
+							"exportable": true,
+							"contextFilterField": false,
+							"dataTypeName": "NOT_ANALYZED_STRING",
+							"description": "Provider type in Epic name"
+						}
+					},
+					"Service Date": {
+						"id": 24,
+						"label": "Service Date",
+						"ontology": {
+							"id": 1,
+							"name": "Epic Categories",
+							"description": "what shows in Epic"
+						},
+						"displayOrder": 10,
+						"aggregate": false,
+						"countDistinct": false,
+						"numberOfFilterOptions": 5,
+						"includeInExport": false,
+						"isTemporal": true,
+						"isNumeric": false,
+						"corpus": {
+							"id": 1,
+							"name": "Epic Notes"
+						},
+						"field": {
+							"id": 9,
+							"fieldName": "service_date",
+							"aggregatable": true,
+							"exportable": false,
+							"contextFilterField": false,
+							"dataTypeName": "DATE",
+							"description": "Date of Service"
+						}
+					}
+				},
+				"HL7 LOINC": {
+					"Role": {
+						"id": 20,
+						"label": "Role",
+						"ontology": {
+							"id": 2,
+							"name": "HL7 LOINC",
+							"description": "DO Axis values"
+						},
+						"displayOrder": 10,
+						"aggregate": true,
+						"countDistinct": false,
+						"numberOfFilterOptions": 5,
+						"includeInExport": false,
+						"isTemporal": false,
+						"isNumeric": false,
+						"corpus": {
+							"id": 1,
+							"name": "Epic Notes"
+						},
+						"field": {
+							"id": 5,
+							"fieldName": "role",
+							"aggregatable": true,
+							"exportable": true,
+							"contextFilterField": false,
+							"dataTypeName": "NOT_ANALYZED_STRING",
+							"description": "Provider role axis in HL7-LOINC DO"
+						}
+					},
+					"Smd": {
+						"id": 17,
+						"label": "Smd",
+						"ontology": {
+							"id": 2,
+							"name": "HL7 LOINC",
+							"description": "DO Axis values"
+						},
+						"displayOrder": 10,
+						"aggregate": true,
+						"countDistinct": false,
+						"numberOfFilterOptions": 5,
+						"includeInExport": false,
+						"isTemporal": false,
+						"isNumeric": false,
+						"corpus": {
+							"id": 1,
+							"name": "Epic Notes"
+						},
+						"field": {
+							"id": 2,
+							"fieldName": "smd",
+							"aggregatable": true,
+							"exportable": true,
+							"contextFilterField": false,
+							"dataTypeName": "NOT_ANALYZED_STRING",
+							"description": "subject matter domain"
+						}
+					}
+				},
+				"NLP Annotations": {
+					"Medical Concepts": {
+						"id": 22,
+						"label": "Medical Concepts",
+						"ontology": {
+							"id": 3,
+							"name": "NLP Annotations",
+							"description": "NLP annotations"
+						},
+						"displayOrder": 10,
+						"aggregate": true,
+						"countDistinct": false,
+						"numberOfFilterOptions": 25,
+						"includeInExport": false,
+						"isTemporal": false,
+						"isNumeric": false,
+						"corpus": {
+							"id": 1,
+							"name": "Epic Notes"
+						},
+						"field": {
+							"id": 7,
+							"fieldName": "cuis",
+							"aggregatable": true,
+							"exportable": false,
+							"contextFilterField": false,
+							"dataTypeName": "NOT_ANALYZED_STRING",
+							"description": "UMLS CUIs identified by BioMedICUS NLP pipeline"
+						}
+					}
+				}
+			}
+		}
+	},
+	"status": {
+		"searchingDocs": true,
+		"computingAggs": true,
+		"dirty": false
+	},
+	"resultsOpacity": {
+		"dimmed": {
+			"opacity": 0.2
+		},
+		"bright": {
+			"opacity": 1
+		}
+	},
+	"opacity": {
+		"opacity": 1
+	},
+	"results": {
+		"docs": {
+			"hits": [
+			
+			
+FIELD/AGG
+{
+	"id": 28,
+	"label": "Medical Concepts",
+	"ontology": {
+		"id": 3,
+		"name": "NLP Annotations",
+		"description": "NLP annotations"
+	},
+	"displayOrder": 10,
+	"aggregate": true,
+	"countDistinct": false,
+	"numberOfFilterOptions": 50,
+	"includeInExport": false,
+	"isTemporal": false,
+	"isNumeric": false,
+	"corpus": {
+		"id": 2,
+		"name": "Surgical Pathology Reports"
+	},
+	"field": {
+		"id": 13,
+		"fieldName": "cuis",
+		"aggregatable": true,
+		"exportable": true,
+		"contextFilterField": false,
+		"dataTypeName": "NOT_ANALYZED_STRING",
+		"description": "UMLS CUIs identified by BioMedICUS NLP pipeline"
+	}
+}
+
+RESULTS
+{
+	"id": 2,
+	"name": "Surgical Pathology Reports",
+	"glyph": "icon-i-pathology",
+	"metadata": {
+		"tooltip": "Includes Surgical Pathology Reports",
+		"searchable": true,
+		"filtered": false,
+		"url": "http://nlp05.ahc.umn.edu:9200/surgical-path_v1/report/_search",
+		"scrollUrl": "http://nlp05.ahc.umn.edu:9200/_search/scroll",
+		"defaultSearchField": "report",
+		"contextFilterField": "authorized_context_filter_value",
+		"aggregations": {
+			"NLP Annotations": {
+				"Medical Concepts": {
+					"id": 28,
+					"label": "Medical Concepts",
+					"ontology": {
+						"id": 3,
+						"name": "NLP Annotations",
+						"description": "NLP annotations"
+					},
+					"displayOrder": 10,
+					"aggregate": true,
+					"countDistinct": false,
+					"numberOfFilterOptions": 50,
+					"includeInExport": false,
+					"isTemporal": false,
+					"isNumeric": false,
+					"corpus": {
+						"id": 2,
+						"name": "Surgical Pathology Reports"
+					},
+					"field": {
+						"id": 13,
+						"fieldName": "cuis",
+						"aggregatable": true,
+						"exportable": true,
+						"contextFilterField": false,
+						"dataTypeName": "NOT_ANALYZED_STRING",
+						"description": "UMLS CUIs identified by BioMedICUS NLP pipeline"
+					}
+				}
+			}
+		}
+	},
+	"status": {
+		"searchingDocs": true,
+		"computingAggs": true,
+		"dirty": true
+	},
+	"resultsOpacity": {
+		"dimmed": {
+			"opacity": 0.2
+		},
+		"bright": {
+			"opacity": 1
+		}
+	},
+	"opacity": {
+		"opacity": 0.2
+	},
+	"results": {
+		"aggs": {
+			"total": 62821,
+			"took": "0.121s",
+			"timedOut": false,
+			"aggs": {
+				"Medical Concepts": {
+					"doc_count_error_upper_bound": 1929,
+					"sum_other_doc_count": 2019534,
+					"buckets": [
+						{
+							"doc_count": 62752,
+							"key": "C0030705"
+						},
+						{
+							"doc_count": 62745,
+							"key": "C1299487"
+						},
+						...
+					]
+				}
+			}
+		}
+	},
+	"appliedFilters": {},
+	"pagination": {
+		"notesPerPage": 100,
+		"from": 0,
+		"maxDocs": 0,
+		"maxPage": 0,
+		"maxFrom": 10000,
+		"currentPage": 0,
+		"truncated": false
+	},
+	"selected": true
+}
