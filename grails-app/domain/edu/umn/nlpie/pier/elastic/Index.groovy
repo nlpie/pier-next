@@ -14,7 +14,7 @@ class Index {
     	indexName unique:'cluster'
 		commonName()
 		description()
-		environment inList: ['DEVELOPMENT', 'TEST', 'PRODUCTION', 'DEPRECATED']
+		environment inList: ['DEVELOPMENT', 'TEST', 'PRODUCTION', 'DEPRECATED','dev','test','fvdev','production']
 		status inList:['Available', 'Unavailable', 'In Progress'], nullable:false
 		alias (nullable:true)
 	}
