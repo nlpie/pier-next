@@ -74,7 +74,7 @@ class Corpus {
 	
 	//TODO is this method used?
 	static getAvailableCorpora() {
-		def env = Environment.current.toString()	// != Environment.PRODUCTION
+		def env = Environment.current.name
 		def corps = Corpus.executeQuery(
 			"select ct from Corpus ct join ct.indexes i where ct.enabled=? and i.environment=? and i.status=? order by ct.name desc", [ true, env, 'Available']
 		)

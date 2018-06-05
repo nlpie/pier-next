@@ -111,7 +111,8 @@ environments {
         // TODO: grails.serverURL = "http://www.changeme.com"
     }
 	fvdev {
-		//issue ssh -N -f rmcewan1@nlp02.fairview.org -L 9200:nlp02.fairview.org:9200 prior to spinning up this env, then the FV ES cluster is available on localhost:9200
+		//TODO issue ssh -N -f rmcewan1@nlp02.fairview.org -L 9200:nlp02.fairview.org:9200 prior to spinning up this env, then the FV ES cluster is available on localhost:9200
+		//TODO fire a script to do this after exchanging keys
 		disable.auto.recompile=false
 		grails.gsp.enable.reload=true
 		grails.logging.jul.usebridge = false

@@ -28,7 +28,7 @@ dataSource {
 	 }
 }
 
-if ( Environment.current!=Environment.CUSTOM ) {
+if ( Environment.current.name!="fvdev") {
 	dataSource_notes {
 		readOnly=true
 		dbCreate = "none"
@@ -72,7 +72,7 @@ environments {
 			dialect = "org.hibernate.dialect.MySQL5InnoDBDialect"
 			username = ""	//see config in ds_<env>.groovy
 			password = ""	//see config in ds_<env>.groovy
-			url = "jdbc:mysql://127.0.0.1:3306/notes_next?autoReconnect=true"
+			url = "jdbc:mysql://127.0.0.1:3306/notes_next"
 			properties {
 				validationQuery="SELECT 1"
 			}
@@ -85,7 +85,7 @@ environments {
 			dialect = "org.hibernate.dialect.MySQL5InnoDBDialect"
 			username = ""	//see config in ds.groovy
 			password = ""	//see config in ds.groovy
-			url = "jdbc:mysql://nlpql.ahc.umn.edu:3306/notes_test?autoReconnect=true"
+			url = "jdbc:mysql://nlpql.ahc.umn.edu:3306/notes_test"
 			properties {
 				validationQuery="SELECT 1"
 			}
@@ -98,7 +98,7 @@ environments {
 			dialect = "org.hibernate.dialect.MySQL5InnoDBDialect"
 			username = ""	//see config in ds_production.groovy
 			password = ""	//see config in ds_production.groovy
-			url = "jdbc:mysql://nlpql.ahc.umn.edu:3306/notes?autoReconnect=true"
+			url = "jdbc:mysql://nlpql.ahc.umn.edu:3306/notes"
 		}
 	}
 	fvdev {
@@ -108,9 +108,33 @@ environments {
 			dialect = "org.hibernate.dialect.MySQL5InnoDBDialect"
 			username = ""	//see config in ds_<env>.groovy
 			password = ""	//see config in ds_<env>.groovy
-			url = "jdbc:mysql://127.0.0.1:3306/fv-dev?autoReconnect=true"
+			url = "jdbc:mysql://127.0.0.1:3306/fv-dev"
 			properties {
 				validationQuery="SELECT 1"
+			}
+			//logSql=true
+			//formatSql=true
+		}
+		dataSource_notes {
+			//readOnly=true
+			dbCreate = "create-drop"
+			//logSql=true
+			//formatSql=true
+			pooled = true
+			driverClassName = "com.mysql.jdbc.Driver"
+			username = ""	//see config in ds_<env>.groovy
+			password = ""	//see config in ds_<env>.groovy
+			//dialect = org.hibernate.dialect.Oracle11gDialect
+			dialect = "org.hibernate.dialect.MySQL5InnoDBDialect"
+			username = ""	//see config in ds_<env>.groovy
+			password = ""	//see config in ds_<env>.groovy
+			url = "jdbc:mysql://127.0.0.1:3306"	//no schema, it's specified in domain classes that use this dataSource
+			properties {
+				defaultCatalog = "notes"
+				validationQuery="SELECT 1"
+				testOnBorrow=true
+				testWhileIdle=true
+				testOnReturn=true
 			}
 		}
 	}
