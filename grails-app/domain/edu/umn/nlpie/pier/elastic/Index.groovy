@@ -14,7 +14,7 @@ class Index {
     	indexName unique:'cluster'
 		commonName()
 		description()
-		environment inList: ['DEVELOPMENT', 'TEST', 'PRODUCTION', 'DEPRECATED','dev','test','fvdev','production']
+		environment inList: ['DEVELOPMENT', 'TEST', 'PRODUCTION', 'DEPRECATED','CUSTOM','development','test','fvdev','production']
 		status inList:['Available', 'Unavailable', 'In Progress'], nullable:false
 		alias (nullable:true)
 	}
@@ -46,7 +46,7 @@ class Index {
 	}
 	
 	static getAvailableIndexes() {
-		def env = Environment.current.toString()	//eg, PRODUCTION
+		def env = Environment.current.name.toString()	//eg, production, fvdev
 		Index.findAllByEnvironmentAndStatus(env,'Available')
 	}
 	
