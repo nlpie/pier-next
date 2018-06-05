@@ -2,13 +2,10 @@ package edu.umn.nlpie.pier.api
 
 import edu.umn.nlpie.pier.api.exception.HttpMethodNotAllowedException
 import edu.umn.nlpie.pier.api.exception.PierApiException
-import edu.umn.nlpie.pier.elastic.Index
-import edu.umn.nlpie.pier.springsecurity.User
+import edu.umn.nlpie.pier.ui.Corpus
 import edu.umn.nlpie.pier.ui.FieldPreference
-import edu.umn.nlpie.pier.ui.Ontology
 import grails.converters.JSON
 import grails.transaction.Transactional
-import grails.util.Environment
 
 class SettingsController {//extends RestfulController {
 	
@@ -24,10 +21,26 @@ class SettingsController {//extends RestfulController {
 	
 	def index() {}
 	
-	def preferences() {
+	def corpora() {
 		try {
 			if ( request.method!="GET" ) throw new HttpMethodNotAllowedException(message:"issue GET instead")
-			def m = settingsService.preferences()
+			respond Corpus.availableCorpora.sort { it.name }
+		} catch (PierApiException e) {
+			println "pier exception"
+			exceptionResponse(e)
+		} catch (Exception e) {
+			println "reg exception"
+			e.printStackTrace()
+			exceptionResponse( new PierApiException(message:e.message) )
+		}
+	}
+	
+	def corpusPreferences() {
+		println "corpus prefs ${new Date()}"
+		try {
+			if ( request.method!="GET" ) throw new HttpMethodNotAllowedException(message:"issue GET instead")
+			def corpusId = params.id
+			def m = settingsService.corpusPreferences( corpusId )
 			JSON.use("fieldpreference") {
 				respond m
 			}
@@ -45,9 +58,9 @@ class SettingsController {//extends RestfulController {
 		try {
 			if ( request.method!="GET" ) throw new HttpMethodNotAllowedException(message:"issue GET instead")
 			def corpusId = params.id
-			def f = settingsService.corpusAggregations(corpusId)
+			def ca = settingsService.corpusAggregations( corpusId )
 			JSON.use("fieldpreference") {
-				respond f
+				respond ca
 			}
 		} catch (PierApiException e) {
 			println "pier exception"

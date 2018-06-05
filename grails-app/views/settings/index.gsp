@@ -22,8 +22,8 @@
 			<div class="row">
 				<div class="col-md-12">&nbsp;</div>
 			</div>
-			
-			<div ng-if="sc.settings.view=='filters'" ng-repeat="ontology in sc.settings.prefs[sc.settings.corpus] track by $index">
+
+			<div ng-if="sc.settings.view=='filters'" ng-repeat="ontology in sc.settings.prefs track by $index">
 				<div class="row" style="background-color:#e6e6e6;color:black">
 					<div class="col-md-1">{{ ontology.name }}</div>
 					<div class="col-md-2">Filter category</div>
@@ -56,7 +56,7 @@
 				</div>
 			</div>
 			
-			<div ng-if="sc.settings.view=='exports'" ng-repeat="ontology in sc.settings.prefs[sc.settings.corpus] track by $index">
+			<div ng-if="sc.settings.view=='exports'" ng-repeat="ontology in sc.settings.prefs track by $index">
 				<div class="row" style="background-color:#e6e6e6;color:black">
 					<div class="col-md-1">{{ ontology.name }}</div>
 					<div class="col-md-2">Filter category</div>
