@@ -94,23 +94,23 @@ class JsonMarshallerRegistrar {
 			
 		JSON.createNamedConfig ('authorized.context') { DefaultConverterConfiguration<JSON> cfg ->
 			//TODO can this AuthorizedContext config piggyback on the standalone config above?
-			cfg.registerObjectMarshaller (AuthorizedContext) { c ->
+			cfg.registerObjectMarshaller (AuthorizedContext) { ct ->
 				[
 					//"id": c.id,
-					"requestId": c.requestId,
-					"label": c.label,
-					"contextFilterValue": c.filterValue,
-					"description": c.description?:"description unavailable",
-					"username": c.username,
-					"corpora": c.annotatedCorpora()
+					"requestId": ct.requestId,
+					"label": ct.label,
+					"contextFilterValue": ct.filterValue,
+					"description": ct.description?:"description unavailable",
+					"username": ct.username,
+					"corpora": ct.annotatedCorpora()
 				]
 			}
-			cfg.registerObjectMarshaller (Corpus) { ct ->
+			cfg.registerObjectMarshaller (Corpus) { c ->
 				[
-					id: ct.id,
-					name: ct.name,
-					glyph: ct.glyph,
-					metadata: ct.metadata
+					id: c.id,
+					name: c.name,
+					glyph: c.glyph,
+					metadata: c.metadata
 				]
 			}
 			cfg.registerObjectMarshaller (CorpusMetadata) { cm ->
@@ -136,6 +136,7 @@ class JsonMarshallerRegistrar {
 			}
 		}//authorized.context
 		
+		/*
 		JSON.createNamedConfig ('available.corpora') { DefaultConverterConfiguration<JSON> cfg ->
 			cfg.registerObjectMarshaller (Type) { t ->
 				[
@@ -160,6 +161,7 @@ class JsonMarshallerRegistrar {
 			}
 				
 		}//available.corpora
+		*/
 		
 		JSON.registerObjectMarshaller(SearchRegistration) { sr ->
 			[
@@ -189,8 +191,7 @@ class JsonMarshallerRegistrar {
 				name: cp.name,
 				enabled: cp.enabled,
 				description: cp.description,
-				glyph: cp.glyph
-				
+				glyph: cp.glyph	
 			]
 		}
 		

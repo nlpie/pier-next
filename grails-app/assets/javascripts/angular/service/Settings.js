@@ -11,7 +11,8 @@ class Settings {
 				filters: "",
 				exports: ""
 		}
-		this.corpus = undefined;
+		this.corpora = undefined;
+		this.currentCorpus = undefined;
 		this.prefs = undefined;
 		this.filterOptionSizes = [
 		                          {value: 1, text: '1'},
@@ -30,18 +31,27 @@ class Settings {
 		}; //EXTERNALIZE as property on Field, eg, Field.choices or Field.preferenceChoices
 		this.view = Object.keys(this.views)[0];		//filters
 		
+		this.fetchCorpora();
+		
 		this.swap('filters');
 		console.info("Settings.js complete");
 	}
 	
-	//TODO this method used?
-	fetchPrefs() {
+	fetchCorpora() {
 		var me = this;
-		this.$http.get( APP.ROOT + '/settings/preferences/', { "noop": true } )
+		this.$http.get( APP.ROOT + '/settings/corpora/' )
 		.then( function(response) {
-			alert("dpne");
+				me.corpora = response.data;
+				me.currentCorpus = response.data[0];
+				me.fetchPrefs( me.currentCorpus.id );
+    		});
+    }
+	
+	fetchPrefs( corpusId ) {
+		var me = this;
+		this.$http.get( APP.ROOT + '/settings/corpusPreferences/' + corpusId )
+		.then( function(response) {
 				me.prefs = new CorpusAggregationsResponse( response.data );
-				if (!me.corpus) me.corpus = Object.keys(response.data)[0];
     		});
     }
 	
@@ -64,11 +74,11 @@ class Settings {
 	}
 	
 	changeCorpus( corpus ) {
-		this.corpus = corpus;
+		this.currentCorpus = corpus;
+		this.fetchPrefs( this.currentCorpus.id );
 	}
 	
 	swap( view ) {
-		this.fetchPrefs();
 		this.changeClass( view );
 		this.view = view;
 	}

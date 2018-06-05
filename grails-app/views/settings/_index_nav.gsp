@@ -17,12 +17,12 @@
 		<ul class="nav navbar-nav navbar-right nav-pills">
 			<li class="dropdown">
           		<a class="dropdown-toggle" data-toggle="dropdown" role="button">
-					{{ sc.settings.corpus }} <span class="caret"></span>
+					{{ sc.settings.currentCorpus.name }} <span class="caret"></span>
 				</a>
           		<ul class="dropdown-menu">
 					<li role="presentation" class="dropdown-header">Searchable Corpora</li>
-            		<li ng-repeat="(corpus, ontologies) in sc.settings.prefs">
-						<a ng-click="sc.settings.changeCorpus(corpus)">{{ corpus }}</a>
+            		<li ng-repeat="corpus in sc.settings.corpora">
+						<a ng-click="sc.settings.changeCorpus(corpus)">{{ corpus.name }}</a>
 					</li>
           		</ul>
         	</li>
