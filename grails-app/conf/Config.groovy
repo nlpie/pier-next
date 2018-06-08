@@ -100,6 +100,16 @@ grails.hibernate.osiv.readonly = false
 environments {
     development {
         grails.logging.jul.usebridge = true
+		
+		//LDAP config used by Spring Security LDAP plugin for LDAP authentication
+		grails.plugin.springsecurity.ldap.context.managerDn = ''
+		grails.plugin.springsecurity.ldap.context.managerPassword = ''
+		grails.plugin.springsecurity.ldap.authenticator.useBind = true
+		grails.plugin.springsecurity.ldap.context.server = 'ldaps://ldapauth.umn.edu:636'
+		grails.plugin.springsecurity.ldap.search.derefLink=true
+		grails.plugin.springsecurity.ldap.authorities.groupSearchBase ='ou=People'
+		grails.plugin.springsecurity.ldap.search.base = 'o=University of Minnesota,c=US'
+		grails.plugin.springsecurity.ldap.search.filter='(uid={0})'
     }
 	test {
 		grails.serverURL = "https://nlp01.ahc.umn.edu/notes_test"
@@ -118,6 +128,16 @@ environments {
 		grails.logging.jul.usebridge = false
 		grails.assets.minifyJs = false
 		// TODO: grails.serverURL = "http://www.changeme.com"
+		
+		//LDAP config used by Spring Security LDAP plugin for LDAP authentication
+		grails.plugin.springsecurity.ldap.context.managerDn = 'nlp-pier-svc@fairview.org'
+		grails.plugin.springsecurity.ldap.context.managerPassword = '79Rb99@6$qaG73GbXZ5U'
+		grails.plugin.springsecurity.ldap.authenticator.useBind = true
+		grails.plugin.springsecurity.ldap.context.server = 'ldaps://ldap-ad.fairview.org:636'
+		grails.plugin.springsecurity.ldap.search.derefLink=true
+		grails.plugin.springsecurity.ldap.authorities.groupSearchBase ='ou=Users'
+		grails.plugin.springsecurity.ldap.search.base = 'DC=fairview,DC=org'
+		grails.plugin.springsecurity.ldap.search.filter='(sAMAccountName={0})'
 	}
 }
 
@@ -142,9 +162,40 @@ log4j.main = {
            'net.sf.ehcache.hibernate'
 }
 
+// Added by the Spring Security Core plugin:
+grails.plugin.springsecurity.userLookup.userDomainClassName = 'edu.umn.nlpie.pier.springsecurity.User'
+grails.plugin.springsecurity.userLookup.authorityJoinClassName = 'edu.umn.nlpie.pier.springsecurity.UserRole'
+grails.plugin.springsecurity.authority.className = 'edu.umn.nlpie.pier.springsecurity.Role'
+grails.plugin.springsecurity.providerNames = ['ldapAuthProvider','daoAuthenticationProvider','anonymousAuthenticationProvider']
+grails.plugin.springsecurity.ldap.search.searchSubtree = true
+grails.plugin.springsecurity.ldap.authorities.retrieveGroupRoles = false  	//don't try to get authorities (isMemberOf) from LDAP
+grails.plugin.springsecurity.ldap.authorities.retrieveDatabaseRoles = true	//retrieve authorities/roles from DB
 
-//def elasticsearchVersion = '2.3.3'
-//ext['elasticsearch.version'] = elasticsearchVersion
+grails.plugin.springsecurity.roleHierarchy = '''
+   	ROLE_SUPERADMIN > ROLE_ADMIN
+   	ROLE_ADMIN > ROLE_ANALYST
+   	ROLE_ANALYST > ROLE_USER
+	ROLE_ADMIN > ROLE_BETA_USER
+	ROLE_SUPERADMIN > ROLE_BETA_USER
+'''
+
+grails.plugin.springsecurity.controllerAnnotations.staticRules = [
+'/':						['permitAll'],
+'/**':						['permitAll'],
+'authz/**':					['permitAll'],
+'/aclClass/**': 			['ROLE_SUPERADMIN'],
+'/aclSid/**': 				['ROLE_SUPERADMIN'],
+'/aclObjectIdentity/**': 	['ROLE_SUPERADMIN'],
+'/aclEntry/**': 			['ROLE_SUPERADMIN'],
+'/persistentLogin/**': 		['ROLE_SUPERADMIN'],
+'/requestmap/**': 			['ROLE_SUPERADMIN'],
+'/securityInfo/**': 		['ROLE_SUPERADMIN'],
+'/registrationCode/**': 	['ROLE_SUPERADMIN'],
+'/role/**': 				['ROLE_SUPERADMIN'],
+'/user/**': 				['ROLE_SUPERADMIN'],
+'/console/**': 				['ROLE_SUPERADMIN'],
+'/register/**': 			['IS_AUTHENTICATED_ANONYMOUSLY']
+]
 
 
 
