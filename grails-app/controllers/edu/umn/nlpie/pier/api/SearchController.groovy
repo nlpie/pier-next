@@ -4,9 +4,11 @@ import edu.umn.nlpie.pier.api.exception.BadElasticRequestException
 import edu.umn.nlpie.pier.api.exception.HttpMethodNotAllowedException
 import edu.umn.nlpie.pier.api.exception.PierApiException
 import grails.converters.JSON
-import grails.transaction.Transactional;
+import grails.plugin.springsecurity.annotation.Secured
 import grails.validation.ValidationException
 
+
+@Secured(["ROLE_USER"])
 class SearchController {//extends RestfulController {
 	
 	static responseFormats = ['json']
@@ -17,16 +19,20 @@ class SearchController {//extends RestfulController {
 	def auditService
 	
 	//TODO refactor to superclass
+	@Secured(['IS_AUTHENTICATED_ANONYMOUSLY'])
 	private respondWithException(Exception e) {
 		def msg = e.message.replace('\n',' ')	//\n causes problems when client parses returned JSON
 		respond ( e, status:e.status )
 		//render(status: e.status, text: '{"message":"'+ msg +'"}', contentType: "application/json") as JSON
 	}
 	
+	@Secured(['IS_AUTHENTICATED_ANONYMOUSLY'])
 	def index() { }	//default search view
 	
+	@Secured(['IS_AUTHENTICATED_ANONYMOUSLY'])
 	def search() { }	//deprecated 
 	
+	@Secured(['IS_AUTHENTICATED_ANONYMOUSLY'])
 	def elastic() {
 		//println request.JSON.toString(2)
 		def postBody = request.JSON
@@ -277,6 +283,7 @@ expansion formula:
     
 	*/
 	
+	@Secured(['IS_AUTHENTICATED_ANONYMOUSLY'])
 	def historySummary() {
 		def jsonBody = request.JSON
 		//TODO put exception handling in place
@@ -288,12 +295,14 @@ expansion formula:
 	}
 	*/
 	
+	@Secured(['IS_AUTHENTICATED_ANONYMOUSLY'])
 	def recentQuery() {
 		JSON.use ('recent.query') {
 			respond searchService.recentQuery(params.id)
 		}
 	}
 	
+	@Secured(['IS_AUTHENTICATED_ANONYMOUSLY'])
 	def related() {
 		def jsonBody = request.JSON
 		respond elasticService.fetchRelated(jsonBody.url, jsonBody.term).json

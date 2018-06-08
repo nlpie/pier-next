@@ -1,6 +1,8 @@
 import edu.umn.nlpie.pier.PierUtils
 import edu.umn.nlpie.pier.elastic.*
+import edu.umn.nlpie.pier.springsecurity.Role
 import edu.umn.nlpie.pier.springsecurity.User
+import edu.umn.nlpie.pier.springsecurity.UserRole
 import edu.umn.nlpie.pier.ui.Corpus
 import edu.umn.nlpie.pier.ui.FieldPreference
 import edu.umn.nlpie.pier.ui.Ontology
@@ -38,6 +40,23 @@ class BootStrap {
 		
 		//make sure nlppier user exists
 		User.findByUsername("nlppier")?:new User(username:"nlppier",password:"${configService.generatePassword()}",enabled:false).save(failOnError:true)
+		def superadmin = Role.findByAuthority("ROLE_SUPERADMIN")?:new Role(authority:"ROLE_SUPERADMIN").save(flush:true)
+		def admin = Role.findByAuthority("ROLE_ADMIN")?:new Role(authority:"ROLE_ADMIN").save(flush:true)
+		def u = Role.findByAuthority("ROLE_USER")?:new Role(authority:"ROLE_USER").save(flush:true)
+		def beta = Role.findByAuthority("ROLE_BETA_USER")?:new Role(authority:"ROLE_BETA_USER").save(flush:true)
+		def analyst = Role.findByAuthority("ROLE_ANALYST")?:new Role(authority:"ROLE_ANALYST").save(flush:true)
+		//UserRole.create(rmcewan, superadmin)
+		def rmcewan = User.findByUsername("rmcewan")?:new User(username:"rmcewan",password:"umn").save(failOnError:true)
+		UserRole.create(rmcewan, u)
+		UserRole.create(rmcewan, beta)
+		UserRole.create(rmcewan, analyst)
+		UserRole.create(rmcewan, superadmin)
+		def rmcewan1 = User.findByUsername("rmcewan1")?:new User(username:"rmcewan1",password:"umn").save(failOnError:true)
+		UserRole.create(rmcewan1, u)
+		UserRole.create(rmcewan1, beta)
+		UserRole.create(rmcewan1, analyst)
+		UserRole.create(rmcewan1, superadmin)
+		
 		
 		//populate elastic data
 		Cluster.withSession { session ->
@@ -97,7 +116,7 @@ class BootStrap {
 					fp.ontology=biomedicus
 					fp.label = "Medical Concepts"
 					fp.numberOfFilterOptions = 25
-					fp.aggregate = true
+					fp.aggregate = false
 				}
 				if ( f.fieldName=="mrn" || f.fieldName=="note_id") {
 					fp.computeDistinct = true
