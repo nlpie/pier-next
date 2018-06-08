@@ -20,6 +20,16 @@ class ElasticService {
 		rest.post( scrollUrl ) { json JsonOutput.toJson(sp) }
 	}
 	
+	def cui( cui ) {
+		def rest = new RestBuilder()
+		//TODO externalize rest url
+		def body = [ "query": [ "match": [ "cui": "${cui}" ] ] ]
+		rest.post( "http://localhost:9200/umls_2013/entry/_search" ) { json body }
+		//println r.json.toString(2)
+		//println "--------------------"
+
+	}
+	
 	def fetchRelated( url, term ) {
 		println url+term
 		def rest = new RestBuilder()
