@@ -18,6 +18,7 @@ class Aggregations {
 	}
 
 	addAggregations( corpus ) {
+//alert(JSON.stringify(corpus,null,'\t'));
 		var me = this;
     	//var aggregations = corpus.metadata.aggregations;
     	for ( let ontology of corpus.metadata.aggregations ) {
