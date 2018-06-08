@@ -28,7 +28,7 @@ class Settings {
 				"filters": "Filters",
 				"exports": "Exports"
 		                          
-		}; //EXTERNALIZE as property on Field, eg, Field.choices or Field.preferenceChoices
+		}; //TODO EXTERNALIZE as property on Field, eg, Field.choices or Field.preferenceChoices
 		this.view = Object.keys(this.views)[0];		//filters
 		
 		this.fetchCorpora();
