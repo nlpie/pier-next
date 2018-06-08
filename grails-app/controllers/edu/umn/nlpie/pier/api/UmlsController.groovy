@@ -22,8 +22,8 @@ class UmlsController {//extends RestfulController {
 		try {
 			//println params.id
 			if ( request.method!="GET" ) throw new HttpMethodNotAllowedException(message:"issue GET instead")
-			def umlsEntry = umlsService.umlsString( params.id )
-			respond umlsEntry as JSON
+			def umlsEntry = umlsService.umlsStringFromIndex( params.id )
+			respond umlsEntry.json// as JSON
 		} catch (PierApiException e) {
 			println "pier exception"
 			exceptionResponse(e)

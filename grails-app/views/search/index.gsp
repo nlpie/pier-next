@@ -31,7 +31,7 @@
 							</div>
 							<div class="pier-filter" ng-repeat="bucket in corpus.results.aggs.aggs[aggregation.label].buckets track by $index">
 								<span style="cursor:pointer" ng-click="aggregation.filters[bucket.key]=!aggregation.filters[bucket.key];rc.search.dirty(corpus);corpus.status.userSelectedFilters=true">
-									{{ aggregation.isTemporal ? bucket.key_as_string : bucket.key }}
+									{{ aggregation.isTemporal ? bucket.key_as_string : bucket.label ? bucket.label : bucket.key }}
 								</span>
 								<span style="font-size:0.5em">({{bucket.doc_count | number}})</span>
 								<label class="switch pull-right">

@@ -1,6 +1,6 @@
 package edu.umn.nlpie.pier.cdr
 
-class Umls {
+class Umls implements Serializable {
 
     static constraints = {
     }
@@ -9,7 +9,8 @@ class Umls {
 		datasource 'notes'
 		table name: "MRCONSO", schema: "UMLS_2017AA"	//view in notes schema
 		version false
-		id name: 'aui'
+		//id name: 'aui'
+		id composite:['aui']
 	}
 	
 	/*static hibernateFilters = {
