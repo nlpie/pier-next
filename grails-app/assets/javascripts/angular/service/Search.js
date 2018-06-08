@@ -11,6 +11,7 @@ import TermFilter from '../model/search/elastic/TermFilter';
 import EncounterDocQuery from '../model/search/elastic/clinical/EncounterDocQuery';
 import EncounterAggQuery from '../model/search/elastic/clinical/EncounterAggQuery';
 import AuthorizedContextsResponse from '../model/rest/response/AuthorizedContextsResponse';
+import AuthorizedContext from '../model/ui/AuthorizedContext';
 import CorpusAggregationsResponse from '../model/rest/response/CorpusAggregationsResponse';
 import InputExpansion from '../model/search/InputExpansion';
 
@@ -209,7 +210,7 @@ class Search {
     			//temp assignment hold return for use in the next  couple of .thens
     			me.searchService.fetchAuthorizedContextByLabel( queries.docsQuery.registration.authorizedContext )
     				.then( function( response ) { 
-    					me.setContext( response.data );
+    					me.setContext( new AuthorizedContext(response.data) );
     					me.r("recent")
     					.then( me.searchCorpora )
     					.then( me.dec )	//decorate (results) as appropriate
@@ -267,7 +268,7 @@ class Search {
     				decorators.push( 
     					search.$http.get( APP.ROOT + '/umls/string/' + bucket.key )
     					.then ( function( response ) {
-    						if (response.data.str) bucket.key=response.data.str;	//if umls str exits put in key prop
+    						if (response.data.hits.total>0) bucket.label=response.data.hits.hits[0]._source.sui;	//if umls str exits put in key prop
     					})
     				);
     			}
@@ -403,7 +404,7 @@ class Search {
     	//returns es hits
     	corpus.status.computingAggs = true;
     	var url = corpus.metadata.url;
-    	var aggsQuery = new AggregationQuery( corpus, this.userInput );
+    	var aggsQuery = new AggregationQuery( corpus, this.inputExpansion.expandUserInput(this.userInput) );
     	var filterDesc = this.filterDistiller( aggsQuery );
     	let me = this;
 //alert("AGGS QUERY\n" + JSON.stringify(aggsQuery,null,'\t'));
@@ -538,6 +539,7 @@ class Search {
     
     clearResults() {
     	this.searchIconClass = "fa fa-search";
+    	this.inputExpansion = new InputExpansion();
     	for ( let corpus of this.context.corpora ) {
     		corpus.results = {};
     	}
