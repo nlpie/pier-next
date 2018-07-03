@@ -5,7 +5,9 @@ import edu.umn.nlpie.pier.PierUtils
 import edu.umn.nlpie.pier.api.exception.*
 import edu.umn.nlpie.pier.elastic.Index
 import grails.converters.JSON
+import grails.plugin.springsecurity.annotation.Secured
 
+@Secured(["ROLE_USER"])
 class ConfigController {
     
 	ConfigService configService

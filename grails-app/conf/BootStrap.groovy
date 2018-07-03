@@ -18,24 +18,6 @@ class BootStrap {
 		
 		if (Environment.current != Environment.PRODUCTION) {
 			println "Bootstrap: ${Environment.current.name}"
-			//indexService.createAdminConfigurationFromIndexMapping("nlp05.ahc.umn.edu","notes_v0")
-			/*
-			{
-				"notes_v2": {
-				  "mappings": {
-					"note": {
-					  "dynamic": "strict",
-					  "_timestamp": {
-						"enabled": true
-					  },
-				      "properties": {
-						  ....
-					  }
-					}
-				  }
-				}
-			}
-			*/
 		}
 		
 		//make sure nlppier user exists
@@ -48,14 +30,26 @@ class BootStrap {
 		//UserRole.create(rmcewan, superadmin)
 		def rmcewan = User.findByUsername("rmcewan")?:new User(username:"rmcewan",password:"umn").save(failOnError:true)
 		UserRole.create(rmcewan, u)
-		UserRole.create(rmcewan, beta)
 		UserRole.create(rmcewan, analyst)
 		UserRole.create(rmcewan, superadmin)
-		def rmcewan1 = User.findByUsername("rmcewan1")?:new User(username:"rmcewan1",password:"umn").save(failOnError:true)
+		
+		//Init FV users
+		def rmcewan1 = User.findByUsername("rmcewan1")?:new User(username:"rmcewan1",password:"hURVTDb4",enabled:true).save(failOnError:true)
 		UserRole.create(rmcewan1, u)
-		UserRole.create(rmcewan1, beta)
 		UserRole.create(rmcewan1, analyst)
 		UserRole.create(rmcewan1, superadmin)
+		def jim = User.findByUsername("jessler1")?:new User(username:"jessler1",password:"nBE34kY2",enabled:true).save(failOnError:true)
+		UserRole.create(jim, u)
+		UserRole.create(jim, analyst)
+		def melinda = User.findByUsername("mleonar1")?:new User(username:"mleonar1",password:"w9TGNNaV",enabled:true).save(failOnError:true)
+		UserRole.create(melinda, u)
+		UserRole.create(melinda, analyst)
+		def jeremy = User.findByUsername("jmarkow1")?:new User(username:"jmarkow1",password:"3RYJ7RKY",enabled:true).save(failOnError:true)
+		UserRole.create(jeremy, u)
+		UserRole.create(jeremy, analyst)
+		def gretchen = User.findByUsername("ghultma1")?:new User(username:"ghultma1",password:"Vts2Nq9t",enabled:true).save(failOnError:true)
+		UserRole.create(gretchen, u)
+		UserRole.create(gretchen, analyst)
 		
 		
 		//populate elastic data
