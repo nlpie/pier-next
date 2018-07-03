@@ -30,10 +30,8 @@ alert("BPIC request context");
 //alert("discrete");
     	let me = this;
     	corpus.status.userSelectedFilters = false;
-    	Object.keys( corpus.metadata.aggregations ).map( function(ontol,index) {
-    		let ontology = corpus.metadata.aggregations[ontol];
-    		Object.keys( ontology ).map( function(agg,idx) {
-    			let aggregation = ontology[agg];
+    	for ( let ontology of corpus.metadata.aggregations ) {
+    		for ( let aggregation of ontology.aggregations ) {
     			//add filter values in a should clause context of new Bool query, then add to this bool query's filter context
     			if ( !( JSON.stringify(aggregation.filters) === JSON.stringify({}) ) && !aggregation.isTemporal ) {
     				//potential fields to be added
@@ -53,18 +51,16 @@ alert("BPIC request context");
 	    			//alert(JSON.stringify(filter,null,'\t'));
 	    			if ( filter ) me.addFilter( filter );	//at least one TermFilter added to should clause of bool
     			}
-        	})
-    	});
+        	}
+    	}
     }
     
     setRangeFilters( corpus ) {
-//alert("range");
+    	//alert("range");
     	let me = this;
     	//corpus.status.userSelectedFilters = false;
-    	Object.keys( corpus.metadata.aggregations ).map( function(ontol,index) {
-    		let ontology = corpus.metadata.aggregations[ontol];
-    		Object.keys( ontology ).map( function(agg,idx) {
-    			let aggregation = ontology[agg];
+    	for ( let ontology of corpus.metadata.aggregations ) {
+    		for ( let aggregation of ontology.aggregations ) {
     			if ( !( JSON.stringify(aggregation.filters) === JSON.stringify({}) ) && aggregation.isTemporal ) {	    			
     				if ( aggregation.filters.max && aggregation.filters.min ) {
     					//add range filter to filter clause context of this.query
@@ -73,8 +69,8 @@ alert("BPIC request context");
     					me.addFilter( range );
     				}
     			}
-        	})
-    	});
+        	}
+    	}
     }
     
     //convienience method
@@ -84,7 +80,7 @@ alert("BPIC request context");
 	
 }
 export default Query;
-    /*example aggregation.filters object for discreet values aggregation
+    /*example aggregation.filters object for discrete values aggregation
 		{
 			Geriatrics:true,	//result of being selected or re-selected
 			Pediatrics:false	//previously selected, but now de-selected

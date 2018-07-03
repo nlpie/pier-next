@@ -46,6 +46,7 @@ grails.project.dependency.resolution = {
         //mavenRepo "http://repository.codehaus.org"
         //mavenRepo "http://download.java.net/maven/2/"
         //mavenRepo "http://repository.jboss.com/maven2/"
+		mavenRepo "http://repo.spring.io/milestone/"	//for spring ldap 2.0-RC2
     }
 
     dependencies {
@@ -56,10 +57,10 @@ grails.project.dependency.resolution = {
 		/*compile 'org.elasticsearch:elasticsearch-groovy:2.1.2', {
 			excludes 'org.codehaus.groovy:groovy-all'	//see https://github.com/elastic/elasticsearch-groovy/issues/30
 		}*/
-		compile 'org.elasticsearch:elasticsearch:2.3.3'
+		//compile 'org.elasticsearch:elasticsearch:2.3.3'
 		//compile "org.elasticsearch:elasticsearch-groovy:2.1.2"
 		//compile group: 'org.elasticsearch', name: 'elasticsearch-groovy', version: '2.3.0-SNAPSHOT', classifier: 'grails'
-		compile 'org.asynchttpclient:async-http-client:2.1.0-alpha19'
+		//compile 'org.asynchttpclient:async-http-client:2.1.0-alpha19'
 		//compile "org.codehaus.groovy.modules.http-builder:http-builder:0.7"
 		//compile "org.grails:http-client:2.4.5"
     }
@@ -84,9 +85,11 @@ grails.project.dependency.resolution = {
         //compile ":coffee-asset-pipeline:1.8.0"
         //compile ":handlebars-asset-pipeline:1.3.0.3"
 		
-		compile ":rest-client-builder:2.0.2"
-		//compile "org.grails.plugins:async-http-builder:2.4.5"
-		
-		//runtime "org.grails.plugins:elasticsearch:0.1.0"
+        compile ":rest-client-builder:2.0.2"
+        //compile "org.grails.plugins:async-http-builder:2.4.5"
+        
+		compile ":spring-security-core:2.0-RC3"
+		compile ":spring-security-ldap:2.0-RC2"
+		compile ":spring-security-ui:1.0-RC2"		
     }
 }

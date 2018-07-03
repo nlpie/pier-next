@@ -1,3 +1,5 @@
+import grails.util.Environment
+
 dataSource {	
 	pooled = true
     jmxExport = true
@@ -26,28 +28,29 @@ dataSource {
 	 }
 }
 
-dataSource_notes {
-	readOnly=true
-	dbCreate = "none"
-	//logSql=true
-	//formatSql=true
-	pooled = true
-	driverClassName = "oracle.jdbc.OracleDriver"
-	username = ""	//see config in ds_<env>.groovy
-	password = ""	//see config in ds_<env>.groovy
-	//dialect = org.hibernate.dialect.Oracle11gDialect
-	//url = "jdbc:oracle:thin:@ctsidbprod.ahc.umn.edu:1521/TIDEPRD"
-	dialect = org.hibernate.dialect.Oracle10gDialect	//no support for Oracle12c dialect in this version of Hibernate v4.x
-	url = "jdbc:oracle:thin:@//tideprdp.ahc.umn.edu:1521/tideprdp.ahc.umn.edu"
-	properties {
-		maxActive = 10
-		maxIdle = 10
-		minIdle = 5
-		initialSize = 5
-		testOnBorrow=true
-		testWhileIdle=true
-		testOnReturn=true
-		validationQuery="select 1 from dual"
+if ( Environment.current.name!="fvdev") {
+	dataSource_notes {
+		readOnly=true
+		dbCreate = "none"
+		//logSql=true
+		//formatSql=true
+		pooled = true
+		driverClassName = "oracle.jdbc.OracleDriver"
+		username = ""	//see config in ds_<env>.groovy
+		password = ""	//see config in ds_<env>.groovy
+		//dialect = org.hibernate.dialect.Oracle11gDialect
+		dialect = org.hibernate.dialect.Oracle10gDialect	//no support for Oracle12c dialect in this version of Hibernate v4.x
+		url = "jdbc:oracle:thin:@//tideprdp.ahc.umn.edu:1521/tideprdp.ahc.umn.edu"
+		properties {
+			maxActive = 10
+			maxIdle = 10
+			minIdle = 5
+			initialSize = 5
+			testOnBorrow=true
+			testWhileIdle=true
+			testOnReturn=true
+			validationQuery="select 1 from dual"
+		}
 	}
 }
 
@@ -69,7 +72,7 @@ environments {
 			dialect = "org.hibernate.dialect.MySQL5InnoDBDialect"
 			username = ""	//see config in ds_<env>.groovy
 			password = ""	//see config in ds_<env>.groovy
-			url = "jdbc:mysql://127.0.0.1:3306/notes_next?autoReconnect=true"
+			url = "jdbc:mysql://127.0.0.1:3306/notes_next"
 			properties {
 				validationQuery="SELECT 1"
 			}
@@ -82,7 +85,7 @@ environments {
 			dialect = "org.hibernate.dialect.MySQL5InnoDBDialect"
 			username = ""	//see config in ds.groovy
 			password = ""	//see config in ds.groovy
-			url = "jdbc:mysql://nlpql.ahc.umn.edu:3306/notes_test?autoReconnect=true"
+			url = "jdbc:mysql://nlpql.ahc.umn.edu:3306/notes_test"
 			properties {
 				validationQuery="SELECT 1"
 			}
@@ -95,7 +98,44 @@ environments {
 			dialect = "org.hibernate.dialect.MySQL5InnoDBDialect"
 			username = ""	//see config in ds_production.groovy
 			password = ""	//see config in ds_production.groovy
-			url = "jdbc:mysql://nlpql.ahc.umn.edu:3306/notes?autoReconnect=true"
+			url = "jdbc:mysql://nlpql.ahc.umn.edu:3306/notes"
+		}
+	}
+	fvdev {
+		dataSource {
+			dbCreate = "create-drop"
+			driverClassName = "com.mysql.jdbc.Driver"
+			dialect = "org.hibernate.dialect.MySQL5InnoDBDialect"
+			username = ""	//see config in ds_<env>.groovy
+			password = ""	//see config in ds_<env>.groovy
+			url = "jdbc:mysql://127.0.0.1:3306/fv-dev"
+			properties {
+				validationQuery="SELECT 1"
+			}
+			//logSql=true
+			//formatSql=true
+		}
+		dataSource_notes {
+			//readOnly=true
+			dbCreate = "create-drop"
+			//logSql=true
+			//formatSql=true
+			pooled = true
+			driverClassName = "com.mysql.jdbc.Driver"
+			username = ""	//see config in ds_<env>.groovy
+			password = ""	//see config in ds_<env>.groovy
+			//dialect = org.hibernate.dialect.Oracle11gDialect
+			dialect = "org.hibernate.dialect.MySQL5InnoDBDialect"
+			username = ""	//see config in ds_<env>.groovy
+			password = ""	//see config in ds_<env>.groovy
+			url = "jdbc:mysql://127.0.0.1:3306"	//no schema, it's specified in domain classes that use this dataSource
+			properties {
+				defaultCatalog = "notes"
+				validationQuery="SELECT 1"
+				testOnBorrow=true
+				testWhileIdle=true
+				testOnReturn=true
+			}
 		}
 	}
 }

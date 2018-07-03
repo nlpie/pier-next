@@ -1,26 +1,30 @@
-import DocumentsResponse from './DocumentsResponse';
-import AggregationsResponse from './AggregationsResponse';
-import DocumentQuery from './elastic/DocumentQuery';
-import AggregationQuery from './elastic/AggregationQuery';
-import PaginationQuery from './elastic/PaginationQuery';
-import BucketCountQuery from './elastic/BucketCountQuery';
-import CardinalityOnlyQuery from './elastic/CardinalityOnlyQuery';
-import SingleFieldScrollCountQuery from './elastic/SingleFieldScrollCountQuery';
-import TermsAggregation from './elastic/TermsAggregation';
-import Pagination from './Pagination';
-import TermFilter from './elastic/TermFilter';
-import EncounterDocQuery from './elastic/clinical/EncounterDocQuery';
-import EncounterAggQuery from './elastic/clinical/EncounterAggQuery';
+import DocumentsResponse from '../model/rest/response/DocumentsResponse';
+import AggregationsResponse from '../model/rest/response/AggregationsResponse';
+import DocumentQuery from '../model/search/elastic/DocumentQuery';
+import AggregationQuery from '../model/search/elastic/AggregationQuery';
+import PaginationQuery from '../model/search/elastic/PaginationQuery';
+import BucketCountQuery from '../model/search/elastic/BucketCountQuery';
+import CardinalityOnlyQuery from '../model/search/elastic/CardinalityOnlyQuery';
+import SingleFieldScrollCountQuery from '../model/search/elastic/SingleFieldScrollCountQuery';
+import TermsAggregation from '../model/search/elastic/TermsAggregation';
+import TermFilter from '../model/search/elastic/TermFilter';
+import EncounterDocQuery from '../model/search/elastic/clinical/EncounterDocQuery';
+import EncounterAggQuery from '../model/search/elastic/clinical/EncounterAggQuery';
+import AuthorizedContextsResponse from '../model/rest/response/AuthorizedContextsResponse';
+import AuthorizedContext from '../model/ui/AuthorizedContext';
+import CorpusAggregationsResponse from '../model/rest/response/CorpusAggregationsResponse';
+import InputExpansion from '../model/search/InputExpansion';
 
 class Search {
-    constructor( $http, $q, growl, searchService, uiService ) {
+    constructor( $http, $q, growl, searchService ) {
     	this.$http = $http;
     	this.$q = $q;
     	this.growl = growl;
     	this.searchService = searchService;
-    	this.uiService = uiService;
     	
     	this.userInput = "iliitis";// "iliitis";
+    	this.inputExpansion = new InputExpansion(); //IE contains array of Term objects, property is called 'terms'
+    	this.authorizedContexts = undefined;
     	this.context = undefined;
     	this.registration = undefined;
     	
@@ -32,9 +36,11 @@ class Search {
         	uuid: undefined,
         	sequence: 0
         }
-        /*
+        this.init();
+        console.info("Search.js complete");
+        
+        this.similarityExpansionEnabled = false; 
         this.cuiExpansionEnabled = false;				
-		this.similarityExpansionEnabled = false; 
 		this.cuiExpansion = {};				//{ heart:[], valve:[] } or { enabled:false, expansionMap: { heart:[], valve:[] } }
 		this.relatednessExpansion = {}; 		//{ heart:[], valve:[] } or { enabled:false, expansionMap: { heart:[], valve:[] } 
 		this.options = {
@@ -43,7 +49,19 @@ class Search {
     			style: {}
     		}
     	}
-         */
+		
+		this.template = "myPopoverTemplate.html"
+        
+    }
+    
+    init() {
+    	let me = this;
+    	this.searchService.fetchContexts()
+    		.then ( function(response) {
+    			me.authorizedContexts = new AuthorizedContextsResponse( response.data );	//response.data;
+//alert(JSON.stringify(me.authorizedContexts[0],null,'\t'));
+    			me.setContext(me.authorizedContexts[0]);	//set to first in list
+    		});
     }
 	    
     toggleRelatednessExpansion() {
@@ -63,13 +81,11 @@ class Search {
 		this.searchIconClass = "fa fa-refresh fa-spin";
 		if ( corpus ) {
 			//dim only this corpus
-			corpus.opacity = corpus.resultsOpacity.dimmed;
-			corpus.status.dirty = true;
+			corpus.dim();
 		} else {
 			//dim doc results for all copora
 			for (let corpus of this.context.corpora) {
-				corpus.opacity = corpus.resultsOpacity.dimmed;
-				corpus.status.dirty = true;
+				corpus.dim();
 			}
 		}
 	}
@@ -85,7 +101,7 @@ class Search {
     	for ( let corpus of this.context.corpora ) {
     		if ( corpus.metadata.searchable ) {
     			if ( !activeSet ) {
-    				this.uiService.setActiveCorpus( corpus, this.context.corpora );	//TODO refactor active assignments to a user pref?
+    				this.searchService.setActiveCorpus( corpus, this.context.corpora );	//TODO refactor active assignments to a user pref?
     				activeSet = true;
     			}
     			//if ( corpus.metadata.filtered ) {
@@ -94,14 +110,16 @@ class Search {
     			//}
     			if ( !corpus.appliedFilters ) {
     				corpus.appliedFilters = {};
-    				corpus.opacity = corpus.resultsOpacity.bright;
-    				corpus.pagination = new Pagination();
-    				corpus.results = {};
+    				corpus.brighten();
+    				//corpus.opacity = corpus.resultsOpacity.bright;
+    				//corpus.results.pagination = new Pagination();
+    				//corpus.results = {};
     				this.complete();
     			}
 				this.corpusAggregations( corpus )
 	    			.then( function(response) {
-	    				corpus.metadata.aggregations = response.data;
+//alert(JSON.stringify(response.data,null,'\t'));
+	    				corpus.metadata.aggregations = new CorpusAggregationsResponse( response.data );
 	    				console.log("AUTHORIZED CONTEXT SET");
 	    			});
 	    				
@@ -190,9 +208,9 @@ class Search {
     			me.recentAggsQuery = JSON.parse(queries.aggsQuery.query);
     			//get aggs query
     			//temp assignment hold return for use in the next  couple of .thens
-    			me.uiService.fetchAuthorizedContextByLabel( queries.docsQuery.registration.authorizedContext )
+    			me.searchService.fetchAuthorizedContextByLabel( queries.docsQuery.registration.authorizedContext )
     				.then( function( response ) { 
-    					me.setContext( response.data );
+    					me.setContext( new AuthorizedContext(response.data) );
     					me.r("recent")
     					.then( me.searchCorpora )
     					.then( me.dec )	//decorate (results) as appropriate
@@ -250,7 +268,7 @@ class Search {
     				decorators.push( 
     					search.$http.get( APP.ROOT + '/umls/string/' + bucket.key )
     					.then ( function( response ) {
-    						if (response.data.str) bucket.key=response.data.str;	//if umls str exits put in key prop
+    						if (response.data.hits.total>0) bucket.label=response.data.hits.hits[0]._source.sui;	//if umls str exits put in key prop
     					})
     				);
     			}
@@ -272,20 +290,19 @@ class Search {
     	//returns es hits
     	corpus.status.searchingDocs = true;
     	var url = corpus.metadata.url;
-    	var docsQuery = new DocumentQuery( corpus, this.userInput );
+    	var docsQuery = new DocumentQuery( corpus, this.inputExpansion.expandUserInput(this.userInput) );
     	var filterDesc = this.filterDistiller( docsQuery );
 //alert("DOC QUERY\n"+JSON.stringify(docsQuery,null,'\t'));
 		return this.$http.post( APP.ROOT + '/search/elastic/', JSON.stringify( { "registration.id":registration.id, "corpus":corpus.name, "type":docsQuery.constructor.name.toString(), "url":url, "query":docsQuery, "filters":filterDesc, "sequence":this.status.sequence } ) )
 			.then( function( docSearchResponse ) {
 				let results = docSearchResponse.data;
 				corpus.results.docs = new DocumentsResponse( results );
-				corpus.pagination.update( corpus.results.docs.total );
+				corpus.results.pagination.update( corpus.results.docs.total );
 				return results;
 			})
 			.finally( function() {
-				corpus.status.dirty = false;
 				corpus.status.searchingDocs = false;
-				corpus.opacity = corpus.resultsOpacity.bright;
+				corpus.brighten();
 			});
     }
     
@@ -301,13 +318,12 @@ class Search {
 			.then( function( docSearchResponse ) {
 				let results = docSearchResponse.data;
 				corpus.results.docs = new DocumentsResponse( results );
-				corpus.pagination.update( corpus.results.docs.total );
+				corpus.results.pagination.update( corpus.results.docs.total );
 				return results;
 			})
 			.finally( function() {
-				corpus.status.dirty = false;
 				corpus.status.searchingDocs = false;
-				corpus.opacity = corpus.resultsOpacity.bright;
+				corpus.brighten();
 			});
     }
     
@@ -336,13 +352,12 @@ class Search {
 			.then( function( docSearchResponse ) {
 				let results = docSearchResponse.data;
 				corpus.results.docs = new DocumentsResponse( results );
-				corpus.pagination.update( corpus.results.docs.total );
+				corpus.results.pagination.update( corpus.results.docs.total );
 				return results;
 			})
 			.finally( function() {
-				corpus.status.dirty = false;
+				corpus.brighten();
 				corpus.status.searchingDocs = false;
-				corpus.opacity = corpus.resultsOpacity.bright;
 			});
     }
     
@@ -373,13 +388,12 @@ class Search {
 			.then( function( pageSearchResponse ) {
 				let results = pageSearchResponse.data;
 				corpus.results.docs = new DocumentsResponse( results );
-				corpus.pagination.update( corpus.results.docs.total );
+				corpus.results.pagination.update( corpus.results.docs.total );
 				return results;
 			})
 			.finally( function() {
-				corpus.status.dirty = false;
+				corpus.brighten();
 				corpus.status.searchingDocs = false;
-				corpus.opacity = corpus.resultsOpacity.bright;
 			});
     }
     
@@ -390,13 +404,21 @@ class Search {
     	//returns es hits
     	corpus.status.computingAggs = true;
     	var url = corpus.metadata.url;
-    	var aggsQuery = new AggregationQuery( corpus, this.userInput );
+    	var aggsQuery = new AggregationQuery( corpus, this.inputExpansion.expandUserInput(this.userInput) );
     	var filterDesc = this.filterDistiller( aggsQuery );
+    	let me = this;
 //alert("AGGS QUERY\n" + JSON.stringify(aggsQuery,null,'\t'));
 		return this.$http.post( APP.ROOT + '/search/elastic/', JSON.stringify( {"registration.id":registration.id, "corpus":corpus.name, "type":aggsQuery.constructor.name.toString(), "url":url, "query":aggsQuery, "filters":filterDesc, "sequence":this.status.sequence  } ) )
 			.then( function( aggsSearchResponse ) {
 				let results = aggsSearchResponse.data;
 				corpus.results.aggs = new AggregationsResponse( results, corpus );	//TODO refactoring that will create client-side objects for API data will eventually have a method for putting date slider on corpus.metadata.aggregations
+				
+				if ( me.options.relatednessExpansion.on ) {
+					var maxCount = corpus.results.aggs.total;
+					console.log("max distinct count " + maxCount);
+					me.distinctCounts( corpus, maxCount );
+				}
+				
 				return results;
 			})
 			.finally( function() {
@@ -415,8 +437,7 @@ class Search {
     	let corporaSearch = [];
     	for ( let corpus of search.context.corpora ) {
     		if ( corpus.metadata.searchable ) {
-    			//alert( corpus.name );
-    			corpus.pagination = new Pagination();
+    			corpus.prepare();
     			let searches = [];
     			if (search.registration.searchType=="recent") {
     				searches.push( search.d_recent( search.recentDocsQuery, corpus, search.registration ) );
@@ -446,28 +467,28 @@ class Search {
     //pagination
     nextPage( corpus ) {
     	//next pg, no aggs
-    	if ( !corpus.status.dirty && corpus.pagination.next() ) {
+    	if ( !corpus.isDirty() && corpus.results.pagination.next() ) {
     		let me = this;
     		this.p( this.registration, corpus )
 	    	.catch( function(e) {
 	    		me.clearResults();
 	    		me.remoteError("docs",e);
 			});
-    		if ( corpus.pagination.truncated ) {
+    		if ( corpus.results.pagination.truncated ) {
     			this.info( "docs", "Pagination limited to " + this.paginationLimit + " pages of results" );
     		}
     	}
     }
     
     lastPage( corpus ) {
-		if ( !corpus.status.dirty && corpus.pagination.last() )  {
+		if ( !corpus.isDirty() && corpus.results.pagination.last() )  {
 			let me = this;
 			return this.p( this.registration, corpus )
 			.catch( function(e) {
 				me.clearResults();
 				me.remoteError("docs",e);
 			});
-			if ( corpus.pagination.truncated ) {
+			if ( corpus.results.pagination.truncated ) {
     			this.info( "docs", "Pagination limited to " + this.paginationLimit + " pages of results" );
     		}
 		}
@@ -475,20 +496,12 @@ class Search {
     
     previousPage( corpus ) {
     	//prev pg, composite
-    	if ( !corpus.status.dirty && corpus.pagination.previous() ) this.p( this.registration, corpus );
+    	if ( !corpus.isDirty() && corpus.results.pagination.previous() ) this.p( this.registration, corpus );
     }
     
     firstPage( corpus ) {
-    	if ( !corpus.status.dirty && corpus.pagination.first() ) this.p( this.registration, corpus );
+    	if ( !corpus.isDirty() && corpus.results.pagination.first() ) this.p( this.registration, corpus );
     }
-    
-    forwardCursor( corpus ) {
-		return ( !corpus.status.dirty && corpus.pagination.hasNext() ) ? "pointer" : "not-allowed";
-	}
-	backwardCursor( corpus ) {
-		return ( !corpus.status.dirty && corpus.pagination.hasPrevious() ) ? "pointer" : "not-allowed";
-	}
-    
     
     //past searches
     ps() {
@@ -526,27 +539,31 @@ class Search {
     
     clearResults() {
     	this.searchIconClass = "fa fa-search";
+    	this.inputExpansion = new InputExpansion();
     	for ( let corpus of this.context.corpora ) {
     		corpus.results = {};
     	}
     }
-    
+  
     distinctCounts( corpus, maxCount ) {
     	var url = corpus.metadata.url;
+//alert(JSON.stringify(corpus.metadata.aggregations));
     	var aggregations = corpus.metadata.aggregations;
     	var me = this;
     	Object.keys(aggregations).map( function(key,index) {
     		var aggregationCategory = corpus.metadata.aggregations[key];
-    		for (const aggregation of aggregationCategory) {
+    		for (let aggPropName in aggregationCategory) {
+    			let aggregation = aggregationCategory[aggPropName];
     			if ( aggregation.countDistinct ) {
+//alert(JSON.stringify(aggregation,null,'\t'));
     				var countType = ( maxCount<=15000000 ) ? "bucket" : "scroll";	//TODO externalize maxBuckets threshold
     				var query;
     				if ( countType=='scroll' ) query = new SingleFieldScrollCountQuery( corpus, me.userInput, aggregation.label, aggregation.fieldName );
     				if ( countType=='bucket' ) {
-    					if ( aggregation.fieldName=='note_id' ) {
-    						query = new CardinalityOnlyQuery( corpus, me.userInput, aggregation.label, aggregation.fieldName );
+    					if ( aggregation.field.fieldName=='note_id' ) {
+    						query = new CardinalityOnlyQuery( corpus, me.userInput, aggregation.label, aggregation.field.fieldName );
     					} else {
-    						query = new BucketCountQuery( corpus, me.userInput, aggregation.label, aggregation.fieldName, maxCount );
+    						query = new BucketCountQuery( corpus, me.userInput, aggregation.label, aggregation.field.fieldName, maxCount );
     					}
     				}
     				var payload = { 
@@ -558,7 +575,7 @@ class Search {
     					"query": query
     				};
     				if ( countType=="bucket" ) {
-    					//alert(JSON.stringify( payload, null, '\t' ));
+//alert(JSON.stringify( payload, null, '\t' ));
 		    			if ( aggregation.fieldName=="note_id" ) {		    				
 		    				me.$http.post( APP.ROOT + '/search/noteCount/', JSON.stringify( payload ) )
 		    				.then( function(response) {
@@ -597,6 +614,6 @@ class Search {
     
 }
 
-Search.$inject = [ '$http', '$q', 'growl', 'searchService', 'uiService' ];
+Search.$inject = [ '$http', '$q', 'growl', 'searchService' ];
 
 export default Search;

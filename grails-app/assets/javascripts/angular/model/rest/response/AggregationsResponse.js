@@ -1,4 +1,4 @@
-import DateRangeSlider from '../ui/DateRangeSlider';
+import DateRangeSlider from '../../ui/DateRangeSlider';
 
 class AggregationsResponse {
     constructor( data, corpus ) {	//look into constructing from a data structure passed to constructor
@@ -17,11 +17,8 @@ class AggregationsResponse {
     
     decorateCorpus( corpus ) {
     	let me = this;
-    	let aggregations = corpus.metadata.aggregations;
-		Object.keys(aggregations).map( function(key,index) {
-    		let aggregationCategory = aggregations[key];
-    		Object.keys( aggregationCategory ).map( function(agg,index) {
-    			let aggregation = aggregationCategory[agg];
+    	for ( let ontology of corpus.metadata.aggregations ) {
+    		for ( let aggregation of ontology.aggregations ) {
     			if ( aggregation.isTemporal ) {
 //alert(JSON.stringify(me.aggs[aggregation.label+".min"],null,'\t'));
     				if ( !aggregation.initialSlider ) {
@@ -31,8 +28,8 @@ class AggregationsResponse {
     				aggregation.currentSlider = new DateRangeSlider( me.aggs[aggregation.label+".min"], me.aggs[aggregation.label+".max"], aggregation.initialSlider );
 //alert(JSON.stringify(aggregation,null,'\t'));
     			}
-    		});
-    	});
+    		}
+    	}
     }
 }
 

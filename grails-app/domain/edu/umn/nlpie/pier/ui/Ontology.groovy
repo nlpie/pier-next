@@ -1,8 +1,5 @@
 package edu.umn.nlpie.pier.ui
 
-import java.util.Date;
-
-
 class Ontology {
 
     static mapping = { }
@@ -12,14 +9,19 @@ class Ontology {
 		description()
 	}
 	
+	static transients = [ 'fieldPreferences' ]
+	
 	String name
 	String description
 	
 	Date dateCreated
 	Date lastUpdated
 	
+	ArrayList fieldPreferences = new ArrayList()	//compostion varies according to context in which it is called/populated, but is generally user- and index-specific
+
 	String toString() {
 		name
 	}
+	
 	
 }

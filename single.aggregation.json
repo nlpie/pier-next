@@ -1,0 +1,33 @@
+{
+	"id": 34,
+	"label": "Mrn",
+	"corpus": {
+		"id": 1,
+		"name": "Epic Notes"
+	},
+	"ontology": {
+		"id": 1,
+		"name": "Epic Categories",
+		"description": "what shows in Epic"
+	},
+	"field": {
+		"id": 13,
+		"fieldName": "mrn",
+		"aggregatable": true,
+		"significantTermsAggregatable": false,
+		"exportable": false,
+		"contextFilterField": false,
+		"dataTypeName": "NOT_ANALYZED_STRING",
+		"description": "Epic patient identifier"
+	},
+	"displayOrder": 10,
+	"numberOfFilterOptions": 5,
+	"isTemporal": false,
+	"isNumeric": false,
+	"countDistinct": true,
+	"aggregate": true,
+	"export": false,
+	"filters": {},
+	"min": null,
+	"max": null
+}

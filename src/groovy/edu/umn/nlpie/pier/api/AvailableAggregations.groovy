@@ -21,13 +21,14 @@ import groovy.transform.InheritConstructors
  * 
  */
 @InheritConstructors
+@Deprecated
 class AvailableAggregations {
+//TODO is this class used? looks like no
 	
 	AvailableAggregations(Corpus ct) {
 		def type = Type.find("from Type as t where t.corpus.id=? and environment=? and t.index.status=?", [ ct.id, Environment.current.name, 'Available' ])
 		this.populate(type)
 	}
-	
 	AvailableAggregations(String corpusId) {
 		def type = Type.find("from Type as t where t.corpus.id=? and environment=? and t.index.status=?", [ corpusId.toLong(), Environment.current.name, 'Available' ])
 		this.populate(type)

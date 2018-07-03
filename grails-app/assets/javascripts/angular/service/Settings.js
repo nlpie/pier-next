@@ -1,15 +1,19 @@
-//import UIService from '../../service/config/UIService';
+import CorpusAggregationsResponse from '../model/rest/response/CorpusAggregationsResponse';
 
 class Settings {
 	
-	constructor( $http, growl ) {
+	constructor( $http, $q, growl ) {
 		this.$http = $http;
+		this.$q = $q;
 		this.growl = growl;
+		
 		this.styles = {
 				filters: "",
 				exports: ""
 		}
-		this.corpus = undefined;
+		this.corpora = undefined;
+		this.currentCorpus = undefined;
+		this.prefs = undefined;
 		this.filterOptionSizes = [
 		                          {value: 1, text: '1'},
 		                          {value: 5, text: '5'},
@@ -24,27 +28,31 @@ class Settings {
 				"filters": "Filters",
 				"exports": "Exports"
 		                          
-		}; //EXTERNALIZE as property on Field, eg, Field.choices or Field.preferenceChoices
+		}; //TODO EXTERNALIZE as property on Field, eg, Field.choices or Field.preferenceChoices
 		this.view = Object.keys(this.views)[0];		//filters
 		
+		this.fetchCorpora();
+		
 		this.swap('filters');
+		console.info("Settings.js complete");
 	}
 	
-	fetchPrefs() {
+	fetchCorpora() {
 		var me = this;
-		this.$http.get( APP.ROOT + '/settings/preferences/', { "noop": true } )
+		this.$http.get( APP.ROOT + '/settings/corpora/' )
 		.then( function(response) {
-				me.prefs = response.data;
-				if (!me.corpus) me.corpus = Object.keys(response.data)[0];
+				me.corpora = response.data;
+				me.currentCorpus = response.data[0];
+				me.fetchPrefs( me.currentCorpus.id );
     		});
-		/*
-    	this.uiService.fetchPreferences()
-    		.then( function(response) {
-    			//alert(me.hasOwnProperty("styles"));
-    			me.prefs = response.data;
-    			me.prefs = { f:'f' };
-    			alert(JSON.stringify(me));
-    		});*/
+    }
+	
+	fetchPrefs( corpusId ) {
+		var me = this;
+		this.$http.get( APP.ROOT + '/settings/corpusPreferences/' + corpusId )
+		.then( function(response) {
+				me.prefs = new CorpusAggregationsResponse( response.data );
+    		});
     }
 	
 	remoteError( e ) {
@@ -61,16 +69,16 @@ class Settings {
 			me.growl.success( successMsg, {ttl:1000} );
 		})
 		.catch( function(e) {
-			me.remoteError( e, {ttl:1000} );
+			me.remoteError( e, {ttl:3000} );
 		});
 	}
 	
 	changeCorpus( corpus ) {
-		this.corpus = corpus;
+		this.currentCorpus = corpus;
+		this.fetchPrefs( this.currentCorpus.id );
 	}
 	
 	swap( view ) {
-		this.fetchPrefs();
 		this.changeClass( view );
 		this.view = view;
 	}
@@ -90,6 +98,6 @@ class Settings {
 	
 }
 
-Settings.$inject = [ '$http', 'growl' ];
+Settings.$inject = [ '$http', '$q', 'growl' ];
 
 export default Settings;

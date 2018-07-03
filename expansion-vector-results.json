@@ -1,0 +1,13 @@
+
+{
+	"heart" : {
+		"semantically_related_terms" : [ 
+			{ "term":"cardiac",	"cosine_distance":0.716 }, 
+			{ "term":"irregular_rhythm", "cosine_distance":0.619 } 
+		],
+		"related_misspellings" : [ 
+			{ "term":"cardic", "cosine_distance":0.430531, "edit_distance":1, "frequency":231, "score":0.430531 },
+			{ "term":"cardial", "cosine_distance":0.262041, "edit_distance":1, "frequency":107, "score":0.262041 }	 
+		]
+	}
+}

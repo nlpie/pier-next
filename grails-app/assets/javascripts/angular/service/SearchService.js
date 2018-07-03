@@ -1,4 +1,3 @@
-import Search from '../../model/search/Search';
 
 class SearchService {
 	
@@ -8,20 +7,35 @@ class SearchService {
 		this.$q = $q;
 		this.growl = growl;
 		this.searchHistory = undefined;
+		this.relatedTerms = undefined;
 	}
 	
-	/*fetchResultsFromElastic( corpus, userInput, contextFilter ) {
-		//return the promise and let the client resolve it
-		return this.$http.post( APP.ROOT + '/search/elastic/', JSON.stringify(contextFilter) );
-	}*/
-	
-	fetchHistory() {
-    	var me = this;	
-    	return this.$http.post( APP.ROOT + '/search/historySummary', { "excludeMostRecent":false } )
-	    	.then( function(response) {
-	    		me.searchHistory = response.data;
-	    	});
+	fetchContexts() {
+    	return this.$http.get( APP.ROOT + '/config/authorizedContexts' );
     }
+
+	
+	fetchAuthorizedContextByLabel( label ) {
+    	return this.$http.post( APP.ROOT + '/config/authorizedContextByLabel/', { "label": label } );
+    }
+	
+	setActiveCorpus( corpus, corpora ) {
+    	for ( let c of corpora ) {
+    		if ( c.name==corpus.name ) {
+    			c.status.active = true;
+    		} else {
+    			c.status.active = false;
+    		}
+    	}
+    }
+	
+	fetchHistory() {	
+		let me = this;
+		return this.$http.post( APP.ROOT + '/search/historySummary', { "excludeMostRecent":false } )
+		.then( function(response) {
+			me.searchHistory = response.data;
+		});
+	}
 	
 	fetchHistoryExcludingMostRecent() {
     	var me = this;	
@@ -30,25 +44,21 @@ class SearchService {
 	    		me.searchHistory = response.data;
 	    	});
     }
-	
-	/*fetchRegisteredSearch( id ) {
-		return this.$http.get( APP.ROOT + '/search/registeredSearch/' + id );
-	}*/
-	
+
 	fetchPreviousQuery( id ) {
 		return this.$http.get( APP.ROOT + '/search/recentQuery/' + id );
 	}
-	
+		
 	saveQuery( registrationId ) {
 		let me = this;
 		this.$http.get( APP.ROOT + '/settings/saveQuery/' + registrationId )
 			.then( function(response) {	
-				alert("Query saved")
+				//alert("Query saved")
 				me.growl.success( "Query saved", {ttl:1000} );
 			})
 			.catch( function(e) {
-				alert("problem")
-				me.growl.error( e.toString(), {ttl:3000} );
+				//alert("problem")
+				me.growl.error( "Error - contact support", {ttl:30000} );
 			});
 	}
 	

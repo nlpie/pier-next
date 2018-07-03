@@ -4,9 +4,6 @@ import edu.umn.nlpie.pier.ConfigService
 import edu.umn.nlpie.pier.PierUtils
 import edu.umn.nlpie.pier.api.exception.*
 import edu.umn.nlpie.pier.elastic.Index
-import edu.umn.nlpie.pier.elastic.Type
-import edu.umn.nlpie.pier.springsecurity.User
-import edu.umn.nlpie.pier.ui.Corpus
 import grails.converters.JSON
 
 class ConfigController {
@@ -34,24 +31,11 @@ class ConfigController {
 		}
 	}
 	
-	def corpusAggregationsByType() {
-		def corpusId = params.id
-		def filters = configService.getCorpusAggregations(corpusId)
-		respond filters
-	}
-	
 	//TODO refactor to superclass
 	private renderException(Exception e) {
 		render(status: e.status, text: '{"message":"'+ e.message +'"}', contentType: "application/json") as JSON
 	}
-	
-	def settings() { 
-		def json = configService.defaultPreferences as JSON
-		json.prettyPrint = true
-		json.render response
-		//respond configService.defaultUiDataElementSettings
-	}
-	
+
 	def mapping() {
 		JSON.use ('index.mapping') {
 			def json = Index.get(1) as JSON

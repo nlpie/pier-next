@@ -43,24 +43,27 @@ class JsonMarshallerRegistrar {
 		}
 		
 		JSON.createNamedConfig ('fieldpreference') { DefaultConverterConfiguration<JSON> cfg ->
+			cfg.registerObjectMarshaller (Ontology) { o ->
+				[
+					id: o.id,
+					name: o.name,
+					description: o.description,
+					aggregations: o.fieldPreferences
+				]
+			}
 			cfg.registerObjectMarshaller (FieldPreference) { fpr ->
+				//fp returned has 2 client-side use cases: 1) display/update user settings for corpus metadata fields, 2) as set of aggregations to be queried for each corpus
 				[
 					"id": fpr.id,
 					"label": fpr.label,
-					"corpus": fpr.field.type.index,
-					"ontology": fpr.ontology,
 					"field": fpr.field,
 					"displayOrder": fpr.displayOrder,
 					"numberOfFilterOptions": fpr.numberOfFilterOptions,
 					"isTemporal": ["DATE","DATETIME"].contains(fpr.field.dataTypeName) ? true: false,
 					"isNumeric": ["LONG","INTEGER"].contains(fpr.field.dataTypeName) ? true: false,
 					"countDistinct": fpr.computeDistinct,
-					//"count": null,	//filled in client-side if countDistinct is true
 					"aggregate": fpr.aggregate,
 					"export": fpr.export,
-					"filters": [:],	//TODO move to client side object as an extenstion of data returned by API
-					"min": null,		//TODO move to client side object as an extenstion of data returned by API
-					"max": null		//TODO move to client side object as an extenstion of data returned by API			
 				]
 			}
 			cfg.registerObjectMarshaller (Field) { f ->
@@ -73,19 +76,6 @@ class JsonMarshallerRegistrar {
 					contextFilterField: f.contextFilterField,
 					dataTypeName: f.dataTypeName,
 					description: f.description
-				]
-			}
-			cfg.registerObjectMarshaller (Index) { i ->
-				[
-					id: i.id,
-					name: i.commonName
-				]
-			}
-			cfg.registerObjectMarshaller (Ontology) { o ->
-				[
-					id: o.id,
-					name: o.name,
-					description: o.description
 				]
 			}
 		}
@@ -101,50 +91,26 @@ class JsonMarshallerRegistrar {
 				"httpStatus": dc.httpStatus
 			]
 		}
-		
-		/*JSON.registerObjectMarshaller(AuthorizedContext) { dc ->
-			[
-				"requestId": c.requestId,
-				"label": c.label,
-				"contextFilterValue": c.filterValue,
-				"description": c.description?:"description unavailable",
-				"username": c.username,
-				"corpora": c.annotatedCorpora()
-			]
-		}*/
 			
 		JSON.createNamedConfig ('authorized.context') { DefaultConverterConfiguration<JSON> cfg ->
 			//TODO can this AuthorizedContext config piggyback on the standalone config above?
-			cfg.registerObjectMarshaller (AuthorizedContext) { c ->
+			cfg.registerObjectMarshaller (AuthorizedContext) { ct ->
 				[
 					//"id": c.id,
-					"requestId": c.requestId,
-					"label": c.label,
-					"contextFilterValue": c.filterValue,
-					"description": c.description?:"description unavailable",
-					"username": c.username,
-					"corpora": c.annotatedCorpora()
+					"requestId": ct.requestId,
+					"label": ct.label,
+					"contextFilterValue": ct.filterValue,
+					"description": ct.description?:"description unavailable",
+					"username": ct.username,
+					"corpora": ct.annotatedCorpora()
 				]
 			}
-			cfg.registerObjectMarshaller (Corpus) { ct ->
+			cfg.registerObjectMarshaller (Corpus) { c ->
 				[
-					id: ct.id,
-					name: ct.name,
-					glyph: ct.glyph,
-					metadata: ct.metadata,
-					status: [ 
-						searchingDocs:false, 
-						computingAggs:false, 
-						active: false,
-						dirty:false,
-						userSelectedFilters: false,
-						showBan: false 
-					],
-					resultsOpacity: [
-						dimmed: [ opacity: 0.2 ],
-						bright: [ opacity: 1 ]
-					],
-					opacity: null
+					id: c.id,
+					name: c.name,
+					glyph: c.glyph,
+					metadata: c.metadata
 				]
 			}
 			cfg.registerObjectMarshaller (CorpusMetadata) { cm ->
@@ -170,6 +136,7 @@ class JsonMarshallerRegistrar {
 			}
 		}//authorized.context
 		
+		/*
 		JSON.createNamedConfig ('available.corpora') { DefaultConverterConfiguration<JSON> cfg ->
 			cfg.registerObjectMarshaller (Type) { t ->
 				[
@@ -194,6 +161,7 @@ class JsonMarshallerRegistrar {
 			}
 				
 		}//available.corpora
+		*/
 		
 		JSON.registerObjectMarshaller(SearchRegistration) { sr ->
 			[
@@ -223,8 +191,7 @@ class JsonMarshallerRegistrar {
 				name: cp.name,
 				enabled: cp.enabled,
 				description: cp.description,
-				glyph: cp.glyph
-				
+				glyph: cp.glyph	
 			]
 		}
 		

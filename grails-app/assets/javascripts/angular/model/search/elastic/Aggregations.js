@@ -18,6 +18,25 @@ class Aggregations {
 	}
 
 	addAggregations( corpus ) {
+//alert(JSON.stringify(corpus,null,'\t'));
+		var me = this;
+    	//var aggregations = corpus.metadata.aggregations;
+    	for ( let ontology of corpus.metadata.aggregations ) {
+    		for ( let aggregation of ontology.aggregations ) {
+    			if ( aggregation.isTemporal ) {
+    				//alert("temporal");
+    				me.add( aggregation.label+'.min', new MinAggregation( aggregation.field.fieldName ) );
+    				me.add( aggregation.label+'.max', new MaxAggregation( aggregation.field.fieldName ) );
+    			} else if ( aggregation.field.significantTermsAggregatable ) {
+    				me.add( aggregation.label, new SignificantTermsAggregation( aggregation.field.fieldName, aggregation.numberOfFilterOptions ) );
+    			} else {
+    				me.add( aggregation.label, new TermsAggregation( aggregation.field.fieldName, aggregation.numberOfFilterOptions ) );
+    			}
+    		}
+    	}
+    }
+	
+	addAggregations_orig( corpus ) {
 		var me = this;
     	var aggregations = corpus.metadata.aggregations;
 		Object.keys(aggregations).map( function(key,index) {
