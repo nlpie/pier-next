@@ -12,10 +12,20 @@ class Index {
 	
 	static constraints = {
     	indexName unique:'cluster'
-		commonName()
 		description()
 		environment inList: ['DEVELOPMENT', 'TEST', 'PRODUCTION', 'DEPRECATED','CUSTOM','development','test','fvdev','production']
-		status inList:['Available', 'Unavailable', 'In Progress'], nullable:false
+		status inList:['Searchable', 'Unavailable', 'In Progress', 'Functional'], nullable:false
+		isTermExpansionIndex validator: { val, obj, errors ->
+			if ( val && obj.status!='Functional' ) {
+				errors.rejectValue('isTermExpansionIndex', val.toString(), "Status must be set to 'Functional' for an expansion index")
+			}
+		}
+		isConceptLookupIndex validator: { val, obj, errors ->
+			if ( val && obj.status!='Functional' ) {
+				errors.rejectValue('isConceptLookupIndex', val.toString(), "Status must be set to 'Functional' for a concept lookup index")
+			}
+		}
+		//commonName()
 		alias (nullable:true)
 	}
 	
@@ -28,6 +38,8 @@ class Index {
 	Integer numberOfShards
 	Integer numberOfReplicas
 	String environment
+	Boolean isTermExpansionIndex = false
+	Boolean isConceptLookupIndex = false
 	
 	Date dateCreated
 	Date lastUpdated
@@ -45,9 +57,30 @@ class Index {
 		type.index = this
 	}
 	
-	static getAvailableIndexes() {
+	static getSearchableIndexes() {
 		def env = Environment.current.name.toString()	//eg, production, fvdev
-		Index.findAllByEnvironmentAndStatus(env,'Available')
+		Index.findAllByEnvironmentAndStatus(env,'Searchable')
+	}
+	
+	def beforeValidate() {
+		if ( isTermExpansionIndex && isConceptLookupIndex ) {
+			errors.rejectValue('isTermExpansionIndex', isTermExpansionIndex.toString(), "Index cannot be both an expansion AND a concept lookup index")
+			return
+		}
+		if ( isTermExpansionIndex ) {
+			def existingExpansionIndex = Index.findByEnvironmentAndStatusAndIsTermExpansionIndex(environment,'Functional',true)
+			if ( existingExpansionIndex && existingExpansionIndex.id!=this.id ) {
+				errors.rejectValue('isTermExpansionIndex', isTermExpansionIndex.toString(), "Environment [${environment}] already has a term expansion index, ${existingExpansionIndex.indexName}")
+			}
+			return
+		}
+		if ( isConceptLookupIndex ) {
+			def index = Index.findByEnvironmentAndStatusAndIsConceptLookupIndex(environment,'Functional',true)
+			if ( index && index.id!=this.id ) {
+				errors.rejectValue('isConceptLookupIndex', isConceptLookupIndex.toString(), "Environment [${environment}] already has a concept lookup index, ${index.indexName}")
+			}
+			return
+		}
 	}
 	
 }

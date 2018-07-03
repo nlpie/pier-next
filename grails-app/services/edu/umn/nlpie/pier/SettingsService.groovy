@@ -19,7 +19,7 @@ class SettingsService {
     	def index = corpus.index
 		preferencesByOntology( index,'ALL' )	//returns JSONArray
 		/*
-		def indexes = Index.getAvailableIndexes()	//findAllByStatus("Available")
+		def indexes = Index.getSearchableIndexes()	//findAllByStatus("Searchable")
 		def map = [:]
 		indexes.each { index ->
 			println "SettingsService.preferences(): ${index.commonName}"
