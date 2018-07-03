@@ -26,11 +26,11 @@ class AvailableAggregations {
 //TODO is this class used? looks like no
 	
 	AvailableAggregations(Corpus ct) {
-		def type = Type.find("from Type as t where t.corpus.id=? and environment=? and t.index.status=?", [ ct.id, Environment.current.name, 'Available' ])
+		def type = Type.find("from Type as t where t.corpus.id=? and environment=? and t.index.status=?", [ ct.id, Environment.current.name, 'Searchable' ])
 		this.populate(type)
 	}
 	AvailableAggregations(String corpusId) {
-		def type = Type.find("from Type as t where t.corpus.id=? and environment=? and t.index.status=?", [ corpusId.toLong(), Environment.current.name, 'Available' ])
+		def type = Type.find("from Type as t where t.corpus.id=? and environment=? and t.index.status=?", [ corpusId.toLong(), Environment.current.name, 'Searchable' ])
 		this.populate(type)
 		//println "AGGS: ${this.aggregations}"
 	}
@@ -41,7 +41,7 @@ class AvailableAggregations {
 	
 	//TODO refactor to pull either default set or user-configured set if configured
 	def populate(type) {
-		//def type = Type.find("from Type as t where t.corpus.id=? and environment=? and t.index.status=?", [ 1.toLong(), Environment.current.name, 'Available' ])
+		//def type = Type.find("from Type as t where t.corpus.id=? and environment=? and t.index.status=?", [ 1.toLong(), Environment.current.name, 'Searchable' ])
 		def preferences = FieldPreference.where{ field.type.id==type.id && applicationDefault==true }.list()
 		def ontologies = preferences.collect{ it.ontology }.sort { it.name }.unique()
 		ontologies.each { o ->
