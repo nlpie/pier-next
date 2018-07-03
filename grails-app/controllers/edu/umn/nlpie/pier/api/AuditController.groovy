@@ -1,12 +1,12 @@
 package edu.umn.nlpie.pier.api
 
-import edu.umn.nlpie.pier.api.exception.BadElasticRequestException
 import edu.umn.nlpie.pier.api.exception.HttpMethodNotAllowedException
 import edu.umn.nlpie.pier.api.exception.PierApiException
-import edu.umn.nlpie.pier.audit.Query
-import edu.umn.nlpie.pier.audit.SearchRegistration
-import grails.validation.ValidationException
+import grails.plugin.springsecurity.annotation.Secured
 
+
+
+@Secured(["ROLE_USER"])
 class AuditController {//extends RestfulController {
 	
 	static responseFormats = ['json']

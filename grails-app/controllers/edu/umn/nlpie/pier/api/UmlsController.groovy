@@ -2,8 +2,9 @@ package edu.umn.nlpie.pier.api
 
 import edu.umn.nlpie.pier.api.exception.HttpMethodNotAllowedException
 import edu.umn.nlpie.pier.api.exception.PierApiException
-import grails.converters.JSON
+import grails.plugin.springsecurity.annotation.Secured
 
+@Secured(["ROLE_USER"])
 class UmlsController {//extends RestfulController {
 	
 	static responseFormats = ['json']

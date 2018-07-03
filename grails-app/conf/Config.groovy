@@ -7,7 +7,8 @@ import grails.util.Environment
 grails.config.locations = [
 	"file:/usr/share/tomcat-notes/app-config/ds_${Environment.current.name}.groovy",
 	"file:/usr/share/tomcat-notes_test/app-config/ds_${Environment.current.name}.groovy", 
-	"file:/Users/rmcewan/nlppier/ds_${Environment.current.name}.groovy"
+	"file:/Users/rmcewan/nlppier/ds_${Environment.current.name}.groovy",
+	"file:/usr/share/tomcat-notes_test/conf/ds_${Environment.current.name}.groovy"
 ]
 println "env: ${Environment.current.name} "
 
@@ -112,15 +113,44 @@ environments {
 		grails.plugin.springsecurity.ldap.search.filter='(uid={0})'
     }
 	test {
-		grails.serverURL = "https://nlp01.ahc.umn.edu/notes_test"
-		grails.assets.minifyJs = false
-		grails.assets.minifyCss = false
+		grails.logging.jul.usebridge = true
+		grails.assets.minifyJs = true
+		grails.assets.minifyCss = true
+		
+		//LDAP config used by Spring Security LDAP plugin for LDAP authentication
+		grails.plugin.springsecurity.ldap.context.managerDn = ''
+		grails.plugin.springsecurity.ldap.context.managerPassword = ''
+		grails.plugin.springsecurity.ldap.authenticator.useBind = true
+		grails.plugin.springsecurity.ldap.context.server = 'ldaps://ldapauth.umn.edu:636'
+		grails.plugin.springsecurity.ldap.search.derefLink=true
+		grails.plugin.springsecurity.ldap.authorities.groupSearchBase ='ou=People'
+		grails.plugin.springsecurity.ldap.search.base = 'o=University of Minnesota,c=US'
+		grails.plugin.springsecurity.ldap.search.filter='(uid={0})'
 	}
     production {
         grails.logging.jul.usebridge = false
         // TODO: grails.serverURL = "http://www.changeme.com"
     }
 	fvdev {
+		//TODO issue ssh -N -f rmcewan1@nlp02.fairview.org -L 9200:nlp02.fairview.org:9200 prior to spinning up this env, then the FV ES cluster is available on localhost:9200
+		//TODO fire a script to do this after exchanging keys
+		disable.auto.recompile=false
+		grails.gsp.enable.reload=true
+		grails.logging.jul.usebridge = false
+		grails.assets.minifyJs = false
+		// TODO: grails.serverURL = "http://www.changeme.com"
+		
+		//LDAP config used by Spring Security LDAP plugin for LDAP authentication
+		grails.plugin.springsecurity.ldap.context.managerDn = 'nlp-pier-svc@fairview.org'
+		grails.plugin.springsecurity.ldap.context.managerPassword = '79Rb99@6$qaG73GbXZ5U'
+		grails.plugin.springsecurity.ldap.authenticator.useBind = true
+		grails.plugin.springsecurity.ldap.context.server = 'ldaps://ldap-ad.fairview.org:636'
+		grails.plugin.springsecurity.ldap.search.derefLink=true
+		grails.plugin.springsecurity.ldap.authorities.groupSearchBase ='ou=Users'
+		grails.plugin.springsecurity.ldap.search.base = 'DC=fairview,DC=org'
+		grails.plugin.springsecurity.ldap.search.filter='(sAMAccountName={0})'
+	}
+	fvtest {
 		//TODO issue ssh -N -f rmcewan1@nlp02.fairview.org -L 9200:nlp02.fairview.org:9200 prior to spinning up this env, then the FV ES cluster is available on localhost:9200
 		//TODO fire a script to do this after exchanging keys
 		disable.auto.recompile=false

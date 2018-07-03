@@ -5,8 +5,10 @@ import edu.umn.nlpie.pier.api.exception.PierApiException
 import edu.umn.nlpie.pier.ui.Corpus
 import edu.umn.nlpie.pier.ui.FieldPreference
 import grails.converters.JSON
+import grails.plugin.springsecurity.annotation.Secured
 import grails.transaction.Transactional
 
+@Secured(["ROLE_USER"])
 class SettingsController {//extends RestfulController {
 	
 	def settingsService 
@@ -24,7 +26,7 @@ class SettingsController {//extends RestfulController {
 	def corpora() {
 		try {
 			if ( request.method!="GET" ) throw new HttpMethodNotAllowedException(message:"issue GET instead")
-			respond Corpus.availableCorpora.sort { it.name }
+			respond Corpus.searchableCorpora.sort { it.name }
 		} catch (PierApiException e) {
 			println "pier exception"
 			exceptionResponse(e)
