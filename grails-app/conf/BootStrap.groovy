@@ -68,9 +68,20 @@ class BootStrap {
 			def biomedicus = Ontology.findByName('NLP Annotations')?:new Ontology(name:'NLP Annotations', description:"NLP annotations").save(flush:true, failOnError:true)
 			
 			
-			//def nlp05 = Cluster.findByClusterName("nlp05")?:new Cluster(clusterName:"nlp05",uri:"http://nlp05.ahc.umn.edu:9200",environment:Environment.current.name,description:"test cluster (to be prod)", commonName:"test cluster")
-			def nlp05 = Cluster.findByClusterName("nlp05")?:new Cluster(clusterName:"nlp05",uri:"http://localhost:9200",environment:Environment.current.name,description:"test cluster (to be prod)", commonName:"test cluster")
-			def epicNotesIdx = Index.findByCommonName("Epic Notes")?:		new Index(commonName:"Epic Notes", 		  indexName:"notes_v3",  status:"Available", description:"clinical epic notes", 	numberOfShards:6, numberOfReplicas:0,environment:Environment.current.name)//.save(flush:true, failOnError:true)
+			def nlp05 = Cluster.findByClusterName("nlp05")?:new Cluster(clusterName:"nlp05",uri:"http://nlp05.ahc.umn.edu:9200",environment:Environment.current.name,description:"test cluster (to be prod)", commonName:"test cluster")
+			//def nlp05 = Cluster.findByClusterName("nlp05")?:new Cluster(clusterName:"nlp05",uri:"http://localhost:9200",environment:Environment.current.name,description:"test cluster (to be prod)", commonName:"test cluster")
+			if ( Environment.current.name=="fvdev" ) {
+				nlp05.uri = "http://localhost:9200"
+			}
+			if ( Environment.current.name=="fvtest" ) {
+				nlp05.uri = "http://nlp02.fairview.org:9200"
+			}
+			def epicNotesIdx = Index.findByCommonName("Epic Notes")?:new Index(commonName:"Epic Notes", indexName:"notes_v3",  status:"Searchable", description:"clinical epic notes", numberOfShards:6, numberOfReplicas:0, environment:Environment.current.name)//.save(flush:true, failOnError:true)
+			
+			def termExpansionIdx = Index.findByCommonName("word2vec nearest terms")?:new Index(commonName:"word2vec nearest terms", indexName:"expansion_v1",  status:"Functional", description:"semantially related terms and misspellings for each term in corpus", numberOfShards:1, numberOfReplicas:0, environment:Environment.current.name, isTermExpansionIndex:true)//.save(flush:true, failOnError:true)
+			def termExpansionType = Type.findByTypeName("word")?:new Type(typeName:"word", description:"w2v type", environment:Environment.current.name)
+			termExpansionIdx.type = termExpansionType
+			nlp05.addToIndexes(termExpansionIdx)
 			
 			def noteId = Field.findByFieldName("note_id")?:new Field(fieldName:"note_id",dataTypeName:"LONG", description:"Epic note id", aggregatable:false)
 			def mrn = Field.findByFieldName("mrn")?:new Field(fieldName:"mrn",dataTypeName:"NOT_ANALYZED_STRING", description:"Epic patient identifier", aggregatable:true)
@@ -91,7 +102,7 @@ class BootStrap {
 
 			def clinicalCorpus = Corpus.findByName("Clinical Notes")?: new Corpus(name:"Clinical Notes", description:"notes from Epic", enabled:true, glyph:"fa-file-text-o").save(flush:true, failOnError:true)
 			
-			def noteType = Type.findByTypeName("note")?:new Type(typeName:"note", description:"CDR note", environment:Environment.current.name)//, Corpus:clinicalCorpus)
+			def noteType = Type.findByTypeName("note")?:new Type(typeName:"note", description:"CDR note", environment:Environment.current.name)
 			noteType.addToFields(noteId)
 			noteType.addToFields(mrn)
 			noteType.addToFields(encounterId)
