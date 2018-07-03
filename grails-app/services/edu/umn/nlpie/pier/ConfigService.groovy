@@ -27,7 +27,7 @@ class ConfigService {
 		//def list = AuthorizedContext.list(sort:'label')
 		//TODO get user from spring security service
 		//TODO check if user has ROLE_ADMIN, if yes, add each enabled corpus for the current env for corpus-wide searching
-		def corpora = Corpus.availableCorpora
+		def corpora = Corpus.searchableCorpora
 		corpora.each { ct ->
 			list.add(0,new AuthorizedContext( label:ct.name, filterValue:0 ));
 		}
@@ -73,6 +73,7 @@ class ConfigService {
 		RandomStringUtils.randomAlphanumeric(20)
 	}
 	
+	//TODO this can be deleted?
 	def prefs() {
 		def note = Type.findByTypeName("note")
 		def app = User.findByUsername("nlppier")	//should have been created in bootstrap

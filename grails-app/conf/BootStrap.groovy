@@ -18,24 +18,6 @@ class BootStrap {
 		
 		if (Environment.current != Environment.PRODUCTION) {
 			println "Bootstrap: ${Environment.current.name}"
-			//indexService.createAdminConfigurationFromIndexMapping("nlp05.ahc.umn.edu","notes_v0")
-			/*
-			{
-				"notes_v2": {
-				  "mappings": {
-					"note": {
-					  "dynamic": "strict",
-					  "_timestamp": {
-						"enabled": true
-					  },
-				      "properties": {
-						  ....
-					  }
-					}
-				  }
-				}
-			}
-			*/
 		}
 		
 		//make sure nlppier user exists
@@ -48,15 +30,26 @@ class BootStrap {
 		//UserRole.create(rmcewan, superadmin)
 		def rmcewan = User.findByUsername("rmcewan")?:new User(username:"rmcewan",password:"umn").save(failOnError:true)
 		UserRole.create(rmcewan, u)
-		UserRole.create(rmcewan, beta)
 		UserRole.create(rmcewan, analyst)
 		UserRole.create(rmcewan, superadmin)
-		def rmcewan1 = User.findByUsername("rmcewan1")?:new User(username:"rmcewan1",password:"umn").save(failOnError:true)
+		
+		//Init FV users
+		def rmcewan1 = User.findByUsername("rmcewan1")?:new User(username:"rmcewan1",password:"hURVTDb4",enabled:true).save(failOnError:true)
 		UserRole.create(rmcewan1, u)
-		UserRole.create(rmcewan1, beta)
 		UserRole.create(rmcewan1, analyst)
 		UserRole.create(rmcewan1, superadmin)
-		
+		def jim = User.findByUsername("jessler1")?:new User(username:"jessler1",password:"nBE34kY2",enabled:true).save(failOnError:true)
+		UserRole.create(jim, u)
+		UserRole.create(jim, analyst)
+		def melinda = User.findByUsername("mleonar1")?:new User(username:"mleonar1",password:"w9TGNNaV",enabled:true).save(failOnError:true)
+		UserRole.create(melinda, u)
+		UserRole.create(melinda, analyst)
+		def jeremy = User.findByUsername("jmarkow1")?:new User(username:"jmarkow1",password:"3RYJ7RKY",enabled:true).save(failOnError:true)
+		UserRole.create(jeremy, u)
+		UserRole.create(jeremy, analyst)
+		def gretchen = User.findByUsername("ghultma1")?:new User(username:"ghultma1",password:"Vts2Nq9t",enabled:true).save(failOnError:true)
+		UserRole.create(gretchen, u)
+		UserRole.create(gretchen, analyst)
 		
 		//populate elastic data
 		Cluster.withSession { session ->
@@ -146,7 +139,7 @@ class BootStrap {
 			//SURG PATH REPORTS INDEX
 			def surgPathCorpus = Corpus.findByName("Surgical Pathology Reports")?: new Corpus(name:"Surgical Pathology Reports", description:"surgical path reports from CDR", enabled:true, glyph:"icon-i-pathology").save(flush:true, failOnError:true)
 			
-			def surgPathIdx = Index.findByCommonName("Surgical Pathology Reports")?:new Index(commonName:"Surgical Pathology Reports", indexName:"surgical-path_v1", status:"Available", description:"surgical pathology reports", numberOfShards:6, numberOfReplicas:0,environment:Environment.current.name)
+			def surgPathIdx = Index.findByCommonName("Surgical Pathology Reports")?:new Index(commonName:"Surgical Pathology Reports", indexName:"surgical-path_v1", status:"Searchable", description:"surgical pathology reports", numberOfShards:6, numberOfReplicas:0,environment:Environment.current.name)
 			def surgPathType = Type.findByTypeName("report")?:new Type(typeName:"report", description:"CDR surgical path report", environment:Environment.current.name)//, Corpus:surgPathCorpus)
 			def report = Field.findByFieldName("report")?:new Field(fieldName:"report",dataTypeName:"SNOWBALL_ANALYZED_STRING", description:"surgical pathology report text", defaultSearchField:true,, aggregatable:false)
 			def surgPathContextFilterField = Field.findByFieldNameAndType("authorized_context_filter_value", null)?:new Field(fieldName:"authorized_context_filter_value",dataTypeName:"NOT_ANALYZED_STRING", description:"Array of search contexts that include this note",contextFilterField:true, aggregatable:false )

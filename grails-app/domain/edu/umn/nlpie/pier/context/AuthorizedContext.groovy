@@ -46,7 +46,7 @@ class AuthorizedContext {
 	 * index, and type details for the Corpus instance
 	 */
 	def annotatedCorpora() {  
-		def corpora = Corpus.availableCorpora
+		def corpora = Corpus.searchableCorpora
 		corpora.each { ct ->
 			//check for document sets associated with this auth context and corpus
 			def availableSearchContext = SearchContext.findByCorpusAndStatusAndRequestId(ct.name,"Completed",this.requestId)

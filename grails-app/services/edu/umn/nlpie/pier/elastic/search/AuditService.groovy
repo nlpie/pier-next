@@ -49,7 +49,7 @@ class AuditService {
 		q.query = postBody.query
 		//q.filters = this.filterSummary( postBody )
 		q.terms = postBody.query.query.bool.must.query_string.query
-		q.httpStatus = elasticResponse.status
+		q.httpStatus = elasticResponse?.status?:501
 		q.exceptionMessage = e.message
 		q.save(failOnError:true)
 		return q

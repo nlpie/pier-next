@@ -28,7 +28,7 @@ dataSource {
 	 }
 }
 
-if ( Environment.current.name!="fvdev") {
+if ( Environment.current.name!="fvdev" || Environment.current.name!="fvtest" ) {
 	dataSource_notes {
 		readOnly=true
 		dbCreate = "none"
@@ -109,6 +109,44 @@ environments {
 			username = ""	//see config in ds_<env>.groovy
 			password = ""	//see config in ds_<env>.groovy
 			url = "jdbc:mysql://127.0.0.1:3306/fv-dev"
+			properties {
+				validationQuery="SELECT 1"
+			}
+			//logSql=true
+			//formatSql=true
+		}
+		dataSource_notes {
+			//readOnly=true
+			dbCreate = "create-drop"
+			//logSql=true
+			//formatSql=true
+			pooled = true
+			driverClassName = "com.mysql.jdbc.Driver"
+			username = ""	//see config in ds_<env>.groovy
+			password = ""	//see config in ds_<env>.groovy
+			//dialect = org.hibernate.dialect.Oracle11gDialect
+			dialect = "org.hibernate.dialect.MySQL5InnoDBDialect"
+			username = ""	//see config in ds_<env>.groovy
+			password = ""	//see config in ds_<env>.groovy
+			url = "jdbc:mysql://127.0.0.1:3306"	//no schema, it's specified in domain classes that use this dataSource
+			properties {
+				defaultCatalog = "notes"
+				validationQuery="SELECT 1"
+				testOnBorrow=true
+				testWhileIdle=true
+				testOnReturn=true
+			}
+		}
+	}
+	
+	fvtest {
+		dataSource {
+			dbCreate = "create-drop"
+			driverClassName = "com.mysql.jdbc.Driver"
+			dialect = "org.hibernate.dialect.MySQL5InnoDBDialect"
+			username = ""	//see config in ds_<env>.groovy
+			password = ""	//see config in ds_<env>.groovy
+			url = "jdbc:mysql://127.0.0.1:3306/notes_test"
 			properties {
 				validationQuery="SELECT 1"
 			}
