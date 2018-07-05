@@ -39,10 +39,6 @@ class Search {
         this.init();
         console.info("Search.js complete");
         
-        this.similarityExpansionEnabled = false; 
-        this.cuiExpansionEnabled = false;				
-		this.cuiExpansion = {};				//{ heart:[], valve:[] } or { enabled:false, expansionMap: { heart:[], valve:[] } }
-		this.relatednessExpansion = {}; 		//{ heart:[], valve:[] } or { enabled:false, expansionMap: { heart:[], valve:[] } 
 		this.options = {
     		relatednessExpansion : {
     			on : false,
@@ -91,9 +87,6 @@ class Search {
 	}
 
     setContext(searchContext) {
-    	//if (!searchContext) return;	
-    	//for some reason this function gets invoked with undefined searchContext on change of contexts dropdown; 
-    	//this check and immediate return prevents console errors, otherwise the app appears to work as expected
     	this.context = searchContext;
     	this.status.sequence = 0;
     	this.clearResults();
@@ -104,16 +97,13 @@ class Search {
     				this.searchService.setActiveCorpus( corpus, this.context.corpora );	//TODO refactor active assignments to a user pref?
     				activeSet = true;
     			}
-    			//if ( corpus.metadata.filtered ) {
-    			//	corpus.contextFilter = new TermFilter(corpus.metadata.contextFilterField, this.context.contextFilterValue);	//contextFilter specific to each searchable corpus
-    			//	//alert(JSON.stringify(corpus.contextFilter));
-    			//}
+    			if ( corpus.metadata.filtered ) {
+    				corpus.contextFilter = new TermFilter(corpus.metadata.contextFilterField, this.context.contextFilterValue);	//contextFilter specific to each searchable corpus
+    				//alert(JSON.stringify(corpus.contextFilter));
+    			}
     			if ( !corpus.appliedFilters ) {
     				corpus.appliedFilters = {};
     				corpus.brighten();
-    				//corpus.opacity = corpus.resultsOpacity.bright;
-    				//corpus.results.pagination = new Pagination();
-    				//corpus.results = {};
     				this.complete();
     			}
 				this.corpusAggregations( corpus )
@@ -152,7 +142,6 @@ class Search {
     			}
     		});
     	}
-    	//alert( terms.join(', '));
     	return terms.join(', ');
     }
 
