@@ -23,6 +23,9 @@
 								<label ng-click="rc.show(corpus.status)">{{aggregation.label}} 
 									<i class="fa fa-question-circle" title="{{aggregation.field.description}}"></i>
 								</label>
+								<span ng-show="aggregation.status.computingCounts" id="aggs-spinner" style="padding-top:25px">
+									<asset:image src="ajax-loader.gif" alt="determining filters..." /> computing <i class="tally-aggregate">EB</i>s
+								</span>
 								<span ng-if="rc.search.options.distinctCounts.on && (aggregation.count || aggregation.cardinalityEstimate)" style="font-size:0.7em;margin-right:1em">
 									actual:{{aggregation.count | number}}, estimate:{{aggregation.cardinalityEstimate | number}}
 								</span>
