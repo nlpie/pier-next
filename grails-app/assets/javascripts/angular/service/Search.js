@@ -540,12 +540,12 @@ class Search {
     distinctCounts( corpus, maxCount ) {
     	var url = corpus.metadata.url;
 //alert(JSON.stringify(corpus.metadata.aggregations));
-    	var aggregations = corpus.metadata.aggregations;
     	var me = this;
     	for ( let ontology of corpus.metadata.aggregations ) {
     		for ( let aggregation of ontology.aggregations ) {
     			if ( aggregation.countDistinct ) {
 //alert(JSON.stringify(aggregation,null,'\t'));
+    				aggregation.status.computingCounts = true;
     				var countType = ( maxCount<=15000000 ) ? "bucket" : "scroll";	//TODO externalize maxBuckets threshold
     				var query;
     				if ( countType=='scroll' ) query = new SingleFieldScrollCountQuery( corpus, me.userInput, aggregation.label, aggregation.fieldName );
@@ -599,6 +599,7 @@ class Search {
     	aggregation.countType = response.data.countType;
     	aggregation.count = response.data.count;
     	aggregation.cardinalityEstimate = response.data.cardinalityEstimate;
+    	aggregation.status.computingCounts = false;
 		console.log("distinct " + aggregation.label + " took " + response.data.took + " returning " + response.data.countType + "/cardinality counts of: " + response.data.count + "/" + response.data.cardinalityEstimate);
     }
     
