@@ -381,3 +381,26 @@ input:checked + .slider:before {
 .custom-slider.rzslider .rz-tick.rz-selected {
   background: #428bca;
 }
+
+
+/* Tally Font */
+@font-face {
+    font-family: 'TallyMark';
+    src:url('../fonts/TallyMark.ttf.woff') format('woff'),
+        url('../fonts/TallyMark.ttf.svg#TallyMark') format('svg'),
+        url('../fonts/TallyMark.ttf.eot'),
+        url('../fonts/TallyMark.ttf.eot?#iefix') format('embedded-opentype'); 
+        font-weight: normal;
+        font-style: normal
+}
+.tally {
+	font-family:'TallyMark';
+	font-size:1.3em;
+	font-weight:600;
+	vertical-align:text-bottom;
+}
+.tally-aggregate {
+	font-family:'TallyMark';
+	font-size:0.9em;
+	vertical-align:text-bottom;
+}

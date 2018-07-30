@@ -40,7 +40,7 @@ class Search {
         console.info("Search.js complete");
         
 		this.options = {
-    		relatednessExpansion : {
+    		distinctCounts : {
     			on : false,
     			style: {}
     		}
@@ -60,13 +60,13 @@ class Search {
     		});
     }
 	    
-    toggleRelatednessExpansion() {
-    	console.log("togtoggleRelatednessExpansiongle");
-    	this.options.relatednessExpansion.on = !this.options.relatednessExpansion.on;
-    	if ( this.options.relatednessExpansion.on ) {
-    		this.options.relatednessExpansion.style = { 'color':'green' };
+    toggleDistinctCounts() {
+    	console.log("toggle distinct counts");
+    	this.options.distinctCounts.on = !this.options.distinctCounts.on;
+    	if ( this.options.distinctCounts.on ) {
+    		this.options.distinctCounts.style = { 'color':'green' };
     	} else {
-    		this.options.relatednessExpansion.style = { };
+    		this.options.distinctCounts.style = { };
     	}
     }
     
@@ -78,10 +78,12 @@ class Search {
 		if ( corpus ) {
 			//dim only this corpus
 			corpus.dim();
+			corpus.removeCounts();
 		} else {
 			//dim doc results for all copora
 			for (let corpus of this.context.corpora) {
 				corpus.dim();
+				corpus.removeCounts();
 			}
 		}
 	}
@@ -402,7 +404,7 @@ class Search {
 				let results = aggsSearchResponse.data;
 				corpus.results.aggs = new AggregationsResponse( results, corpus );	//TODO refactoring that will create client-side objects for API data will eventually have a method for putting date slider on corpus.metadata.aggregations
 				
-				if ( me.options.relatednessExpansion.on ) {
+				if ( me.options.distinctCounts.on ) {
 					var maxCount = corpus.results.aggs.total;
 					console.log("max distinct count " + maxCount);
 					me.distinctCounts( corpus, maxCount );
@@ -531,6 +533,7 @@ class Search {
     	this.inputExpansion = new InputExpansion();
     	for ( let corpus of this.context.corpora ) {
     		corpus.results = {};
+    		corpus.removeCounts(); 
     	}
     }
   
@@ -539,10 +542,8 @@ class Search {
 //alert(JSON.stringify(corpus.metadata.aggregations));
     	var aggregations = corpus.metadata.aggregations;
     	var me = this;
-    	Object.keys(aggregations).map( function(key,index) {
-    		var aggregationCategory = corpus.metadata.aggregations[key];
-    		for (let aggPropName in aggregationCategory) {
-    			let aggregation = aggregationCategory[aggPropName];
+    	for ( let ontology of corpus.metadata.aggregations ) {
+    		for ( let aggregation of ontology.aggregations ) {
     			if ( aggregation.countDistinct ) {
 //alert(JSON.stringify(aggregation,null,'\t'));
     				var countType = ( maxCount<=15000000 ) ? "bucket" : "scroll";	//TODO externalize maxBuckets threshold
@@ -592,7 +593,7 @@ class Search {
     			}
     		}
     		
-    	});
+    	}
     }
     assignDistinct( aggregation, response ) {
     	aggregation.countType = response.data.countType;
