@@ -40,7 +40,6 @@ class Corpus extends AbstractHydrator {
 	}
 	
 	removeFilters() {
-		let me = this;
 		for ( let ontology of this.metadata.aggregations ) {
     		for ( let aggregation of ontology.aggregations ) {
     			if ( !( JSON.stringify(aggregation.filters) === JSON.stringify({}) ) ) {
@@ -51,6 +50,19 @@ class Corpus extends AbstractHydrator {
 		this.status.userSelectedFilters = false;
     	this.status.showBan = false;
     	this.status.dirty = true;
+	}
+	
+	removeCounts() {
+		if ( !( JSON.stringify(this.metadata.aggregations) === JSON.stringify({}) ) ) {
+			for ( let ontology of this.metadata.aggregations ) {
+	    		for ( let aggregation of ontology.aggregations ) {
+	    			if ( aggregation.count || aggregation.cardinalityEstimate ) {
+		    			aggregation.count = undefined;
+		    			aggregation.cardinalityEstimate = undefined;
+	    			}
+	        	}
+	    	}
+		}
 	}
 	
 	isDirty() {

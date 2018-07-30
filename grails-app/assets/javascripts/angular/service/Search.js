@@ -39,12 +39,8 @@ class Search {
         this.init();
         console.info("Search.js complete");
         
-        this.similarityExpansionEnabled = false; 
-        this.cuiExpansionEnabled = false;				
-		this.cuiExpansion = {};				//{ heart:[], valve:[] } or { enabled:false, expansionMap: { heart:[], valve:[] } }
-		this.relatednessExpansion = {}; 		//{ heart:[], valve:[] } or { enabled:false, expansionMap: { heart:[], valve:[] } 
 		this.options = {
-    		relatednessExpansion : {
+    		distinctCounts : {
     			on : false,
     			style: {}
     		}
@@ -64,13 +60,13 @@ class Search {
     		});
     }
 	    
-    toggleRelatednessExpansion() {
-    	console.log("togtoggleRelatednessExpansiongle");
-    	this.options.relatednessExpansion.on = !this.options.relatednessExpansion.on;
-    	if ( this.options.relatednessExpansion.on ) {
-    		this.options.relatednessExpansion.style = { 'color':'green' };
+    toggleDistinctCounts() {
+    	console.log("toggle distinct counts");
+    	this.options.distinctCounts.on = !this.options.distinctCounts.on;
+    	if ( this.options.distinctCounts.on ) {
+    		this.options.distinctCounts.style = { 'color':'green' };
     	} else {
-    		this.options.relatednessExpansion.style = { };
+    		this.options.distinctCounts.style = { };
     	}
     }
     
@@ -82,18 +78,17 @@ class Search {
 		if ( corpus ) {
 			//dim only this corpus
 			corpus.dim();
+			corpus.removeCounts();
 		} else {
 			//dim doc results for all copora
 			for (let corpus of this.context.corpora) {
 				corpus.dim();
+				corpus.removeCounts();
 			}
 		}
 	}
 
     setContext(searchContext) {
-    	//if (!searchContext) return;	
-    	//for some reason this function gets invoked with undefined searchContext on change of contexts dropdown; 
-    	//this check and immediate return prevents console errors, otherwise the app appears to work as expected
     	this.context = searchContext;
     	this.status.sequence = 0;
     	this.clearResults();
@@ -104,16 +99,13 @@ class Search {
     				this.searchService.setActiveCorpus( corpus, this.context.corpora );	//TODO refactor active assignments to a user pref?
     				activeSet = true;
     			}
-    			//if ( corpus.metadata.filtered ) {
-    			//	corpus.contextFilter = new TermFilter(corpus.metadata.contextFilterField, this.context.contextFilterValue);	//contextFilter specific to each searchable corpus
-    			//	//alert(JSON.stringify(corpus.contextFilter));
-    			//}
+    			if ( corpus.metadata.filtered ) {
+    				corpus.contextFilter = new TermFilter(corpus.metadata.contextFilterField, this.context.contextFilterValue);	//contextFilter specific to each searchable corpus
+    				//alert(JSON.stringify(corpus.contextFilter));
+    			}
     			if ( !corpus.appliedFilters ) {
     				corpus.appliedFilters = {};
     				corpus.brighten();
-    				//corpus.opacity = corpus.resultsOpacity.bright;
-    				//corpus.results.pagination = new Pagination();
-    				//corpus.results = {};
     				this.complete();
     			}
 				this.corpusAggregations( corpus )
@@ -152,7 +144,6 @@ class Search {
     			}
     		});
     	}
-    	//alert( terms.join(', '));
     	return terms.join(', ');
     }
 
@@ -413,7 +404,7 @@ class Search {
 				let results = aggsSearchResponse.data;
 				corpus.results.aggs = new AggregationsResponse( results, corpus );	//TODO refactoring that will create client-side objects for API data will eventually have a method for putting date slider on corpus.metadata.aggregations
 				
-				if ( me.options.relatednessExpansion.on ) {
+				if ( me.options.distinctCounts.on ) {
 					var maxCount = corpus.results.aggs.total;
 					console.log("max distinct count " + maxCount);
 					me.distinctCounts( corpus, maxCount );
@@ -542,20 +533,19 @@ class Search {
     	this.inputExpansion = new InputExpansion();
     	for ( let corpus of this.context.corpora ) {
     		corpus.results = {};
+    		corpus.removeCounts(); 
     	}
     }
   
     distinctCounts( corpus, maxCount ) {
     	var url = corpus.metadata.url;
 //alert(JSON.stringify(corpus.metadata.aggregations));
-    	var aggregations = corpus.metadata.aggregations;
     	var me = this;
-    	Object.keys(aggregations).map( function(key,index) {
-    		var aggregationCategory = corpus.metadata.aggregations[key];
-    		for (let aggPropName in aggregationCategory) {
-    			let aggregation = aggregationCategory[aggPropName];
+    	for ( let ontology of corpus.metadata.aggregations ) {
+    		for ( let aggregation of ontology.aggregations ) {
     			if ( aggregation.countDistinct ) {
 //alert(JSON.stringify(aggregation,null,'\t'));
+    				aggregation.status.computingCounts = true;
     				var countType = ( maxCount<=15000000 ) ? "bucket" : "scroll";	//TODO externalize maxBuckets threshold
     				var query;
     				if ( countType=='scroll' ) query = new SingleFieldScrollCountQuery( corpus, me.userInput, aggregation.label, aggregation.fieldName );
@@ -603,12 +593,13 @@ class Search {
     			}
     		}
     		
-    	});
+    	}
     }
     assignDistinct( aggregation, response ) {
     	aggregation.countType = response.data.countType;
     	aggregation.count = response.data.count;
     	aggregation.cardinalityEstimate = response.data.cardinalityEstimate;
+    	aggregation.status.computingCounts = false;
 		console.log("distinct " + aggregation.label + " took " + response.data.took + " returning " + response.data.countType + "/cardinality counts of: " + response.data.count + "/" + response.data.cardinalityEstimate);
     }
     

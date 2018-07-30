@@ -23,7 +23,12 @@
 								<label ng-click="rc.show(corpus.status)">{{aggregation.label}} 
 									<i class="fa fa-question-circle" title="{{aggregation.field.description}}"></i>
 								</label>
-								<span ng-if="aggregation.countDistinct" style="font-size:0.5em;margin-right:1em">{{aggregation.count | number}}, {{aggregation.cardinalityEstimate | number}} ({{aggregation.countType}}, cardinality) counts</span>
+								<span ng-show="aggregation.status.computingCounts" id="aggs-spinner" style="padding-top:25px">
+									<asset:image src="ajax-loader.gif" alt="determining filters..." /> computing <i class="tally-aggregate">EB</i>s
+								</span>
+								<span ng-if="rc.search.options.distinctCounts.on && (aggregation.count || aggregation.cardinalityEstimate)" style="font-size:0.7em;margin-right:1em">
+									actual:{{aggregation.count | number}}, estimate:{{aggregation.cardinalityEstimate | number}}
+								</span>
 								<label ng-if="aggregation.isTemporal" class="switch pull-right">
   									<input type="checkbox" ng-click="rc.search.dirty(corpus);corpus.status.userSelectedFilters=true;aggregation.currentSlider.reset( aggregation )" ng-model="aggregation.initialSlider.filtered">
   									<span class="slider round"></span>

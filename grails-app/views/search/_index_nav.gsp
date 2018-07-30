@@ -17,15 +17,36 @@
 
 		<ul class="nav navbar-nav navbar-right">
 			<!-- configure links in NavCtrl links property -->
-			<!-- <li>
-				<a><i class="fa fa-expand fa-lg" ng-click="sc.currentSearch.toggleRelatednessExpansion()" ng-style="sc.currentSearch.options.relatednessExpansion.style" data-container="body" data-toggle="tooltip" data-placement="bottom" data-html="true" title="expand query using semantic similarity"></i></a>
-			</li>
-			 -->
 			<li>
 				<a ng-style="sc.currentSearch.inputExpansion.style">
 					<i class="fa fa-expand fa-lg" ng-click="sc.modalService.vectorExpansions('lg','modalController')" 	
+						tooltip-placement="bottom" uib-tooltip-template="'expansion-tooltip.html'" 
+						tooltip-popup-close-delay="1250" uib-data-container="body"
+					>
+					</i> 
+					<sup ng-if="sc.currentSearch.inputExpansion.cardinality()" >{{sc.currentSearch.inputExpansion.cardinality()}}</sup>
+				</a>
+			</li>
+			
+			<li>
+				<a><i class="tally" 
+					ng-click="sc.currentSearch.toggleDistinctCounts()" 
+					ng-style="sc.currentSearch.options.distinctCounts.style" 
 					data-container="body" data-toggle="tooltip" data-placement="bottom" data-html="true" 
-					title="query expansion suggestions"></i> 
+					title="enable/disable distinct counts for applicable category aggregates">
+					EB
+					</i>
+				</a>
+			</li>
+			
+			<!--  
+			<li>
+				<a ng-style="sc.currentSearch.inputExpansion.style">
+					<i id="expansion-control" class="fa fa-expand fa-lg" ng-click="sc.modalService.vectorExpansions('lg','modalController')" 	
+						data-toggle="tooltip" data-placement="bottom-right"  
+						data-html="true" template="expansion-tooltip.html"
+					>
+					</i> 
 					<sup>{{sc.currentSearch.inputExpansion.cardinality()}}</sup>
 				</a>
 			</li>
