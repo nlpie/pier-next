@@ -12,9 +12,10 @@ export default RelatedMisspelling;
 
 /*
 {
-    "term": "founf",
-    "cosine_distance": 0.2137,
-    "edit_distance": 1,
-    "score": 0.2137
+	"term": "spark",
+	"frequency": 10,
+	"cosine_distance": 0.289,
+	"edit_distance": 2,
+	"score": -0.313
 }
 */

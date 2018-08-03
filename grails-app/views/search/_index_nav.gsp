@@ -19,7 +19,7 @@
 			<!-- configure links in NavCtrl links property -->
 			<li>
 				<a ng-style="sc.currentSearch.inputExpansion.style">
-					<i class="fa fa-expand fa-lg" ng-click="sc.modalService.vectorExpansions('lg','modalController')" 	
+					<i class="fa fa-expand fa-lg" ng-click="sc.modalService.vectorExpansions('lg','expansionController')" 	
 						tooltip-placement="bottom" uib-tooltip-template="'expansion-tooltip.html'" 
 						tooltip-popup-close-delay="1250" uib-data-container="body"
 					>
@@ -42,7 +42,7 @@
 			<!--  
 			<li>
 				<a ng-style="sc.currentSearch.inputExpansion.style">
-					<i id="expansion-control" class="fa fa-expand fa-lg" ng-click="sc.modalService.vectorExpansions('lg','modalController')" 	
+					<i id="expansion-control" class="fa fa-expand fa-lg" ng-click="sc.modalService.vectorExpansions('lg','expansionController')" 	
 						data-toggle="tooltip" data-placement="bottom-right"  
 						data-html="true" template="expansion-tooltip.html"
 					>
@@ -66,128 +66,8 @@
 				<a><i class="fa fa-floppy-o fa-lg" ng-click="sc.searchService.saveQuery(sc.currentSearch.registration.id)" data-container="body" data-toggle="tooltip" data-placement="bottom" title="save query for later use"></i></a>
 			</li>
 		</ul>
-				
-		<!-- 
-		<script type="text/ng-template" id="myPopoverTemplate.html">
-        	<div>
-				<div> <small> click words to add to search terms</small> </div>
-        		<div>
-					<div><b>Related misspellings:</b></div>
-					<span 
-						ng-repeat="item in sc.searchService.relatedTerms._source.misspelling_relatedness track by $index"
-						ng-click="sc.currentSearch.addRelatedTerm(item.term)">
-						{{item.term}}
-					</span>
-					<div><b>Semantically related terms:</b></div>
-					<span 
-						ng-repeat="item in sc.searchService.relatedTerms._source.semantic_relatedness"
-						ng-click="sc.currentSearch.addRelatedTerm(item.term)">
-						{{item.term}} 
-					</span>
-        		</div>
-			</div>
-    	</script>
-    	 -->
-    	<script type="text/ng-template" id="myModalContent.html">
-        	<div class="modal-header">
-            	<h3 class="modal-title" id="modal-title">Word vector-based suggestions</h3>
-				<small> selected suggestions are added to the current search </small>
-        	</div>
-        	<div class="modal-body" id="modal-body">
-            	
-				
-				<uib-tabset active="active">
-    				<uib-tab ng-repeat="embedding in ctrl.embeddings track by $index" index="$index" heading="{{ctrl.currentSearch.inputExpansion.targetLabel(embedding.word)}}">
-
-						<div class="row">
-							<div class="col-md-12" ng-if="ctrl.currentSearch.inputExpansion.targetHasExpansions(embedding.word)">
-								<br/>&nbsp;
-								<b>Selected expansion terms:</b> {{ ctrl.currentSearch.inputExpansion.flatten(embedding.word) }}
-								<br/>&nbsp;
-							</div>
-							<div class="col-md-12" ng-if="!ctrl.currentSearch.inputExpansion.targetHasExpansions(embedding.word)">
-								<br/>&nbsp;
-								No expansions selected
-								<br>&nbsp;
-							</div>
-						</div>
-						<div class="row">
-							<div class="col-md-12"><b>Related misspellings</b></div>
-            			</div>
-						<div class="row">
-							<div class="col-md-3">
-								<ul>
-                					<li ng-repeat="suggestion in ctrl.embeddings[$index].relatedMisspellings | limitTo:8:0">
-                    					<a ng-click="ctrl.currentSearch.inputExpansion.add(embedding.word, suggestion.term)">{{ suggestion.term }}</a>
-                					</li>
-            					</ul>
-							</div>
-							<div class="col-md-3">
-								<ul>
-                					<li ng-repeat="suggestion in ctrl.embeddings[$index].relatedMisspellings | limitTo:8:8">
-                    					<a ng-click="ctrl.currentSearch.inputExpansion.add(embedding.word, suggestion.term)">{{ suggestion.term }}</a>
-                					</li>
-            					</ul>
-							</div>
-
-							<div class="col-md-3">
-								<ul>
-                					<li ng-repeat="suggestion in ctrl.embeddings[$index].relatedMisspellings | limitTo:8:16">
-                    					<a ng-click="ctrl.currentSearch.inputExpansion.add(embedding.word, suggestion.term)">{{ suggestion.term }}</a>
-                					</li>
-            					</ul>
-							</div>
-							<div class="col-md-3">
-								<ul>
-                					<li ng-repeat="suggestion in ctrl.embeddings[$index].relatedMisspellings | limitTo:8:24">
-                    					<a ng-click="ctrl.currentSearch.inputExpansion.add(embedding.word, suggestion.term)">{{ suggestion.term }}</a>
-                					</li>
-            					</ul>
-							</div>
-						</div>
-
-						<div class="row">
-							<div class="col-md-12"><b>Semantically related terms</b></div>
-            			</div>
-						<div class="row">
-							<div class="col-md-3">
-								<ul>
-                					<li ng-repeat="suggestion in ctrl.embeddings[$index].semanticallyRelatedTerms | limitTo:25:0">
-                    					<a ng-click="ctrl.currentSearch.inputExpansion.add(embedding.word, suggestion.term)">{{ suggestion.term }}</a>
-                					</li>
-            					</ul>
-							</div>
-							<div class="col-md-3">
-								<ul>
-                					<li ng-repeat="suggestion in ctrl.embeddings[$index].semanticallyRelatedTerms | limitTo:25:25">
-                    					<a ng-click="ctrl.currentSearch.inputExpansion.add(embedding.word, suggestion.term)">{{ suggestion.term }}</a>
-                					</li>
-            					</ul>
-							</div>
-							<div class="col-md-3">
-								<ul>
-                					<li ng-repeat="suggestion in ctrl.embeddings[$index].semanticallyRelatedTerms | limitTo:25:50">
-                    					<a ng-click="ctrl.currentSearch.inputExpansion.add(embedding.word, suggestion.term)">{{ suggestion.term }}</a>
-                					</li>
-            					</ul>
-							</div>
-							<div class="col-md-3">
-								<ul>
-                					<li ng-repeat="suggestion in ctrl.embeddings[$index].semanticallyRelatedTerms | limitTo:25:75">
-                    					<a ng-click="ctrl.currentSearch.inputExpansion.add(embedding.word, suggestion.term)">{{ suggestion.term }}</a>
-                					</li>
-            					</ul>
-							</div>
-						</div>
-
-					</uib-tab>
-				</uib-tabset>
-        	</div>
-        	<div class="modal-footer">
-            	<button class="btn btn-primary" type="button" ng-click="ctrl.modalService.ok()">OK</button>
-            	<button class="btn btn-warning" type="button" ng-click="ctrl.modalService.cancel()">Cancel</button>
-        	</div>
-    	</script>
+		
+		<g:render template="expansionSelection" />
 
 		<form class="navbar-form">
        		<div class="form-group" style="display:inline;" >
@@ -296,4 +176,14 @@
     </div><!-- /.navbar-collapse -->
   </div><!-- /.container-fluid -->
 </nav>
+
+<script>
+$(document).ready(function(){
+    //$('.expansion-control').tooltip({delay: {show: 300, hide: 2300}}); 
+	$('[data-toggle="tooltip"]').tooltip({
+	      animation: true,
+	      delay: {show: 200, hide: 300}
+	    });
+});
+</script>
   					

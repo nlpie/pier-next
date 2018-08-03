@@ -14,7 +14,8 @@ import Settings from '../angular/service/Settings';
 import SearchController from '../angular/controller/search/SearchController';
 import ResultsController from '../angular/controller/search/ResultsController';
 import SettingsController from '../angular/controller/settings/SettingsController';
-import ModalController from '../angular/controller/search/ModalController';
+import ExpansionController from '../angular/controller/search/ExpansionController';
+import HelpController from '../angular/controller/help/HelpController';
 
 
 angular.module( 'app', ['angular-growl', 'ngSanitize', 'xeditable', 'angularSlideables', 'rzModule', 'ui.bootstrap'] )
@@ -26,7 +27,8 @@ angular.module( 'app', ['angular-growl', 'ngSanitize', 'xeditable', 'angularSlid
 	.controller('resultsController', ResultsController)
 	.controller('searchController', SearchController)
 	.controller('settingsController', SettingsController)
-	.controller('modalController', ModalController)
+	.controller('expansionController', ExpansionController)
+	.controller('helpController', HelpController)
 	.run(function(editableOptions) {
 		editableOptions.theme = 'default';	//bs3
 		editableOptions.icon_set = 'font-awesome';
