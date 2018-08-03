@@ -12,7 +12,8 @@ export default RelatedTerm;
 
 /*
 {
-    "term": "discovered",
-    "cosine_distance": 0.6316
+	"term": "spark",
+	"frequency": 64,
+	"cosine_distance": 0.7042
 }
 */

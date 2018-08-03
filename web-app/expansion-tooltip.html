@@ -1,0 +1,9 @@
+<span ng-if="sc.currentSearch.inputExpansion.cardinality()==0">
+	click to select query expansion terms
+</span>
+<span ng-if="sc.currentSearch.inputExpansion.cardinality()>0">
+	current fully expanded query:<br>
+	{{ sc.currentSearch.inputExpansion.expandUserInput(sc.currentSearch.userInput) }}
+	<br><br>
+	<a ng-click="sc.currentSearch.inputExpansion.reset()">clear all expansions</a>
+</span>
