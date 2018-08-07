@@ -17,23 +17,16 @@
 
 		<ul class="nav navbar-nav navbar-right">
 			<!-- configure links in NavCtrl links property -->
-			<li>
+			<li tooltip-placement="bottom" uib-tooltip-template="'expansion-tooltip.html'" 
+						tooltip-popup-close-delay="1250" uib-data-container="body">
 				<a ng-style="sc.currentSearch.inputExpansion.style">
-					<i class="fa fa-expand fa-lg" ng-click="sc.modalService.vectorExpansions('lg','expansionController')" 	
-						tooltip-placement="bottom" uib-tooltip-template="'expansion-tooltip.html'" 
-						tooltip-popup-close-delay="1250" uib-data-container="body"
-					>
-					</i> 
+					<i class="fa fa-expand fa-lg" ng-click="sc.modalService.vectorExpansions('lg','expansionController')"></i> 
 					<sup ng-if="sc.currentSearch.inputExpansion.cardinality()" >{{sc.currentSearch.inputExpansion.cardinality()}}</sup>
 				</a>
 			</li>
 			
-			<li>
-				<a><i class="tally" 
-					ng-click="sc.currentSearch.toggleDistinctCounts()" 
-					ng-style="sc.currentSearch.options.distinctCounts.style" 
-					data-container="body" data-toggle="tooltip" data-placement="bottom" data-html="true" 
-					title="enable/disable distinct counts for applicable category aggregates">
+			<li data-container="body" data-toggle="tooltip" data-placement="bottom" data-html="true" title="enable/disable distinct counts for applicable category aggregates">
+				<a><i class="tally" ng-click="sc.currentSearch.toggleDistinctCounts()" ng-style="sc.currentSearch.options.distinctCounts.style">
 					EB
 					</i>
 				</a>
@@ -59,11 +52,11 @@
 					</i>
 				</a>
 			</li> -->
-			<li>
-				<a><i class="fa fa-download fa-lg" data-container="body" data-toggle="tooltip" data-placement="bottom" title="download query results"></i></a>
+			<li data-container="body" data-toggle="tooltip" data-placement="bottom" title="download query results">
+				<a><i class="fa fa-download fa-lg"></i></a>
 			</li>
-			<li>
-				<a><i class="fa fa-floppy-o fa-lg" ng-click="sc.searchService.saveQuery(sc.currentSearch.registration.id)" data-container="body" data-toggle="tooltip" data-placement="bottom" title="save query for later use"></i></a>
+			<li data-container="body" data-toggle="tooltip" data-placement="bottom" title="save query for later use">
+				<a><i class="fa fa-floppy-o fa-lg" ng-click="sc.searchService.saveQuery(sc.currentSearch.registration.id)"></i></a>
 			</li>
 		</ul>
 		
@@ -127,8 +120,8 @@
                         			<div title="click to search">
 	                        			<sub style="color:gray">{{sh.registration.authorizedContext}}</sub>
 	                        			<br>
-	                        			<span style="text-decoration:underline">{{sh.query.label}}</span> 
-	                        				<span style="font-style:italic" ng-if="sh.query.saved">[saved]</span> 
+	                        			<span style="text-decoration:none">{{sh.query.label}}</span> 
+	                        				<span style="font-style:italic;color:green" ng-if="sh.query.saved==true">saved</span> 
 	                        				<small style="color:gray" ng-if="sh.query.filters"><i>Filters: {{sh.query.filters}}</i></small>
                         			</div>
                         		</a>
@@ -141,7 +134,7 @@
 				</div>
 			</div>
 		</form>
-{{sc.currentSearch.inputExpansion.expandUserInput(sc.currentSearch.userInput)}}
+
 		<div ng-repeat="corpus in sc.currentSearch.context.corpora track by $index"
 			 ng-if="corpus.results.docs" class="btn-group pull-right" role="group" style="margin-right:170px">
 			<div ng-if="corpus.metadata.searchable">
