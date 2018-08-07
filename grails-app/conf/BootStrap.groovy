@@ -1,3 +1,5 @@
+import org.apache.commons.lang.RandomStringUtils
+
 import edu.umn.nlpie.pier.PierUtils
 import edu.umn.nlpie.pier.elastic.*
 import edu.umn.nlpie.pier.springsecurity.Role
@@ -24,37 +26,31 @@ class BootStrap {
 		User.findByUsername("nlppier")?:new User(username:"nlppier",password:"${configService.generatePassword()}",enabled:false).save(failOnError:true)
 		def superadmin = Role.findByAuthority("ROLE_SUPERADMIN")?:new Role(authority:"ROLE_SUPERADMIN").save(flush:true)
 		def admin = Role.findByAuthority("ROLE_ADMIN")?:new Role(authority:"ROLE_ADMIN").save(flush:true)
-		def u = Role.findByAuthority("ROLE_USER")?:new Role(authority:"ROLE_USER").save(flush:true)
+		def user = Role.findByAuthority("ROLE_USER")?:new Role(authority:"ROLE_USER").save(flush:true)
 		def beta = Role.findByAuthority("ROLE_BETA_USER")?:new Role(authority:"ROLE_BETA_USER").save(flush:true)
 		def analyst = Role.findByAuthority("ROLE_ANALYST")?:new Role(authority:"ROLE_ANALYST").save(flush:true)
-		//UserRole.create(rmcewan, superadmin)
-		def rmcewan = User.findByUsername("rmcewan")?:new User(username:"rmcewan",password:"umn").save(failOnError:true)
-		UserRole.create(rmcewan, u)
-		UserRole.create(rmcewan, analyst)
-		UserRole.create(rmcewan, superadmin)
+
+		configUser("rmcewan", [user,analyst,superadmin])
+		configUser("rmcewan1", [user,analyst,superadmin])
+		configUser("hultm041", [user,analyst,superadmin])
+		configUser("ghultma1", [user,analyst,superadmin])
+		
+		configUser("gmelton",[user,analyst])
+		configUser("pakh0002",[user,analyst])
 		
 		//Init FV users
-		def rmcewan1 = User.findByUsername("rmcewan1")?:new User(username:"rmcewan1",password:"hURVTDb4",enabled:true).save(failOnError:true)
-		UserRole.create(rmcewan1, u)
-		UserRole.create(rmcewan1, analyst)
-		UserRole.create(rmcewan1, superadmin)
-		def jim = User.findByUsername("jessler1")?:new User(username:"jessler1",password:"nBE34kY2",enabled:true).save(failOnError:true)
-		UserRole.create(jim, u)
-		UserRole.create(jim, analyst)
-		def melinda = User.findByUsername("mleonar1")?:new User(username:"mleonar1",password:"w9TGNNaV",enabled:true).save(failOnError:true)
-		UserRole.create(melinda, u)
-		UserRole.create(melinda, analyst)
-		def jeremy = User.findByUsername("jmarkow1")?:new User(username:"jmarkow1",password:"3RYJ7RKY",enabled:true).save(failOnError:true)
-		UserRole.create(jeremy, u)
-		UserRole.create(jeremy, analyst)
-		def gretchen = User.findByUsername("ghultma1")?:new User(username:"ghultma1",password:"Vts2Nq9t",enabled:true).save(failOnError:true)
-		UserRole.create(gretchen, u)
-		UserRole.create(gretchen, analyst)
+		configUser("jessler1",[user,analyst])
+		configUser("mleonar1",[user,analyst])
+		configUser("jmarkow1",[user,analyst])
+		
+		
+		
 		
 		//populate elastic data
 		Cluster.withSession { session ->
-			def user = User.findByUsername("rmcewan")?:new User(username:"rmcewan",password:"umn").save(failOnError:true)
-			def app = User.findByUsername("nlppier")?:new User(username:"nlppier",password:"${this.generatePassword()}",enabled:false).save(failOnError:true)
+			//def u = User.findByUsername("rmcewan")?:new User(username:"rmcewan",password:"umn").save(failOnError:true)
+			def app = configUser("nlppier", [])
+			//def app = User.findByUsername("nlppier")?:new User(username:"nlppier",password:"${this.generatePassword()}",enabled:false).save(failOnError:true)
 			
 			def epicOntology = Ontology.findByName('Epic Categories')?:new Ontology(name:'Epic Categories', description:"what shows in Epic").save(flush:true, failOnError:true)
 			def epicHL7LoincOntology = Ontology.findByName('HL7 LOINC')?:new Ontology(name:'HL7 LOINC', description:"DO Axis values").save(flush:true, failOnError:true)
@@ -120,7 +116,7 @@ class BootStrap {
 					fp.ontology=biomedicus
 					fp.label = "Medical Concepts"
 					fp.numberOfFilterOptions = 25
-					fp.aggregate = false
+					fp.aggregate = true
 				}
 				if ( f.fieldName=="mrn" || f.fieldName=="note_id") {
 					fp.computeDistinct = true
@@ -179,12 +175,118 @@ class BootStrap {
 			surgPathCorpus.addToIndexes(surgPathIdx)
 			surgPathCorpus.save(flush:true, failOnError:true)
 			
+			//EF
+			def efCorpus = Corpus.findByName("Echo Reports")?: new Corpus(name:"Echo Reports", description:"Non-scanned Echo reports", enabled:true, glyph:"fa-heart-o").save(flush:true, failOnError:true)
+			def efIdx = Index.findByCommonName("Echo Reports")?:new Index(commonName:"Echo Reports", indexName:"ef_v1", status:"Searchable", description:"Non-scanned Echo reports", numberOfShards:1, numberOfReplicas:0,environment:Environment.current.name)
+			def efType = Type.findByTypeName("summary")?:new Type(typeName:"summary", description:"Narrative, Impression, or Result Comment", environment:Environment.current.name)
+			
+			def efText = Field.findByFieldNameAndType("text", null)?:new Field(fieldName:"text",dataTypeName:"SNOWBALL_ANALYZED_STRING", description:"content of Narrative, Impression, or Result Comment", defaultSearchField:true,, aggregatable:false)
+			def efTextSrc = Field.findByFieldNameAndType("text_source", null)?:new Field(fieldName:"text_source", dataTypeName:"NOT_ANALYZED_STRING", description:"column(s) in which text data was found", aggregatable:true, exportable:true)
+			def efTextFmt = Field.findByFieldNameAndType("text_format", null)?:new Field(fieldName:"text_format", dataTypeName:"NOT_ANALYZED_STRING", description:"whether analyzed text contains new line formatting", aggregatable:true, exportable:true)
+			
+			def efMeasures = Field.findByFieldNameAndType("ef_measures", null)?:new Field(fieldName:"ef_measures", dataTypeName:"NOT_ANALYZED_STRING", description:"measures", aggregatable:true, exportable:true)
+			def efResults = Field.findByFieldNameAndType("ef_results", null)?:new Field(fieldName:"ef_results", dataTypeName:"NOT_ANALYZED_STRING", description:"measures and values", aggregatable:false, exportable:true)
+			
+			def efOrderDttm = Field.findByFieldNameAndType("order_datetime", null)?:new Field(fieldName:"order_datetime", dataTypeName:"DATETIME", description:"", aggregatable:true, exportable:true)
+			def efProcStartDttm = Field.findByFieldNameAndType("procedure_start_datetime", null)?:new Field(fieldName:"procedure_start_datetime", dataTypeName:"DATETIME", description:"", aggregatable:true, exportable:true)
+			def efOrdResDttm = Field.findByFieldNameAndType("order_result_datetime", null)?:new Field(fieldName:"order_result_datetime", dataTypeName:"DATETIME", description:"", aggregatable:true, exportable:true)
+			def efParentOrdDttm = Field.findByFieldNameAndType("parent_order_datetime", null)?:new Field(fieldName:"parent_order_datetime", dataTypeName:"DATETIME", description:"", aggregatable:true, exportable:true)
+			def efCollDttm = Field.findByFieldNameAndType("collection_datetime", null)?:new Field(fieldName:"collection_datetime", dataTypeName:"DATETIME", description:"", aggregatable:true, exportable:true)
+			def efResResDttm = Field.findByFieldNameAndType("result_result_datetime", null)?:new Field(fieldName:"result_result_datetime", dataTypeName:"DATETIME", description:"", aggregatable:true, exportable:true)
+			
+			def efServiceId = Field.findByFieldNameAndType("service_id",null)?:new Field(fieldName:"service_id",dataTypeName:"LONG", description:"CDR service id", aggregatable:true)
+			def efPatientId = Field.findByFieldNameAndType("patient_id",null)?:new Field(fieldName:"patient_id",dataTypeName:"LONG", description:"CDR patient id", aggregatable:true)
+			def efMrn = Field.findByFieldNameAndType("mrn", null)?:new Field(fieldName:"mrn", dataTypeName:"NOT_ANALYZED_STRING", description:"Medical record number", aggregatable:true, exportable:true)
+			def efOrdId = Field.findByFieldNameAndType("order_id", null)?:new Field(fieldName:"order_id", dataTypeName:"NOT_ANALYZED_STRING", description:"record identifier in CDR", aggregatable:false, exportable:true)
+			def efOrdResId = Field.findByFieldNameAndType("order_result_id", null)?:new Field(fieldName:"order_result_id", dataTypeName:"NOT_ANALYZED_STRING", description:"record identifier in CDR", aggregatable:false, exportable:true)
+			
+			def efOrderTypeOrig = Field.findByFieldNameAndType("order_type_orig", null)?:new Field(fieldName:"order_type_orig", dataTypeName:"NOT_ANALYZED_STRING", description:"order type orig", aggregatable:true, exportable:true)
+			def efOrderingModeOrig = Field.findByFieldNameAndType("ordering_mode_orig", null)?:new Field(fieldName:"ordering_mode_orig", dataTypeName:"NOT_ANALYZED_STRING", description:"orig order mode", aggregatable:true, exportable:true)
+			def efTestNameOrig = Field.findByFieldNameAndType("test_name_orig", null)?:new Field(fieldName:"test_name_orig", dataTypeName:"NOT_ANALYZED_STRING", description:"test name orig", aggregatable:true, exportable:true)
+			
+			def efProcCode = Field.findByFieldNameAndType("procedure_code", null)?:new Field(fieldName:"procedure_code", dataTypeName:"NOT_ANALYZED_STRING", description:"procedure code", aggregatable:true, exportable:true)
+			def efProcName = Field.findByFieldNameAndType("procedure_name", null)?:new Field(fieldName:"procedure_name", dataTypeName:"NOT_ANALYZED_STRING", description:"procedure name", aggregatable:true, exportable:true)
+			
+			def efProvId = Field.findByFieldNameAndType("provider_id",null)?:new Field(fieldName:"provider_id",dataTypeName:"LONG", description:"CDR provider id", aggregatable:false, exportable:true)
+			def efAuthProvId = Field.findByFieldNameAndType("authorizing_provider_id",null)?:new Field(fieldName:"authorizing_provider_id",dataTypeName:"LONG", description:"CDR authorizing provider id", aggregatable:false, exportable:true)
+			def efProv = Field.findByFieldNameAndType("provider", null)?:new Field(fieldName:"provider", dataTypeName:"NOT_ANALYZED_STRING", description:"provider name", aggregatable:true, exportable:true)
+			def efAuthProv = Field.findByFieldNameAndType("authorizing_provider", null)?:new Field(fieldName:"authorizing_provider", dataTypeName:"NOT_ANALYZED_STRING", description:"authorizing provider name", aggregatable:true, exportable:true)
+			
+			efType.addToFields(efText)
+			efType.addToFields(efTextSrc)
+			efType.addToFields(efTextFmt)
+			efType.addToFields(efMeasures)
+			efType.addToFields(efResults)
+			efType.addToFields(efOrderDttm)
+			efType.addToFields(efProcStartDttm)
+			efType.addToFields(efOrdResDttm)
+			efType.addToFields(efParentOrdDttm)
+			efType.addToFields(efCollDttm)
+			efType.addToFields(efResResDttm)
+			efType.addToFields(efOrdId)
+			efType.addToFields(efPatientId)
+			efType.addToFields(efMrn)
+			efType.addToFields(efOrdId)
+			efType.addToFields(efOrdResId)
+			
+			efType.addToFields(efOrderTypeOrig)
+			efType.addToFields(efOrderingModeOrig)
+			efType.addToFields(efTestNameOrig)
+			
+			efType.addToFields(efProcCode)
+			efType.addToFields(efProcName)
+			
+			efType.addToFields(efProvId)
+			efType.addToFields(efAuthProvId)
+			efType.addToFields(efProv)
+			efType.addToFields(efAuthProv)
+			
+			efType.fields.each { f ->
+				println "adding EF pref for ${f.fieldName}"
+				def fp = new FieldPreference(user:app, label:PierUtils.labelFromUnderscore(f.fieldName), ontology:epicOntology, applicationDefault:true)
+				if ( f.contextFilterField || f.defaultSearchField ) fp.aggregate=false
+				if ( f.fieldName=="text") fp.aggregate=false
+				if ( f.fieldName=="procedure_name" || f.fieldName=="procedure_code" 
+					|| f.fieldName=="ef_measures" || f.fieldName=="test_name_orig") fp.numberOfFilterOptions=100
+				if ( f.fieldName=="mrn" ) { fp.computeDistinct = true
+				}
+			
+				f.addToPreferences(fp)
+			}
+			efIdx.type = efType
+			nlp05.addToIndexes(efIdx)
+			
+			efCorpus.addToIndexes(efIdx)
+			efCorpus.save(flush:true, failOnError:true)
+			
+			println nlp05.toString()
+			nlp05.save(failOnError:true, flush:true)
+
+			
 			//PREFS SANITY CHECK
-			configService.initalizeUserPreferences(User.findByUsername("rmcewan"))
-			println "preferences set for rmcewan"
+			def users = User.list()
+			users.each { u ->
+				if ( u.username!='nlppier' ) {
+					configService.initalizeUserPreferences( u )
+					println "preferences set for ${u.username}"
+				}
+			}
+			
 		}
 		
     }
+	
+	User configUser( username, roles ) {
+		def pwd = RandomStringUtils.randomAlphanumeric(20)
+		def user = User.findByUsername(username)?:new User(username:username,password:pwd).save(failOnError:true)
+		roles.each { role ->
+			UserRole.create(user, role)
+		}
+		println "USER CONFIGURED ${username}:${pwd}"
+		user
+	}
+	
+	
     def destroy = {
     }
 	
