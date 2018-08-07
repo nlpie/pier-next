@@ -1,9 +1,7 @@
 package edu.umn.nlpie.pier
 
 import org.apache.commons.lang.RandomStringUtils
-import org.codehaus.groovy.grails.web.json.JSONArray
 
-import edu.umn.nlpie.pier.api.AvailableAggregations
 import edu.umn.nlpie.pier.context.AuthorizedContext
 import edu.umn.nlpie.pier.elastic.Field
 import edu.umn.nlpie.pier.elastic.Index
@@ -11,7 +9,7 @@ import edu.umn.nlpie.pier.elastic.Type
 import edu.umn.nlpie.pier.springsecurity.User
 import edu.umn.nlpie.pier.ui.Corpus
 import edu.umn.nlpie.pier.ui.FieldPreference
-import edu.umn.nlpie.pier.ui.Ontology
+import grails.plugin.springsecurity.SpringSecurityUtils
 import grails.plugins.rest.client.RestBuilder
 import grails.transaction.Transactional
 
@@ -19,33 +17,33 @@ import grails.transaction.Transactional
 class ConfigService {
 	
 	static scope = "prototype"
+	def userService
 
-    //keep
 	def getAuthorizedContexts() {
 		def list = new ArrayList()
-		//def list = new JSONArray()
-		//def list = AuthorizedContext.list(sort:'label')
-		//TODO get user from spring security service
-		//TODO check if user has ROLE_ADMIN, if yes, add each enabled corpus for the current env for corpus-wide searching
-		def corpora = Corpus.searchableCorpora
-		corpora.each { ct ->
-			list.add(0,new AuthorizedContext( label:ct.name, filterValue:0 ));
+		def username = userService.currentUserUsername
+		//if user has ROLE_ANALYST, give access to all contexts and add each searchable corpus for the current env for corpus-wide searching
+		if ( SpringSecurityUtils.ifAnyGranted('	ROLE_ANALYST') ) {
+			//list = AuthorizedContext.list(sort:'label')
+			def corpora = Corpus.searchableCorpora
+			corpora.each { ct ->
+				list.add(0,new AuthorizedContext( label:ct.name, filterValue:0 ));
+			}
+			println "${username} IS ROLE_ANALYST, ${list.size()} contexts available"
+		} else {
+			list = AuthorizedContext.findAllByUsername(username,[sort:'label'])
+			println "${username} NOT ROLE_ANALYST, ${list.size()} contexts available"
 		}
 		list
     }
 	
 	def authorizedContextByLabel( label ) { 
-		//TODO get user from spring security service
-		println label
-		def ac = AuthorizedContext.findByLabel( label );
+		//get username from spring security service
+		def username = userService.currentUserUsername
+		def ac = AuthorizedContext.findByLabelAndUsername( label,username );
 		if ( !ac ) ac = new AuthorizedContext( label:label, filterValue:0 )
 		ac
 	}
-	
-	
-	/*def getCorpusAggregations(corpusId) {
-		new AvailableAggregations(corpusId).aggregations
-	}*/
 	
 	def getDefaultPreferences() {
 		FieldPreference.findAllByApplicationDefault(true)
@@ -68,16 +66,8 @@ class ConfigService {
 		}
 	}
 	
-	//TODO check if this is used - think not
 	def generatePassword() {
 		RandomStringUtils.randomAlphanumeric(20)
-	}
-	
-	//TODO this can be deleted?
-	def prefs() {
-		def note = Type.findByTypeName("note")
-		def app = User.findByUsername("nlppier")	//should have been created in bootstrap
-		def epicOntology = Ontology.findByName('Epic Categories')
 	}
 	
 	def reverseEngineerDomainInstancesFromIndexMapping(Index index) {
