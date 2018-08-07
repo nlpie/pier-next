@@ -1,16 +1,10 @@
 
-class CorpusStatus { 
+class AggregationStatus { 
 
 	constructor() {
-		this.searchingDocs = false;
-		this.computingAggs = false;
-		this.active = false;
-		this.dirty = false;
-		this.userSelectedFilters = false;
-		this.showBan = false;
-		this.opacity = null;
+		this.computingCounts = false;
 	}
 
 }
 
-export default CorpusStatus;
+export default AggregationStatus;
