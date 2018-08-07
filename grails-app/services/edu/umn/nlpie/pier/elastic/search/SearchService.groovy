@@ -15,27 +15,24 @@ class SearchService {
 	
 	def elasticService
 	def dataSource
+	def userService
 	
 	def searchHistory( excludeMostRecent ) {
 		def sql = new StringBuffer()
-println "${new Date()} SH"
- //TODO scope to authenticated user
-		/*sql << """select distinct max(q.registration.id), q.label, q.registration.authorizedContext from Query q 
-where q.registration.username=? and q.httpStatus=? and q.type=? and q.registration.id not in ( ? ) group by q.hashCodedQuery, 
-q.registration.authorizedContext, q.hashCodedQuery order by max(q.registration.id) desc """.toString()*/
+		def username = userService.currentUserUsername
 
 		sql << """
 select distinct q.registration.id as registrationId, q.label, q.registration.authorizedContext, q.id as queryId, q.filters, q.saved
 from Query q
 where q.registration.username=? and q.httpStatus=? and q.type in ( 'DocumentQuery','EncounterQuery' )
-group by q.hashCodedQuery, q.filters, q.registration.authorizedContext
+group by q.hashCodedQuery, q.filters, q.registration.authorizedContext, q.saved
 order by q.dateCreated desc """.toString()
 //and q.id not in ( ? )
 		def lastQueryId = 0.toLong()
 		
 		/*if ( excludeMostRecent ) {
 			lastQueryId = Query.createCriteria().get {
-				eq ("registration.username", "nouserservice.user")	//TODO change to authenticated user from userService
+				eq ("registration.username", username)
 				projections {
 					max "id"
 				}
@@ -43,11 +40,11 @@ order by q.dateCreated desc """.toString()
 		}*/
 		
 		if ( excludeMostRecent ) {
-			//def result = Query.executeQuery( "select max(q.id) as queryId from Query q where q.registration.username=? and q.type=? ", ["nouserservice.user","DocumentQuery"] )
+			//def result = Query.executeQuery( "select max(q.id) as queryId from Query q where q.registration.username=? and q.type=? ", [username,"DocumentQuery"] )
 			//lastQueryId = result[0]
 		}
 		
-		def results = Query.executeQuery(sql.toString(), ["nouserservice.user", 200] )
+		def results = Query.executeQuery(sql.toString(), [username, 200] )
 		def summaries = []
 		results.each {
 			summaries << new HistorySummaryDTO(it)
@@ -57,9 +54,27 @@ order by q.dateCreated desc """.toString()
 		//lookup user from userService
 	}
 	
-//	def registeredSearch(id) {
-//		SearchRegistration.get(id.toLong())
-//	}
+	def savedQueries() {
+		def sql = new StringBuffer()
+		def username = userService.currentUserUsername
+
+		sql << """
+select distinct q.registration.id as registrationId, q.label, q.registration.authorizedContext, q.id as queryId, q.filters, q.saved
+from Query q
+where q.registration.username=? and q.httpStatus=? and q.type in ( 'DocumentQuery','EncounterQuery' ) and q.saved=?
+group by q.hashCodedQuery, q.filters, q.registration.authorizedContext
+order by q.dateCreated desc """.toString()
+		
+		def results = Query.executeQuery(sql.toString(), [username, 200, true] )
+		def queries = []
+		results.each {
+			queries << new HistorySummaryDTO(it)
+			//println "${it[1]} ${it[4]}"
+		}
+		println queries.size()
+		queries
+		//lookup user from userService
+	}
 	
 	def recentQuery(id) {
 		def d = Query.get( id.toLong() )
@@ -114,6 +129,8 @@ order by q.dateCreated desc """.toString()
 		sr.save(failOnError:true,flush:true)
 		println "CE: [${postBody.label}] ${c.id} ${c.cardinalityEstimate}"
 		
+		/*
+		//TODO UI control to turn on capture of the buckets for post-query analysis?
 		if ( buckets ) {
 			def sql = new Sql(dataSource)
 			String insertStmt = "insert into bucket ( `key`, key_as_string, doc_count, distinct_count_id, version ) values ( :key, :keyAsString, :docCount, :fk, :ver )"
@@ -126,6 +143,9 @@ order by q.dateCreated desc """.toString()
 				}
 			//}
 		}
+		*/
+		
+		
 		/*
 		DistinctCount.async.task {
 			withTransaction { status ->
