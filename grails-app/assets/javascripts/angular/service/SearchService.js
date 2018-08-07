@@ -7,6 +7,7 @@ class SearchService {
 		this.$q = $q;
 		this.growl = growl;
 		this.searchHistory = undefined;
+		this.savedQueries = undefined;
 		this.relatedTerms = undefined;
 	}
 	
@@ -44,6 +45,14 @@ class SearchService {
 	    		me.searchHistory = response.data;
 	    	});
     }
+	
+	fetchSavedQueries() {	
+		let me = this;
+		return this.$http.post( APP.ROOT + '/search/savedQueries' )
+		.then( function(response) {
+			me.savedQueries = response.data;
+		});
+	}
 
 	fetchPreviousQuery( id ) {
 		return this.$http.get( APP.ROOT + '/search/recentQuery/' + id );

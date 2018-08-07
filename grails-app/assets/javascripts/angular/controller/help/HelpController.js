@@ -1,9 +1,10 @@
 
 class HelpController {
 	
-	constructor( $scope, currentSearch, modalService ) {
+	constructor( $scope, currentSearch, modalService, searchService ) {
 		this.currentSearch = currentSearch;
 		this.modalService = modalService;
+		this.searchService = searchService;
 		this.queries = [];
 	}
 	
@@ -27,9 +28,10 @@ class HelpController {
 		              {query: 'cuis:C0033213', name:"umls cui searches", explanation:"Find notes tagged with UMLS CUIs (Concept Unique Identifier). Can be combined using logical AND / OR operators, e.g., cuis:C0039796 OR cuis:C2137071"}
         ];
 		me.queries = queries;
+		me.searchService.fetchSavedQueries();
 	}
 }
 
-HelpController.$inject = [ '$scope', 'currentSearch', 'modalService' ];
+HelpController.$inject = [ '$scope', 'currentSearch', 'modalService', 'searchService' ];
 
 export default HelpController;

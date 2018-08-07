@@ -96,12 +96,44 @@
 								<i class="fa fa-search fa-lg" aria-hidden="true"></i>
 							</a>
 						</li>
-						<li class="<g:if test="${actionName=='saved'}">active</g:if>">
-							<a href="${request.contextPath}/admin/saved" data-toggle="tooltip" data-placement="bottom" title="saved searches">
+						
+						<li class="dropdown" data-toggle="tooltip" data-placement="bottom" title="saved searches">
+							<a class="dropdown-toggle" data-toggle="dropdown" role="button">
 								<i class="fa fa-list fa-lg" aria-hidden="true"></i>
-								<!--  <i class="fa fa-caret-down" aria-hidden="true"></i> -->
+								<i class="fa fa-caret-down" aria-hidden="true"></i>
 							</a>
+							<ul class="dropdown-menu">
+								<li role="presentation" class="dropdown-header pull-right">Saved Queries</li>
+								<li ng-repeat="sq in hc.searchService.savedQueries track by $index">
+									<a ng-click="hc.currentSearch.recentSearch(sq.query.id)">
+	                        			<div title="click to search">
+		                        			<sub style="color:gray">{{sq.registration.authorizedContext}}</sub>
+		                        			<br>
+		                        			<span style="text-decoration:none">{{sq.query.label}}</span>  
+		                        			<small style="color:gray" ng-if="sq.query.filters"><i>Filters: {{sq.query.filters}}</i></small>
+	                        			</div>
+	                        		</a>
+	                            </li>
+							</ul>
 						</li>
+        <!--  
+
+						<ul class="dropdown-menu pull-right">
+                            <li role="presentation" class="dropdown-header pull-right">Saved Queries</li>
+                        	<li ng-repeat="sq in hc.searchService.savedQueries track by $index">
+								<a ng-click="hc.currentSearch.recentSearch(sq.query.id)">
+                        			<div title="click to search">
+	                        			<sub style="color:gray">{{sq.registration.authorizedContext}}</sub>
+	                        			<br>
+	                        			<span style="text-decoration:none">{{sq.query.label}}</span>  
+	                        			<small style="color:gray" ng-if="sq.query.filters"><i>Filters: {{sq.query.filters}}</i></small>
+                        			</div>
+                        		</a>
+                            </li>
+                        </ul>
+						
+					-->	
+						
 						<li class="<g:if test="${actionName=='help'}">active</g:if>">
 							<a data-toggle="tooltip" data-placement="bottom" title="help">
 								<i class="fa fa-question fa-lg" aria-hidden="true"
