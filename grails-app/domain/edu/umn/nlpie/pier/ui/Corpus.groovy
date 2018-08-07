@@ -69,7 +69,6 @@ class Corpus {
 		//similar to searchable field, look into putting cui field default on Field class
 	}
 	
-	//TODO is this method used?
 	static getSearchableCorpora() {
 		def env = Environment.current.name
 		def corps = Corpus.executeQuery(

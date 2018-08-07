@@ -17,7 +17,7 @@ class ExpansionService {
 		} else if ( APP.ENV=="fvprod" || APP.ENV=="fvtest" ) {
 			url = "http://nlp02.fairview.org:9200/expansion_v1/word/"
 		}
-		return this.$http.post( APP.ROOT + '/search/related/', { "url": url, "term":term } ) ;
+		return this.$http.post( APP.ROOT + '/search/related', { "url": url, "term":term } ) ;
 	}
 	
 	parseUserInputIntoEmbeddingCandidates( userInput ) {

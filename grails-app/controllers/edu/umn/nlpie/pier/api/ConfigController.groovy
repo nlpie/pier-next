@@ -18,7 +18,6 @@ class ConfigController {
 		
 	//keep
 	def authorizedContexts() {
-		//TODO with spring security in place can restrict the set of requests based on user allowed to invoke this method
 		def contexts = configService.authorizedContexts
 		JSON.use ('authorized.context') {
 			respond contexts
@@ -26,7 +25,6 @@ class ConfigController {
 	}
 	
 	def authorizedContextByLabel() {
-		//TODO with spring security in place can restrict the set of requests based on user allowed to invoke this method
 		JSON.use ('authorized.context') {
 			//println request.JSON
 			respond configService.authorizedContextByLabel(request.JSON.label)

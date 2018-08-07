@@ -69,7 +69,7 @@ class Type {
 	
 	String getContextFilterField() {
 		def field = fields.find { it.contextFilterField==true }
-		(field.fieldName)?:null
+		(field?.fieldName)?:null
 	}
 	
 	String getCuiField() {

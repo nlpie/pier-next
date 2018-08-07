@@ -101,7 +101,7 @@ grails.hibernate.osiv.readonly = false
 environments {
     development {
         grails.logging.jul.usebridge = true
-		
+		//TODO issue ssh -N -f rmcewan@nlp05.ahc.umn.edu -L 9200:nlp05.ahc.umn.edu:9200
 		//LDAP config used by Spring Security LDAP plugin for LDAP authentication
 		grails.plugin.springsecurity.ldap.context.managerDn = ''
 		grails.plugin.springsecurity.ldap.context.managerPassword = ''
@@ -129,7 +129,7 @@ environments {
 	}
     production {
         grails.logging.jul.usebridge = false
-        // TODO: grails.serverURL = "http://www.changeme.com"
+        grails.serverURL = "https://nlppier.ahc.umn.edu"
     }
 	fvdev {
 		//TODO issue ssh -N -f rmcewan1@nlp02.fairview.org -L 9200:nlp02.fairview.org:9200 prior to spinning up this env, then the FV ES cluster is available on localhost:9200
@@ -138,7 +138,6 @@ environments {
 		grails.gsp.enable.reload=true
 		grails.logging.jul.usebridge = false
 		grails.assets.minifyJs = false
-		// TODO: grails.serverURL = "http://www.changeme.com"
 		
 		//LDAP config used by Spring Security LDAP plugin for LDAP authentication
 		grails.plugin.springsecurity.ldap.context.managerDn = 'nlp-pier-svc@fairview.org'
@@ -157,7 +156,6 @@ environments {
 		grails.gsp.enable.reload=true
 		grails.logging.jul.usebridge = false
 		grails.assets.minifyJs = false
-		// TODO: grails.serverURL = "http://www.changeme.com"
 		
 		//LDAP config used by Spring Security LDAP plugin for LDAP authentication
 		grails.plugin.springsecurity.ldap.context.managerDn = 'nlp-pier-svc@fairview.org'
@@ -226,6 +224,10 @@ grails.plugin.springsecurity.controllerAnnotations.staticRules = [
 '/console/**': 				['ROLE_SUPERADMIN'],
 '/register/**': 			['IS_AUTHENTICATED_ANONYMOUSLY']
 ]
+//security logout
+grails.plugin.springsecurity.logout.postOnly = false
+grails.plugin.springsecurity.logout.afterLogoutUrl = '/search'
+
 
 
 
