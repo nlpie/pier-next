@@ -27,10 +27,12 @@ class BootStrap {
 		def superadmin = Role.findByAuthority("ROLE_SUPERADMIN")?:new Role(authority:"ROLE_SUPERADMIN").save(flush:true)
 		def admin = Role.findByAuthority("ROLE_ADMIN")?:new Role(authority:"ROLE_ADMIN").save(flush:true)
 		def user = Role.findByAuthority("ROLE_USER")?:new Role(authority:"ROLE_USER").save(flush:true)
-		def beta = Role.findByAuthority("ROLE_BETA_USER")?:new Role(authority:"ROLE_BETA_USER").save(flush:true)
 		def analyst = Role.findByAuthority("ROLE_ANALYST")?:new Role(authority:"ROLE_ANALYST").save(flush:true)
+		def cardio = Role.findByAuthority("ROLE_CARDIOLOGY")?:new Role(authority:"ROLE_CARDIOLOGY").save(flush:true)
+		def cancer = Role.findByAuthority("ROLE_CANCER")?:new Role(authority:"ROLE_CANCER").save(flush:true)
 
 		configUser("rmcewan", [user,analyst,superadmin])
+		//configUser("rmcewan",  [user,cardio])
 		configUser("rmcewan1", [user,analyst,superadmin])
 		configUser("hultm041", [user,analyst,superadmin])
 		configUser("ghultma1", [user,analyst,superadmin])
@@ -39,9 +41,13 @@ class BootStrap {
 		configUser("pakh0002",[user,analyst])
 		
 		//Init FV users
-		configUser("jessler1",[user,analyst])
-		configUser("mleonar1",[user,analyst])
-		configUser("jmarkow1",[user,analyst])
+		configUser("jessler1",[user,cancer])
+		configUser("mleonar1",[user,cancer,cardio])
+		configUser("jmarkow1",[user,cardio])
+		configUser("jlibor1", [user,cardio])
+		configUser("pvonide1",[user,cardio])
+		configUser("klondgr1",[user,cardio])
+		configUser("esamuel1",[user,cardio])
 		
 		
 		
@@ -89,7 +95,7 @@ class BootStrap {
 			def contextFilter = Field.findByFieldName("authorized_context_filter_value")?:new Field(fieldName:"authorized_context_filter_value",dataTypeName:"NOT_ANALYZED_STRING", description:"Array of search contexts that include this note",contextFilterField:true, aggregatable:false )
 			def cui = Field.findByFieldName("cuis")?:new Field(fieldName:"cuis", dataTypeName:"NOT_ANALYZED_STRING", description:"UMLS CUIs identified by BioMedICUS NLP pipeline", aggregatable:true, significantTermsAggregatable:true)
 
-			def clinicalCorpus = Corpus.findByName("Clinical Notes")?: new Corpus(name:"Clinical Notes", description:"notes from Epic", enabled:true, glyph:"fa-file-text-o").save(flush:true, failOnError:true)
+			def clinicalCorpus = Corpus.findByName("Clinical Notes")?: new Corpus(name:"Clinical Notes", description:"notes from Epic", enabled:true, glyph:"fa-file-text-o", minimumRole:analyst).save(flush:true, failOnError:true)
 			
 			def noteType = Type.findByTypeName("note")?:new Type(typeName:"note", description:"CDR note", environment:Environment.current.name)
 			noteType.addToFields(noteId)
@@ -133,10 +139,10 @@ class BootStrap {
 			clinicalCorpus.save(flush:true, failOnError:true)
 			
 			//SURG PATH REPORTS INDEX
-			def surgPathCorpus = Corpus.findByName("Surgical Pathology Reports")?: new Corpus(name:"Surgical Pathology Reports", description:"surgical path reports from CDR", enabled:true, glyph:"icon-i-pathology").save(flush:true, failOnError:true)
+			def surgPathCorpus = Corpus.findByName("Surgical Pathology Reports")?: new Corpus(name:"Surgical Pathology Reports", description:"surgical path reports from CDR", enabled:true, glyph:"icon-i-pathology", minimumRole:analyst).save(flush:true, failOnError:true)
 			
 			def surgPathIdx = Index.findByCommonName("Surgical Pathology Reports")?:new Index(commonName:"Surgical Pathology Reports", indexName:"surgical-path_v1", status:"Searchable", description:"surgical pathology reports", numberOfShards:6, numberOfReplicas:0,environment:Environment.current.name)
-			def surgPathType = Type.findByTypeName("report")?:new Type(typeName:"report", description:"CDR surgical path report", environment:Environment.current.name)//, Corpus:surgPathCorpus)
+			def surgPathType = Type.findByTypeName("report")?:new Type(typeName:"report", description:"CDR surgical path report", environment:Environment.current.name)
 			def report = Field.findByFieldName("report")?:new Field(fieldName:"report",dataTypeName:"SNOWBALL_ANALYZED_STRING", description:"surgical pathology report text", defaultSearchField:true,, aggregatable:false)
 			def surgPathContextFilterField = Field.findByFieldNameAndType("authorized_context_filter_value", null)?:new Field(fieldName:"authorized_context_filter_value",dataTypeName:"NOT_ANALYZED_STRING", description:"Array of search contexts that include this note",contextFilterField:true, aggregatable:false )
 			def pathCui = Field.findByFieldNameAndType("cuis", null)?:new Field(fieldName:"cuis", dataTypeName:"NOT_ANALYZED_STRING", description:"UMLS CUIs identified by BioMedICUS NLP pipeline", aggregatable:true, exportable:true, significantTermsAggregatable:true)
@@ -176,7 +182,7 @@ class BootStrap {
 			surgPathCorpus.save(flush:true, failOnError:true)
 			
 			//EF
-			def efCorpus = Corpus.findByName("Echo Reports")?: new Corpus(name:"Echo Reports", description:"Non-scanned Echo reports", enabled:true, glyph:"fa-heart-o").save(flush:true, failOnError:true)
+			def efCorpus = Corpus.findByName("Echo Reports")?: new Corpus(name:"Echo Reports", description:"Non-scanned Echo reports", enabled:true, glyph:"fa-heart-o", minimumRole:cardio).save(flush:true, failOnError:true)
 			def efIdx = Index.findByCommonName("Echo Reports")?:new Index(commonName:"Echo Reports", indexName:"ef_v1", status:"Searchable", description:"Non-scanned Echo reports", numberOfShards:1, numberOfReplicas:0,environment:Environment.current.name)
 			def efType = Type.findByTypeName("summary")?:new Type(typeName:"summary", description:"Narrative, Impression, or Result Comment", environment:Environment.current.name)
 			

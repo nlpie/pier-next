@@ -2,6 +2,7 @@ package edu.umn.nlpie.pier.ui
 
 import edu.umn.nlpie.pier.api.CorpusMetadata
 import edu.umn.nlpie.pier.elastic.Index
+import edu.umn.nlpie.pier.springsecurity.Role
 import grails.util.Environment
 import groovy.transform.InheritConstructors
 
@@ -22,7 +23,7 @@ class Corpus {
 		description()
 		enabled()
 		glyph nullable:true
-		
+		minimumRole()
 	}
 	
 	static transients = [ 'metadata' ]
@@ -32,6 +33,7 @@ class Corpus {
 	String description
 	Boolean enabled = false
 	String glyph
+	Role minimumRole
 	
 	//transients
 	CorpusMetadata metadata	
