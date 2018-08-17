@@ -203,8 +203,8 @@ grails.plugin.springsecurity.roleHierarchy = '''
    	ROLE_SUPERADMIN > ROLE_ADMIN
    	ROLE_ADMIN > ROLE_ANALYST
    	ROLE_ANALYST > ROLE_USER
-	ROLE_ADMIN > ROLE_BETA_USER
-	ROLE_SUPERADMIN > ROLE_BETA_USER
+	ROLE_ANALYST > ROLE_CARDIOLOGY
+	ROLE_ANALYST > ROLE_CANCER
 '''
 
 grails.plugin.springsecurity.controllerAnnotations.staticRules = [

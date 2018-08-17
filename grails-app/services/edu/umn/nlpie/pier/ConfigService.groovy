@@ -19,15 +19,16 @@ class ConfigService {
 	static scope = "prototype"
 	def userService
 
+	/*
 	def getAuthorizedContexts() {
 		def list = new ArrayList()
 		def username = userService.currentUserUsername
 		//if user has ROLE_ANALYST, give access to all contexts and add each searchable corpus for the current env for corpus-wide searching
-		if ( SpringSecurityUtils.ifAnyGranted('	ROLE_ANALYST') ) {
+		if ( SpringSecurityUtils.ifAnyGranted('ROLE_ANALYST') ) {
 			//list = AuthorizedContext.list(sort:'label')
 			def corpora = Corpus.searchableCorpora
 			corpora.each { ct ->
-				list.add(0,new AuthorizedContext( label:ct.name, filterValue:0 ));
+				list.add(0,new AuthorizedContext( label:ct.name, filterValue:0 ))
 			}
 			println "${username} IS ROLE_ANALYST, ${list.size()} contexts available"
 		} else {
@@ -35,7 +36,21 @@ class ConfigService {
 			println "${username} NOT ROLE_ANALYST, ${list.size()} contexts available"
 		}
 		list
-    }
+    }*/
+	
+	def getAuthorizedContexts() {
+		def list = new ArrayList()
+		def username = userService.currentUserUsername
+		def corpora = Corpus.searchableCorpora
+		corpora.each { c ->
+			if ( SpringSecurityUtils.ifAnyGranted( c.minimumRole.authority ) ) {  
+				list.add(0,new AuthorizedContext( label:c.name, filterValue:0 ));
+			}
+		}
+		list.addAll( AuthorizedContext.findAllByUsername(username,[sort:'label']) )
+		println "${username}, ${list.size()} contexts available"
+		list
+	}
 	
 	def authorizedContextByLabel( label ) { 
 		//get username from spring security service
