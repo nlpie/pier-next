@@ -5,13 +5,19 @@ class ExpansionService {
 		this.$http = $http;
 		this.$q = $q;
 		this.growl = growl;
-		this.expansionChoices = [];
 	}
 	
 	fetchRelated( term ) {
 		//TODO externalize expansion terms URL
 		//return this.$http.post( APP.ROOT + '/search/related/', { "url": "http://nlp05.ahc.umn.edu:9200/expansion_v1/word/", "term":term } ) ;
-		return this.$http.post( APP.ROOT + '/search/related/', { "url": "http://localhost:9200/expansion_v1/word/", "term":term } ) ;
+		let url = "http://nlp05.ahc.umn.edu:9200/expansion_v1/word/"
+		
+		if ( APP.ENV=="fvdev" ) {
+			url = "http://localhost:9200/expansion_v1/word/"
+		} else if ( APP.ENV=="fvprod" || APP.ENV=="fvtest" ) {
+			url = "http://nlp02.fairview.org:9200/expansion_v1/word/"
+		}
+		return this.$http.post( APP.ROOT + '/search/related', { "url": url, "term":term } ) ;
 	}
 	
 	parseUserInputIntoEmbeddingCandidates( userInput ) {

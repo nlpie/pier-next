@@ -13,7 +13,7 @@ class Index {
 	static constraints = {
     	indexName unique:'cluster'
 		description()
-		environment inList: ['DEVELOPMENT', 'TEST', 'PRODUCTION', 'DEPRECATED','CUSTOM','development','test','fvdev','production']
+		environment inList: ['DEVELOPMENT', 'TEST', 'PRODUCTION', 'DEPRECATED','CUSTOM','development','test','production','fvdev','fvtest']
 		status inList:['Searchable', 'Unavailable', 'In Progress', 'Functional'], nullable:false
 		isTermExpansionIndex validator: { val, obj, errors ->
 			if ( val && obj.status!='Functional' ) {

@@ -19,7 +19,6 @@ class SearchController {//extends RestfulController {
 	def auditService
 	
 	//TODO refactor to superclass
-	
 	private respondWithException(Exception e) {
 		def msg = e.message.replace('\n',' ')	//\n causes problems when client parses returned JSON
 		respond ( e, status:e.status )
@@ -290,10 +289,10 @@ expansion formula:
 		respond searchService.searchHistory( jsonBody.excludeMostRecent )	//projection 
 	}
 	
-	/*def registeredSearch() {
-		respond searchService.registeredSearch(params.id)
+	def savedQueries() {
+		//TODO put exception handling in place
+		respond searchService.savedQueries()
 	}
-	*/
 	
 	
 	def recentQuery() {

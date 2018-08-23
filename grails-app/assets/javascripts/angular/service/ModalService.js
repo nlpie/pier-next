@@ -6,17 +6,17 @@ class ModalService {
 		this.$q = $q;
 		this.growl = growl;
 		this.$uibModal = $uibModal;
-		this.items = ['item1', 'item2', 'item3'];
-		this.modalInstance = undefined;
+		this.expansionInstance = undefined;
+		this.helpInstance = undefined;
 	}
 	
 	vectorExpansions( size, controllerName ) {
 		var me = this;
-	    me.modalInstance = me.$uibModal.open({
+	    me.expansionInstance = me.$uibModal.open({
 	      animation: true,//$ctrl.animationsEnabled,
 	      ariaLabelledBy: 'modal-title',
 	      ariaDescribedBy: 'modal-body',
-	      templateUrl: 'myModalContent.html',
+	      templateUrl: 'expansionSelection.template',
 	      controller: controllerName,
 	      controllerAs: 'ctrl',
 	      bindToController: true,
@@ -24,12 +24,34 @@ class ModalService {
 	    });
 	}
 	
+	queryHelp( size, controllerName ) {
+		var me = this;
+	    me.helpInstance = me.$uibModal.open({
+	      animation: true,//$ctrl.animationsEnabled,
+	      ariaLabelledBy: 'modal-title',
+	      ariaDescribedBy: 'modal-body',
+	      templateUrl: 'queryHelp.template',
+	      controller: controllerName,
+	      controllerAs: 'hCtrl',
+	      bindToController: true,
+	      size: size
+	    });
+	}
+	
 	ok() {
-		this.modalInstance.close();
+		this.expansionInstance.close();
 	}
 	
 	cancel() {
-		this.modalInstance.dismiss();
+		this.expansionInstance.dismiss();
+	}
+	
+	helpOk() {
+		this.helpInstance.close();
+	}
+	
+	helpCancel() {
+		this.helpInstance.dismiss();
 	}
 }
 

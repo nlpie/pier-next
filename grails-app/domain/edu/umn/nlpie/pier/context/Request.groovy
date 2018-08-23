@@ -12,30 +12,6 @@ class Request {
 		updatedAt()
     }
 	
-	static marshaller = {
-//TODO object marshaller here? doesn't seem correct
-		JSON.registerObjectMarshaller(Request) { r ->
-			def parties = [
-		            ["id":12 , "name":"Ar", "privateField": "a"],
-		            ["id":9 , "name":"Sr", "privateField": "b"]
-		    ]
-		    def toRender = parties.collect { party->
-		        ["partyId": party.id, "partyName":party.name]
-		    }
-			def result = ["partyTo" : toRender]
-			
-			type.fields.each { f ->
-				propertiesMap.put(f.fieldName, f.dataType)
-			}
-			[ 
-				"label": r.icsRequest,
-				"filterName": r.icsRequest,
-				"description": r.description,
-				"searchableCorpora": Request.searchableCorpora(r.icsRequest) 
-			]
-		}
-	}
-	
 	static mapping = {
 		datasource 'notes'
 		table name: "ics_note_request_pier_next", schema: "notes"

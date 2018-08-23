@@ -4,8 +4,8 @@ class InputExpansion {
 	
 	constructor() {	
 		this.terms = []; 		//array of Term objects
-		//this.suggestions = [];	//array of 
 		this.style = {};
+		this.tip="tip";
     }
 	
 	parseUserInput( userInput ) {
@@ -65,9 +65,14 @@ class InputExpansion {
 		return count;
 	}
 	
+	reset() {
+		this.terms = [];
+		this.style = {};
+	}
+	
 	add( targetTerm, word ) {
-		//alert ( targetTerm + " | " + word);
-    	//let previouslyExpanded = false;
+		//targetTerm is a single token in the search box
+		//word is the token/word to be added (or removed) as an expansion term
     	let existingTerm = this.findTermByTarget( targetTerm );
     	if ( existingTerm ) {
     		//alert("appending");
@@ -78,7 +83,11 @@ class InputExpansion {
     		if ( !expandedBy ) {
     			existingTerm.expandUsing.push( word );
     		} else {
-    			alert("Expansion term [" + word + "] already selected for " + existingTerm.target);
+    			let idx = existingTerm.expandUsing.indexOf(word);
+    			if (idx !== -1) {
+    				existingTerm.expandUsing.splice(idx,1);
+    				//alert("Expansion term [" + word + "] removed as expansion term for " + existingTerm.target);
+    			}
     		}
     	} else {
     		//alert("adding");

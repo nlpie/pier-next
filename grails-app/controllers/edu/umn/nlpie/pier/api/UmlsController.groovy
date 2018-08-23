@@ -4,6 +4,7 @@ import edu.umn.nlpie.pier.api.exception.HttpMethodNotAllowedException
 import edu.umn.nlpie.pier.api.exception.PierApiException
 import grails.plugin.springsecurity.annotation.Secured
 
+
 @Secured(["ROLE_USER"])
 class UmlsController {//extends RestfulController {
 	
@@ -19,7 +20,6 @@ class UmlsController {//extends RestfulController {
 	}
 	
 	def string() {
-		//TODO verify user has access to corpus/index
 		try {
 			//println params.id
 			if ( request.method!="GET" ) throw new HttpMethodNotAllowedException(message:"issue GET instead")

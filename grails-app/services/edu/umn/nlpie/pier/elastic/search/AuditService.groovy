@@ -9,13 +9,12 @@ import groovy.json.JsonSlurper
 @Transactional
 class AuditService {
 	
-	//TODO def userService
+	def userService
 	static scope = "prototype"
 	
 	def register( postBody ) {
-		def user
 		try {
-			user = userService.find(username)
+			postBody.username = userService.currentUserUsername
 		} catch (Exception e) {
 			postBody.username = "nouserservice.user"
 		}

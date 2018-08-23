@@ -1,7 +1,7 @@
 import WordEmbedding from '../../model/rest/response/WordEmbedding';
 import NotFoundWordEmbedding from '../../model/rest/response/NotFoundWordEmbedding';
 
-class ModalController {
+class ExpansionController {
 	
 	constructor( $scope, currentSearch, expansionService, modalService ) {
 		this.currentSearch = currentSearch;
@@ -35,6 +35,6 @@ class ModalController {
 	//esophagogastroduodenoscopy
 }
 
-ModalController.$inject = [ '$scope', 'currentSearch', 'expansionService', 'modalService' ];
+ExpansionController.$inject = [ '$scope', 'currentSearch', 'expansionService', 'modalService' ];
 
-export default ModalController;
+export default ExpansionController;

@@ -1,5 +1,6 @@
 import AbstractHydrator from './AbstractHydrator';
 import Field from './Field';
+import AggregationStatus from './AggregationStatus';
 
 class Aggregation extends AbstractHydrator {
     
@@ -9,6 +10,7 @@ class Aggregation extends AbstractHydrator {
 		this.min = null;
 		this.max = null;
 		this.count = null;
+		this.status = new AggregationStatus();
 		this.field = undefined;
 		this.hydrateObjectProperties( obj );
 //alert(JSON.stringify(this,null,'\t'));

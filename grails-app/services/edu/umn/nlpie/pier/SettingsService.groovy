@@ -13,6 +13,8 @@ import grails.transaction.Transactional
 
 @Transactional
 class SettingsService {
+	
+	def userService
 
     def corpusPreferences( corpusId ) {	//all preferences
 		def corpus = Corpus.get(corpusId.toLong())
@@ -32,14 +34,13 @@ class SettingsService {
     def corpusAggregations( corpusId ) {
     	//should return array of ontologies, each of which has an array of aggregations
     	def corpus = Corpus.get(corpusId.toLong())
+		println "settingsService.corpusAggregations ${corpus.name} ${corpusId}"
     	def index = corpus.index
     	preferencesByOntology( index,'AGGREGATES' )	//returns JSONArray
     }
 
 	private preferencesByOntology( index,scope ) {
-		//TODO lookup user
-		//verify user has access to these settings
-		def user = User.findByUsername("rmcewan")
+		def user = User.findByUsername(userService.currentUserUsername)
 		def ontologies = Ontology.list()
 		//def o = [:]
 		def relevantOntologies = new JSONArray()
@@ -71,7 +72,6 @@ class SettingsService {
     }
 	
 	def saveQuery( registrationId ) {
-		//TODO get user from spring security
 		def reg = SearchRegistration.get(registrationId.toLong())
 		def maxSeq = reg.maxSequence
 		Query.executeUpdate("update Query q set q.saved=true where q.registration.id=? and q.sequence=?", [reg.id, maxSeq] )

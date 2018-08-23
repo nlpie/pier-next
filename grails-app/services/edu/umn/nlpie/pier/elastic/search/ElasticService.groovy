@@ -24,13 +24,14 @@ class ElasticService {
 		def rest = new RestBuilder()
 		//TODO externalize rest url
 		def body = [ "query": [ "match": [ "cui": "${cui}" ] ] ]
-		rest.post( "http://localhost:9200/umls_2013/entry/_search" ) { json body }
+		rest.post( "http://nlp05.ahc.umn.edu:9200/umls_2013/entry/_search" ) { json body }
 		//println r.json.toString(2)
 		//println "--------------------"
 
 	}
 	
 	def fetchRelated( url, term ) {
+		//url must have trailing /
 		println url+term
 		def rest = new RestBuilder()
 		rest.get( url + term ) 

@@ -24,7 +24,7 @@
 									<i class="fa fa-question-circle" title="{{aggregation.field.description}}"></i>
 								</label>
 								<span ng-show="aggregation.status.computingCounts" id="aggs-spinner" style="padding-top:25px">
-									<asset:image src="ajax-loader.gif" alt="determining filters..." /> computing <i class="tally-aggregate">EB</i>s
+									<asset:image src="ajax-loader.gif" alt="determining filters..." /> computing <i class="tally-aggregate">EB</i> s
 								</span>
 								<span ng-if="rc.search.options.distinctCounts.on && (aggregation.count || aggregation.cardinalityEstimate)" style="font-size:0.7em;margin-right:1em">
 									actual:{{aggregation.count | number}}, estimate:{{aggregation.cardinalityEstimate | number}}
@@ -73,6 +73,10 @@
 								ng-bind-html="frag.toString()">
 							</pre>
 							 -->
+						</div>
+						<div ng-switch-when="Echo Reports" class="panel panel-default panel-body">
+							<pre ng-bind-html="'*** PIER-HEADER mrn:' + doc._source['mrn'] + '; ef_results:' + doc._source['ef_results'] + ' ***\n\n' + doc._source[corpus.metadata.defaultSearchField]">
+							</pre>
 						</div>
 						<div ng-switch-default class="panel panel-default panel-body" style="border:none">
 							<div>

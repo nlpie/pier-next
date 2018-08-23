@@ -302,7 +302,7 @@ class Search {
     	//returns es hits
     	corpus.status.searchingDocs = true;
     	var url = corpus.metadata.url;
-    	var encQuery = new EncounterDocQuery( corpus, this.userInput, serviceId  );
+    	var encQuery = new EncounterDocQuery( corpus, this.inputExpansion.expandUserInput(this.userInput), serviceId  );
     	var filterDesc = this.filterDistiller( encQuery );
 //alert("ENC QUERY\n"+JSON.stringify(encQuery,null,'\t'));
 		return this.$http.post( APP.ROOT + '/search/elastic/', JSON.stringify( { "registration.id":registration.id, "corpus":corpus.name, "type":encQuery.constructor.name.toString(), "url":url, "query":encQuery, "filters":filterDesc, "sequence":this.status.sequence } ) )
@@ -321,7 +321,7 @@ class Search {
     a_enc( registration, corpus, serviceId ) {
     	corpus.status.computingAggs = true;
     	var url = corpus.metadata.url;
-    	var aggsQuery = new EncounterAggQuery( corpus, this.userInput, serviceId );
+    	var aggsQuery = new EncounterAggQuery( corpus, this.inputExpansion.expandUserInput(this.userInput), serviceId );
     	var filterDesc = this.filterDistiller( aggsQuery );
 //alert("ENC AGG QUERY\n" + JSON.stringify(aggsQuery,null,'\t'));
 		return this.$http.post( APP.ROOT + '/search/elastic/', JSON.stringify( {"registration.id":registration.id, "corpus":corpus.name, "type":aggsQuery.constructor.name.toString(), "url":url, "query":aggsQuery, "filters":filterDesc, "sequence":this.status.sequence  } ) )
@@ -372,7 +372,7 @@ class Search {
     	//returns es hits
     	corpus.status.searchingDocs = true;
     	var url = corpus.metadata.url;
-    	var pageQuery = new PaginationQuery( corpus, this.userInput );
+    	var pageQuery = new PaginationQuery( corpus, this.inputExpansion.expandUserInput(this.userInput) );
     	var filterDesc = this.filterDistiller( pageQuery );
 //alert("PAGE QUERY\n"+JSON.stringify(pageQuery,null,'\t'));
 		return this.$http.post( APP.ROOT + '/search/elastic/', JSON.stringify( {"registration.id":registration.id, "corpus":corpus.name, "type":pageQuery.constructor.name.toString(), "url":url, "query":pageQuery, "filters":filterDesc, "sequence":this.status.sequence  } ) )
@@ -548,12 +548,12 @@ class Search {
     				aggregation.status.computingCounts = true;
     				var countType = ( maxCount<=15000000 ) ? "bucket" : "scroll";	//TODO externalize maxBuckets threshold
     				var query;
-    				if ( countType=='scroll' ) query = new SingleFieldScrollCountQuery( corpus, me.userInput, aggregation.label, aggregation.fieldName );
+    				if ( countType=='scroll' ) query = new SingleFieldScrollCountQuery( corpus, me.inputExpansion.expandUserInput(me.userInput), aggregation.label, aggregation.fieldName );
     				if ( countType=='bucket' ) {
     					if ( aggregation.field.fieldName=='note_id' ) {
-    						query = new CardinalityOnlyQuery( corpus, me.userInput, aggregation.label, aggregation.field.fieldName );
+    						query = new CardinalityOnlyQuery( corpus, me.inputExpansion.expandUserInput(me.userInput), aggregation.label, aggregation.field.fieldName );
     					} else {
-    						query = new BucketCountQuery( corpus, me.userInput, aggregation.label, aggregation.field.fieldName, maxCount );
+    						query = new BucketCountQuery( corpus, me.inputExpansion.expandUserInput(me.userInput), aggregation.label, aggregation.field.fieldName, maxCount );
     					}
     				}
     				var payload = { 
