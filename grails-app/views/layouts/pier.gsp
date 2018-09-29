@@ -103,16 +103,29 @@
 								<i class="fa fa-caret-down" aria-hidden="true"></i>
 							</a>
 							<ul class="dropdown-menu">
-								<li role="presentation" class="dropdown-header pull-right">Saved Queries</li>
-								<li ng-repeat="sq in hc.searchService.savedQueries track by $index">
-									<a ng-click="hc.currentSearch.recentSearch(sq.query.id)">
+								<li role="presentation" class="dropdown-header" style="font-variant:small-caps">Shared queries - current context</li>
+								<li ng-repeat="item in hc.searchService.savedQueriesByContext track by $index"  ng-click="hc.currentSearch.recentSearch(item.query)" >
+									<a>
 	                        			<div title="click to search">
-		                        			<sub style="color:gray">{{sq.registration.authorizedContext}}</sub>
-		                        			<br>
-		                        			<span style="text-decoration:none">{{sq.query.label}}</span>  
-		                        			<small style="color:gray" ng-if="sq.query.filters"><i>Filters: {{sq.query.filters}}</i></small>
+		                        			<span style="text-decoration:none">{{item.query.userInput}}</span> 
+		                        			<small style="color:green" ng-if="item.query.inputExpansion"><i class="fa fa-expand"></i></small>
+		                        			<small style="color:green" ng-if="item.query.distinctCounts"><i class="tally-recent-saved">EB&nbsp;</i></small>
+		                        			<small style="color:gray" ng-if="item.query.filterSummary"><i class="fa fa-filter fa-lg" style="color:green"></i><i>: {{item.query.filterSummary}}</i></small>
 	                        			</div>
-	                        		</a>
+                        			</a>
+	                            </li>
+	                            <li role="presentation" class="dropdown-header" style="font-variant:small-caps">Your saved queries - other contexts</li>
+								<li ng-repeat="item in hc.searchService.savedQueriesByUserExcludingContext track by $index"  ng-click="hc.currentSearch.recentSearch(item.query)" >
+									<a>
+	                        			<div title="click to search">
+		                        			<sub style="color:gray">{{item.query.authorizedContext}}</sub>
+		                        			<br>
+		                        			<span style="text-decoration:none">{{item.query.userInput}}</span> 
+		                        			<small style="color:green" ng-if="item.query.inputExpansion"><i class="fa fa-expand"></i></small>
+		                        			<small style="color:green" ng-if="item.query.distinctCounts"><i class="tally-recent-saved">EB&nbsp;</i></small>
+		                        			<small style="color:gray" ng-if="item.query.filterSummary"><i class="fa fa-filter fa-lg" style="color:green"></i><i>: {{item.query.filterSummary}}</i></small>
+	                        			</div>
+                        			</a>
 	                            </li>
 							</ul>
 						</li>

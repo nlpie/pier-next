@@ -108,7 +108,7 @@ environments {
 			dialect = "org.hibernate.dialect.MySQL5InnoDBDialect"
 			username = ""	//see config in ds_<env>.groovy
 			password = ""	//see config in ds_<env>.groovy
-			url = "jdbc:mysql://127.0.0.1:3306/fv-dev"
+			url = "jdbc:mysql://127.0.0.1:3306/fvdev"
 			properties {
 				validationQuery="SELECT 1"
 			}
@@ -116,7 +116,7 @@ environments {
 			//formatSql=true
 		}
 		dataSource_notes {
-			//readOnly=true
+			readOnly = false
 			dbCreate = "create-drop"
 			//logSql=true
 			//formatSql=true
@@ -154,7 +154,8 @@ environments {
 			//formatSql=true
 		}
 		dataSource_notes {
-			//readOnly=true
+println "FVTEST FVTEST"
+			readOnly = false
 			dbCreate = "create-drop"
 			//logSql=true
 			//formatSql=true

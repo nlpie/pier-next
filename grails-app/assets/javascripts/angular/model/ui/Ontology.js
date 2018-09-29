@@ -5,7 +5,6 @@ class Ontology extends AbstractHydrator {
     
 	//pass in response.data object from $http call
 	constructor( obj ) {
-		console.info("Ontology constructor");
 		super( obj );
 		this.aggregations = [];
 		this.hydrateObjectProperties( obj );

@@ -6,6 +6,7 @@
 	</head>
 	<body>
 		<div growl></div>
+		<div growl reference="export"></div>
 		<div class="container-fluid" ng-controller="resultsController as rc">
 			
 			<div ng-attr-id="{{ corpus.name }}" ng-show="corpus.status.active" class="row" ng-repeat="corpus in rc.search.context.corpora track by $index">
@@ -26,7 +27,7 @@
 								<span ng-show="aggregation.status.computingCounts" id="aggs-spinner" style="padding-top:25px">
 									<asset:image src="ajax-loader.gif" alt="determining filters..." /> computing <i class="tally-aggregate">EB</i> s
 								</span>
-								<span ng-if="rc.search.options.distinctCounts.on && (aggregation.count || aggregation.cardinalityEstimate)" style="font-size:0.7em;margin-right:1em">
+								<span ng-if="rc.search.instance.distinctCounts.on && (aggregation.count || aggregation.cardinalityEstimate)" style="font-size:0.7em;margin-right:1em">
 									actual:{{aggregation.count | number}}, estimate:{{aggregation.cardinalityEstimate | number}}
 								</span>
 								<label ng-if="aggregation.isTemporal" class="switch pull-right">
@@ -40,7 +41,7 @@
 								</span>
 								<span style="font-size:0.5em">({{bucket.doc_count | number}})</span>
 								<label class="switch pull-right">
-  									<input type="checkbox" ng-click="rc.search.dirty(corpus);corpus.status.userSelectedFilters=true" ng-model="aggregation.filters[bucket.key]">
+  									<input type="checkbox" ng-click="rc.search.dirty(corpus);corpus.status.userSelectedFilters=true;corpus.metadata.show()" ng-model="aggregation.filters[bucket.key]">
   									<span class="slider round"></span>
 								</label>
 							</div>

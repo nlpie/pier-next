@@ -22,7 +22,7 @@ alert("BPIC request context");
     }
     
     setTextQuery( corpus, userInput ) {
-//alert("text");
+//alert("query: " + userInput);
     	this.query.addToMust( new QuerystringQuery(corpus.metadata.defaultSearchField, userInput) );
     }
 
@@ -53,6 +53,7 @@ alert("BPIC request context");
     			}
         	}
     	}
+//alert(JSON.stringify(corpus.metadata.aggregations,null,'\t'));
     }
     
     setRangeFilters( corpus ) {

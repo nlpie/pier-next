@@ -10,20 +10,21 @@ class DistinctCount {
 	}
 	
 	static constraints = {
-    	countType inList:[ 'bucket', 'cardinality', 'scroll', 'hits' ]	
+    	countType inList:[ 'BUCKET', 'CARDINALITY', 'SCROLL' ]	
 		bucketCount nullable:true
 		scrollCount nullable:true
 		cardinalityEstimate nullable:true	
 	}
 	
 	static hasMany = [ buckets:Bucket, scrollValues:ScrollValue ]
-	static belongsTo = [ registration:SearchRegistration ]
+	//static belongsTo = [ registration:SearchRegistration ]
 	
 	//passed from client
 	String countType
 	String query	//body of request sent to elastic
 	String terms
 	String label
+	String uuid
 	
 	//derived properties
 	Integer bucketCount

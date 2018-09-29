@@ -122,6 +122,7 @@ class JsonMarshallerRegistrar {
 					scrollUrl: cm.scrollUrl,
 					defaultSearchField: cm.defaultSearchField,
 					contextFilterField: cm.contextFilterField
+					//aggregations: cm.aggregations
 				]
 			}
 			
@@ -178,10 +179,16 @@ class JsonMarshallerRegistrar {
 		JSON.registerObjectMarshaller(Query) { qq ->
 			[
 				id: qq.id,
+				userInput: qq.userInput,
 				query: qq.query,
 				type: qq.type,
 				url: qq.url,
-				corpus: qq.corpus
+				corpus: qq.corpus,
+				uuid: qq.uuid,
+				inputExpansion: qq.inputExpansion,
+				expansionTerms: qq.expansionTerms,
+				distinctCounts: qq.distinctCounts,
+				saved: qq.saved
 			]
 		}
 		
@@ -241,13 +248,19 @@ class JsonMarshallerRegistrar {
 		JSON.createNamedConfig ('recent.query') { DefaultConverterConfiguration<JSON> cfg ->
 			cfg.registerObjectMarshaller (Query) { Query q ->
 				[ 	id: q.id,
+					userInput: q.userInput,
 					query: q.query,
 					terms: q.terms,
 					type: q.type,
-					registration: q.registration
+					//registration: q.registration,
+					authorizedContext: q.authorizedContext,
+					uuid: q.uuid,
+					inputExpansion: q.inputExpansion,
+					expansionTerms: q.expansionTerms,
+					distinctCounts: q.distinctCounts
 				]
 			}
-			cfg.registerObjectMarshaller (SearchRegistration) { SearchRegistration sr ->
+			/*cfg.registerObjectMarshaller (SearchRegistration) { SearchRegistration sr ->
 				[ 	id: sr.id,
 					searchType: sr.searchType,
 					initialUserInput: sr.initialUserInput,
@@ -255,7 +268,7 @@ class JsonMarshallerRegistrar {
 					username: sr.username
 				]
 			}
-			/*cfg.registerObjectMarshaller (AuthorizedContext) { AuthorizedContext ac ->
+			cfg.registerObjectMarshaller (AuthorizedContext) { AuthorizedContext ac ->
 			
 			}*/
 		}

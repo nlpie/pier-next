@@ -2,10 +2,13 @@ import Term from './Term';
 
 class InputExpansion {
 	
-	constructor() {	
-		this.terms = []; 		//array of Term objects
+	constructor( terms ) {	
+		this.terms = []; 		//array of Term objects, property is called 'terms'
 		this.style = {};
-		this.tip="tip";
+		this.on = false;
+		if ( terms ) {
+			this.terms = terms;
+		}
     }
 	
 	parseUserInput( userInput ) {
@@ -35,7 +38,7 @@ class InputExpansion {
 				phrase = false;
 			}
 		}
-		//alert( JSON.stringify(embeddingCandidates) );
+//alert( JSON.stringify(embeddingCandidates) );
 		return embeddingCandidates;
 	}
 	
@@ -50,7 +53,7 @@ class InputExpansion {
 			if ( !phrase && !field && ( token!="AND" && token!="OR" && token!="NOT") ) embeddingCandidates.push( token );
 			if ( token.endsWith('\"') || token.includes('\"') ) phrase = false;
 		}
-		//alert( JSON.stringify(embeddingCandidates) );
+//alert( JSON.stringify(embeddingCandidates) );
 		return embeddingCandidates;
 	}
 	
@@ -61,6 +64,10 @@ class InputExpansion {
 		}
 		if ( count>0 ) {
 			this.style = { 'color':'green' };
+			this.on = true;
+		} else {
+			this.style = {};
+			this.on = false;
 		}
 		return count;
 	}
@@ -68,40 +75,45 @@ class InputExpansion {
 	reset() {
 		this.terms = [];
 		this.style = {};
+		this.on = false;
 	}
 	
-	add( targetTerm, word ) {
-		//targetTerm is a single token in the search box
-		//word is the token/word to be added (or removed) as an expansion term
-    	let existingTerm = this.findTermByTarget( targetTerm );
-    	if ( existingTerm ) {
-    		//alert("appending");
-    		let expandedBy = false;
-    		for ( let expansion of existingTerm.expandUsing ) {
-    			if ( expansion==word ) expandedBy= true;
-    		}
-    		if ( !expandedBy ) {
-    			existingTerm.expandUsing.push( word );
-    		} else {
-    			let idx = existingTerm.expandUsing.indexOf(word);
-    			if (idx !== -1) {
-    				existingTerm.expandUsing.splice(idx,1);
-    				//alert("Expansion term [" + word + "] removed as expansion term for " + existingTerm.target);
-    			}
-    		}
-    	} else {
-    		//alert("adding");
-    		this.terms.push ( new Term(targetTerm, word) );
-    	}
-    	//alert(JSON.stringify(this.terms,null,'\t'));
-    }
+	add( targetTerm, suggestion ) {
+		//alert(",add");
+				//targetTerm is a single token in the search box
+				//word is the token/word to be added (or removed) as an expansion term
+		    	let existingTerm = this.findTermByTarget( targetTerm );
+		    	if ( existingTerm ) {
+		    		//alert("appending");
+		    		let expandedBy = false;
+		    		for ( let expansion of existingTerm.expandUsing ) {
+		    			if ( expansion==suggestion.term ) expandedBy= true;
+		    		}
+		    		if ( !expandedBy ) {
+		    			existingTerm.expandUsing.push( suggestion.term );
+		    		} else {
+		    			let idx = existingTerm.expandUsing.indexOf(suggestion.term);
+		    			if (idx !== -1) {
+		    				existingTerm.expandUsing.splice(idx,1);
+		    				//alert("Expansion term [" + word + "] removed as expansion term for " + existingTerm.target);
+		    			}
+		    		}
+		    	} else {
+//alert("adding");
+		    		this.terms.push ( new Term(targetTerm, suggestion.term) );
+		    	}
+		    	suggestion.on = !suggestion.on
+//alert("add\n"+JSON.stringify(this.terms,null,'\t'));
+		    }
 	
 	expandUserInput( userInput ) {
-		for ( let term of this.terms ) {
-			let expandedForm = "(" + term.target + " OR " + term.expandUsing.join(" OR ") + ")";
-			userInput = userInput.replace( term.target, expandedForm );
+		if ( this.on ) {
+			for ( let term of this.terms ) {
+				let expandedForm = "(" + term.target + " OR " + term.expandUsing.join(" OR ") + ")";
+				userInput = userInput.replace( term.target, expandedForm );
+			}
+			console.log("EXPANDED INPUT: " + userInput );
 		}
-		console.log( userInput );
 		return userInput;
 	}
 	
@@ -127,7 +139,7 @@ class InputExpansion {
 	}
 	
 	targetLabel ( target ) {
-		//alert(" targetlabel " + target);
+//alert(" targetlabel " + target);
 		let term = this.findTermByTarget( target );
 		if ( !term ) return target;
 		//if term is found, it will have at least one expansion term

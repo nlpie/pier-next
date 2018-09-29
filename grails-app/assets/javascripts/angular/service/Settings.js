@@ -69,7 +69,7 @@ class Settings {
 			me.growl.success( successMsg, {ttl:1000} );
 		})
 		.catch( function(e) {
-			me.remoteError( e, {ttl:3000} );
+			me.remoteError( e, {ttl:5000} );
 		});
 	}
 	

@@ -31,6 +31,13 @@ class ConfigController {
 		}
 	}
 	
+	def authorizedContextByQueryId() {
+		JSON.use ('authorized.context') {
+			//println request.JSON
+			respond configService.authorizedContextByQueryId(request.JSON.queryId)
+		}
+	}
+	
 	//TODO refactor to superclass
 	private renderException(Exception e) {
 		render(status: e.status, text: '{"message":"'+ e.message +'"}', contentType: "application/json") as JSON
