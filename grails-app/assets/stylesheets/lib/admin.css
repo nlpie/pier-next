@@ -399,6 +399,11 @@ input:checked + .slider:before {
 	font-weight:600;
 	vertical-align:text-bottom;
 }
+.tally-recent-saved {
+	font-family:'TallyMark';
+	font-size:1.3em;
+	font-weight:600;
+}
 .tally-aggregate {
 	font-family:'TallyMark';
 	font-size:0.9em;

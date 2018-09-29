@@ -2,9 +2,8 @@ package edu.umn.nlpie.pier
 
 import org.codehaus.groovy.grails.web.json.JSONArray
 
+import edu.umn.nlpie.pier.api.exception.InsufficientPrivilegesException
 import edu.umn.nlpie.pier.audit.Query
-import edu.umn.nlpie.pier.audit.SearchRegistration
-import edu.umn.nlpie.pier.elastic.Index
 import edu.umn.nlpie.pier.springsecurity.User
 import edu.umn.nlpie.pier.ui.Corpus
 import edu.umn.nlpie.pier.ui.FieldPreference
@@ -67,15 +66,16 @@ class SettingsService {
 	
 	def updatePreference( properties ) {
 		def fp = FieldPreference.get(properties.id.toLong())
+		if ( fp.user.username!=userService.currentUserUsername ) {
+			throw new InsufficientPrivilegesException( "User does not have sufficient privileges to change this setting ")
+		}
 		fp.properties = properties
 		fp.save()
     }
 	
-	def saveQuery( registrationId ) {
-		def reg = SearchRegistration.get(registrationId.toLong())
-		def maxSeq = reg.maxSequence
-		Query.executeUpdate("update Query q set q.saved=true where q.registration.id=? and q.sequence=?", [reg.id, maxSeq] )
-		reg
+	def saveQuery( uuid ) {
+		Query.executeUpdate("update Query q set q.saved=true where q.uuid=?", [uuid] )
+		Query.findAllByUuid( uuid )
 	}
 	
 }

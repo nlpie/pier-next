@@ -4,13 +4,14 @@ class RelatedTerm extends AbstractHydrator {
 	
 	constructor( obj ) {
 		super( obj );
+		this.on = false;	//default for checkbox behavior
     }
 	
 }
 
 export default RelatedTerm;
 
-/*
+/* data coming back from ES
 {
 	"term": "spark",
 	"frequency": 64,

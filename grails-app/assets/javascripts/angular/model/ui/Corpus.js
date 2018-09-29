@@ -11,7 +11,6 @@ class Corpus extends AbstractHydrator {
 		this.status = new CorpusStatus();
 		this.results = new Results();
 		this.hydrateObjectProperties( obj );
-//alert(JSON.stringify(this,null,'\t'));
 	}
 	
 	hydrateObjectProperties( obj ) {
@@ -63,6 +62,85 @@ class Corpus extends AbstractHydrator {
 	        	}
 	    	}
 		}
+	}
+	
+	parsePastQueryFilterArray ( queryFilterArray ) {
+//alert("filters queryFilterArray\n" + JSON.stringify(queryFilterArray,null,'\t'));
+//alert("filters metadata aggregations\n" + JSON.stringify(this.metadata,null,'\t'));
+		for ( let ontology of this.metadata.aggregations ) {
+    		for ( let aggregation of ontology.aggregations ) {
+    			for ( let filter of queryFilterArray ) {
+    				for ( let should of filter.bool.should ) {
+    					if ( should.term[aggregation.field.fieldName] ) {
+    						//console.log( should );
+    						aggregation.filters[ should.term[aggregation.field.fieldName] ] = true;
+//alert( JSON.stringify(should) + "\n" + JSON.stringify(aggregation,null,'\t') );
+    					}
+    				}
+    				
+    			}
+    			//aggregation
+    			/*{
+					"id": 54,
+					"label": "Encounter Clinic Type",
+					"displayOrder": 10,
+					"numberOfFilterOptions": 5,
+					"isTemporal": false,
+					"isNumeric": false,
+					"countDistinct": false,
+					"aggregate": true,
+					"export": false,
+					"filters": {
+						"Primary Care": true,
+						"UMP": false,
+						"Sports and Orthopedics": true
+					},
+					"min": null,
+					"max": null,
+					"count": null,
+					"status": {
+						"computingCounts": false
+					},
+					"field": {
+						"id": 2,
+						"fieldName": "encounter_clinic_type",
+						"aggregatable": true,
+						"significantTermsAggregatable": false,
+						"exportable": true,
+						"contextFilterField": false,
+						"dataTypeName": "NOT_ANALYZED_STRING",
+						"description": "Clinic type in Epic"
+					}
+				}*/
+    			
+    			//queryFilterArray
+    			/*[
+    				{
+    					"bool": {
+    						"filter": [],
+    						"should": [
+    							{
+    								"term": {
+    									"encounter_clinic_type": "Primary Care"
+    								}
+    							},
+    							{
+    								"term": {
+    									"encounter_clinic_type": "Sports and Orthopedics"
+    								}
+    							}
+    						],
+    						"must_not": [],
+    						"must": []
+    					}
+    				}
+    			]*/
+    			
+        	}
+    	}
+		this.status.userSelectedFilters = true;
+    	this.status.showBan = true;
+    	this.status.dirty = true;
 	}
 	
 	isDirty() {

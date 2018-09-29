@@ -2,6 +2,7 @@ package edu.umn.nlpie.pier
 
 import org.apache.commons.lang.RandomStringUtils
 
+import edu.umn.nlpie.pier.audit.Query
 import edu.umn.nlpie.pier.context.AuthorizedContext
 import edu.umn.nlpie.pier.elastic.Field
 import edu.umn.nlpie.pier.elastic.Index
@@ -47,13 +48,21 @@ class ConfigService {
 				list.add(0,new AuthorizedContext( label:c.name, filterValue:0 ));
 			}
 		}
-		list.addAll( AuthorizedContext.findAllByUsername(username,[sort:'label']) )
+		//list.addAll( AuthorizedContext.findAllByUsername(username,[sort:'label']) )
 		println "${username}, ${list.size()} contexts available"
 		list
 	}
 	
 	def authorizedContextByLabel( label ) { 
-		//get username from spring security service
+		def username = userService.currentUserUsername
+		def ac = AuthorizedContext.findByLabelAndUsername( label,username );
+		if ( !ac ) ac = new AuthorizedContext( label:label, filterValue:0 )
+		ac
+	}
+	
+	def authorizedContextByQueryId( queryId ) {
+		def query = Query.get( queryId.toLong() )
+		def label = query.authorizedContext
 		def username = userService.currentUserUsername
 		def ac = AuthorizedContext.findByLabelAndUsername( label,username );
 		if ( !ac ) ac = new AuthorizedContext( label:label, filterValue:0 )
@@ -68,7 +77,7 @@ class ConfigService {
 	def initalizeUserPreferences(User user) {
 		def prefs = this.defaultPreferences
 		prefs.each {
-			println "cloning ${it.field.type}:${it.label}"
+			//println "cloning ${it.field.type}:${it.label}"
 			def field = it.field
 			def fp = new FieldPreference(it.properties)
 			fp.setUser(user)

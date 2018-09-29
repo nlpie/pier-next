@@ -5,6 +5,7 @@ import groovy.json.JsonSlurper
 class Query {
 
     static constraints = {
+		userInput()
 		hits nullable:true
 		took nullable:true
 		exceptionMessage nullable:true
@@ -12,29 +13,39 @@ class Query {
 		timedOut nullable:true
 		label nullable:true
 		hashCodedQuery nullable:true
-		filters nullable:true
+		filterSummary nullable:true
+		expansionTerms nullable:true
     }
 	
 	static mapping = {
 		query sqlType: "mediumtext"
 		exceptionMessage type: 'text'
-		terms sqlType: 'text'
+		terms sqlType: 'mediumtext'
 		//version false
 	}
 	
-	static belongsTo = [ registration:SearchRegistration ]	//client passes in queryLog.id
+	//static belongsTo = [ registration:SearchRegistration ]	//client passes in queryLog.id
 	//TODO add override/inherit constructor that takes request.JSON, looks up user, tests for necesseary JSON properties and throws exceptions. this will simplify the controllers/services
 	
 	//passed from client
+	String userInput
 	String url
 	String corpus
 	String type
 	String query	//body of request sent to elastic
+	String authorizedContext
+	String mode
+	String filterSummary
+	String expansionTerms
+
 	Integer hashCodedQuery
 	String terms
-	String filters
-	Integer sequence
 	Boolean saved = false
+	String username = "objdefault"
+	String uuid //= UUID.randomUUID().toString()
+	String session
+	Boolean inputExpansion
+	Boolean distinctCounts
 	
 	//returned from elastic
 	Integer hits

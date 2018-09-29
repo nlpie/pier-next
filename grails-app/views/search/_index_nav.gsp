@@ -26,37 +26,19 @@
 			</li>
 			
 			<li data-container="body" data-toggle="tooltip" data-placement="bottom" data-html="true" title="enable/disable distinct counts for applicable category aggregates">
-				<a><i class="tally" ng-click="sc.currentSearch.toggleDistinctCounts()" ng-style="sc.currentSearch.options.distinctCounts.style">
+				<a><i class="tally" ng-click="sc.currentSearch.instance.toggleDistinctCounts()" ng-style="sc.currentSearch.instance.distinctCounts.style">
 					EB
 					</i>
 				</a>
 			</li>
-			
-			<!--  
-			<li>
-				<a ng-style="sc.currentSearch.inputExpansion.style">
-					<i id="expansion-control" class="fa fa-expand fa-lg" ng-click="sc.modalService.vectorExpansions('lg','expansionController')" 	
-						data-toggle="tooltip" data-placement="bottom-right"  
-						data-html="true" template="expansion-tooltip.html"
-					>
-					</i> 
-					<sup>{{sc.currentSearch.inputExpansion.cardinality()}}</sup>
-				</a>
-			</li>
-			<!-- <li>
-				<a>
-					<i class="fa fa-language fa-lg" title="potential expansion terms" uib-popover-template="sc.currentSearch.template" 
-						popover-placement="bottom-right" popover-append-to-body="true" popover-title="Query Expansion Choices"
-						data-toggle="tooltip" data-placement="bottom" data-html="true"
-						ng-click="sc.searchService.fetchRelated(sc.currentSearch.userInput)">
-					</i>
-				</a>
-			</li> -->
-			<li data-container="body" data-toggle="tooltip" data-placement="bottom" title="download query results">
+			<li data-container="body" data-toggle="tooltip" 
+				data-placement="bottom" 
+				ng-click="sc.searchService.exportSearch(sc.currentSearch)"
+				title="download query results">
 				<a><i class="fa fa-download fa-lg"></i></a>
 			</li>
 			<li data-container="body" data-toggle="tooltip" data-placement="bottom" title="save query for later use">
-				<a><i class="fa fa-floppy-o fa-lg" ng-click="sc.searchService.saveQuery(sc.currentSearch.registration.id)"></i></a>
+				<a><i class="fa fa-floppy-o fa-lg" ng-click="sc.searchService.saveQuery(sc.currentSearch.instance)"></i></a>
 			</li>
 		</ul>
 		
@@ -100,13 +82,7 @@
 						ng-change="sc.currentSearch.dirty()"
 						style="border-right:none;-webkit-box-shadow: none !important;-moz-box-shadow: none !important;box-shadow: none !important;
 							position: relative;height:33.1px"
-						ng-model-options="{
-    						'updateOn': 'default blur',
-    						'debounce': {
-      							'default': 250,
-      							'blur': 0
-    						}
-    					}" />
+						/>
 					
 					<div class="input-group-btn" class="input-group-addon" style="width:1%;">
 						
@@ -114,15 +90,17 @@
 							<i class="fa fa-caret-down recent-queries" aria-hidden="true"></i>
 						</button>
 						<ul class="dropdown-menu pull-right">
-                            <li role="presentation" class="dropdown-header pull-right">Recent Searches</li>
-                        	<li ng-repeat="sh in sc.searchService.searchHistory track by $index">
-								<a ng-click="sc.currentSearch.recentSearch(sh.query.id)">
+                            <li role="presentation" class="dropdown-header" style="font-variant:small-caps">Recent Searches</li>
+                        	<li ng-repeat="item in sc.searchService.searchHistory track by $index">
+								<a ng-click="sc.currentSearch.recentSearch(item.query)">
                         			<div title="click to search">
-	                        			<sub style="color:gray">{{sh.registration.authorizedContext}}</sub>
+	                        			<sub style="color:gray">{{item.query.authorizedContext}}</sub>
 	                        			<br>
-	                        			<span style="text-decoration:none">{{sh.query.label}}</span> 
-	                        				<span style="font-style:italic;color:green" ng-if="sh.query.saved==true">saved</span> 
-	                        				<small style="color:gray" ng-if="sh.query.filters"><i>Filters: {{sh.query.filters}}</i></small>
+	                        			<span style="text-decoration:none">{{item.query.userInput}}</span> 
+	                        				<small style="color:green" ng-if="item.query.inputExpansion"><i class="fa fa-expand"></i></small>
+		                        			<small style="color:green" ng-if="item.query.distinctCounts"><i class="tally-recent-saved">EB&nbsp;</i></small>
+	                        				<span style="font-style:italic;color:green" ng-if="item.query.saved==true"><i class="fa fa-floppy-o"></i></span> 
+	                        				<small style="color:gray" ng-if="item.query.filterSummary"><i class="fa fa-filter fa-lg" style="color:green"></i><i>: {{item.query.filterSummary}}</i></small>
                         			</div>
                         		</a>
                             </li>

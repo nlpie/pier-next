@@ -8,6 +8,8 @@ class ExpansionController {
 		this.expansionService = expansionService;
 		this.modalService = modalService;
 		this.embeddings = [];
+		this.allRelatedMisspellings = false;
+		this.allSemanticallyRelatedTerms = false;
 	}
 	
 	//convenience method for easily proofing state of objects
@@ -28,10 +30,52 @@ class ExpansionController {
 					} else {
 						me.embeddings.push( new NotFoundWordEmbedding( wordEmbeddings ) );
 					}
-				});
+				})
+				.then( function() {me.populateExistingExpansions();} );
 		}
-		//alert(JSON.stringify(this.embeddings));
 	}
+	
+	populateExistingExpansions() {
+		if ( this.currentSearch.inputExpansion.terms.length==0 ) return;
+		for ( let embeddingSet of this.embeddings ) {	//one set for each term
+			for ( let term of this.currentSearch.inputExpansion.terms ) {	//user-designated expansion terms
+				for ( let suggestion of embeddingSet.relatedMisspellings ) {
+					for ( let expansionTerm of term.expandUsing ) {
+						if ( expansionTerm==suggestion.term ) {
+							suggestion.on = true;
+						}
+					}
+				}
+				for ( let suggestion of embeddingSet.semanticallyRelatedTerms ) {		
+					for ( let expansionTerm of term.expandUsing ) {
+						if ( expansionTerm==suggestion.term ) {
+							suggestion.on = true;
+						}
+					}
+				}
+			}
+		}
+	}
+	
+	clear() {
+alert("IE reset");
+		this.currentSearch.inputExpansion.reset();
+	}
+	
+	toggleAllRelatedMisspellings( targetTerm, relatedMisspellingSuggestions ) {
+		this.allRelatedMisspellings = !this.allRelatedMisspellings;
+		for ( let suggestion of relatedMisspellingSuggestions ) {
+			this.currentSearch.inputExpansion.add( targetTerm, suggestion );
+		}
+	}
+	
+	toggleAllSemanticallyRelatedTerms( targetTerm, semanticallyRelatedSuggestions ) {
+		this.allSemanticallyRelatedTerms = !this.semanticallyRelatedSuggestions;
+		for ( let suggestion of semanticallyRelatedSuggestions ) {
+			this.currentSearch.inputExpansion.add( targetTerm, suggestion );
+		}
+	}
+	
 	//esophagogastroduodenoscopy
 }
 

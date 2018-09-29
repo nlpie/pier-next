@@ -5,6 +5,8 @@ import edu.umn.nlpie.pier.ui.Corpus
 
 
 class AuthorizedContext {
+	
+	def settingsService
 
     static constraints = {
 		requestId()
@@ -61,7 +63,7 @@ class AuthorizedContext {
 				ct.metadata = new CorpusMetadata(ct)
 				ct.metadata.filtered = false
 			}
-				
+			//ct.metadata.aggregations = settingsService.corpusAggregations( ct.id )	
 		}
 		corpora
 	}
