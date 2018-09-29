@@ -4,13 +4,14 @@ class RelatedMisspelling extends AbstractHydrator {
 	
 	constructor( obj ) {
 		super( obj );
+		this.on = false;	//default for checkbox behavior
     }
 	
 }
 
 export default RelatedMisspelling;
 
-/*
+/* data coming back from ES
 {
 	"term": "spark",
 	"frequency": 10,

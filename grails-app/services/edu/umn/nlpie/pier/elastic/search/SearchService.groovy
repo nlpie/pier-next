@@ -22,17 +22,23 @@ class SearchService {
 		def username = userService.currentUserUsername
 
 		sql << """
-select distinct q.registration.id as registrationId, q.label, q.registration.authorizedContext, q.id as queryId, q.filters, q.saved
+select q.id as queryId, q.label, q.authorizedContext, q.id as queryId, q.filterSummary, q.expansionTerms, q.saved, q.uuid, q.userInput, q.inputExpansion, q.distinctCounts
 from Query q
-where q.registration.username=? and q.httpStatus=? and q.type in ( 'DocumentQuery','EncounterQuery' )
-group by q.hashCodedQuery, q.filters, q.registration.authorizedContext, q.saved
+where q.username=? and q.httpStatus=? and q.type in ( 'DocumentQuery','EncounterQuery' )
 order by q.dateCreated desc """.toString()
-//and q.id not in ( ? )
+
+		/*sql << """
+select distinct q.id as queryId, q.label, q.authorizedContext, q.id as queryId, q.filterSummary, q.saved, q.uuid
+from Query q
+where q.username=? and q.httpStatus=? and q.type in ( 'DocumentQuery','EncounterQuery' )
+group by q.hashCodedQuery, q.filterSummary, q.authorizedContext, q.saved
+order by q.dateCreated desc """.toString()*/
+
 		def lastQueryId = 0.toLong()
 		
 		/*if ( excludeMostRecent ) {
 			lastQueryId = Query.createCriteria().get {
-				eq ("registration.username", username)
+				eq ("query.username", username)
 				projections {
 					max "id"
 				}
@@ -40,7 +46,7 @@ order by q.dateCreated desc """.toString()
 		}*/
 		
 		if ( excludeMostRecent ) {
-			//def result = Query.executeQuery( "select max(q.id) as queryId from Query q where q.registration.username=? and q.type=? ", [username,"DocumentQuery"] )
+			//def result = Query.executeQuery( "select max(q.id) as queryId from Query q where q.username=? and q.type=? ", [username,"DocumentQuery"] )
 			//lastQueryId = result[0]
 		}
 		
@@ -48,37 +54,49 @@ order by q.dateCreated desc """.toString()
 		def summaries = []
 		results.each {
 			summaries << new HistorySummaryDTO(it)
-			println "${it[1]} ${it[4]}"
 		}
 		summaries
 		//lookup user from userService
 	}
 	
-	def savedQueries() {
+	def savedQueriesByContext( authorizedContext ) {
 		def sql = new StringBuffer()
-		def username = userService.currentUserUsername
-
 		sql << """
-select distinct q.registration.id as registrationId, q.label, q.registration.authorizedContext, q.id as queryId, q.filters, q.saved
+select q.id as queryId, q.label, q.authorizedContext, q.id as queryId, q.filterSummary, q.expansionTerms, q.saved, q.uuid, q.userInput, q.inputExpansion, q.distinctCounts
 from Query q
-where q.registration.username=? and q.httpStatus=? and q.type in ( 'DocumentQuery','EncounterQuery' ) and q.saved=?
-group by q.hashCodedQuery, q.filters, q.registration.authorizedContext
-order by q.dateCreated desc """.toString()
+where q.httpStatus=? and q.type in ( 'DocumentQuery','EncounterQuery' ) and q.saved=? and q.authorizedContext=?
+order by q.label """.toString()
 		
-		def results = Query.executeQuery(sql.toString(), [username, 200, true] )
+		def results = Query.executeQuery(sql.toString(), [200, true, authorizedContext] )
 		def queries = []
 		results.each {
 			queries << new HistorySummaryDTO(it)
-			//println "${it[1]} ${it[4]}"
 		}
-		println queries.size()
+		println "in context: ${queries.size()}"
 		queries
-		//lookup user from userService
+	}
+	
+	def savedQueriesByUserExcludingContext( authorizedContext ) {
+		def sql = new StringBuffer()
+		def username = userService.currentUserUsername
+		sql << """
+select q.id as queryId, q.label, q.authorizedContext, q.id as queryId, q.filterSummary, q.expansionTerms, q.saved, q.uuid, q.userInput, q.inputExpansion, q.distinctCounts
+from Query q
+where q.username=? and q.httpStatus=? and q.type in ( 'DocumentQuery','EncounterQuery' ) and q.saved=? and q.authorizedContext not in (?)
+order by q.authorizedContext, q.label """.toString()
+		
+		def results = Query.executeQuery(sql.toString(), [username, 200, true, authorizedContext] )
+		def queries = []
+		results.each {
+			queries << new HistorySummaryDTO(it)
+		}
+		println "not in context: ${queries.size()}"
+		queries
 	}
 	
 	def recentQuery(id) {
 		def d = Query.get( id.toLong() )
-		def a = Query.findByTermsAndHashCodedQueryAndSequenceAndType(d.terms,d.hashCodedQuery,d.sequence,"AggregationQuery")
+		def a = Query.findByUuidAndType(d.uuid,"AggregationQuery")
 		[ "docsQuery":d, "aggsQuery":a]
 	}
 	
@@ -110,8 +128,9 @@ order by q.dateCreated desc """.toString()
 		def json = elasticResponse.json
 //println postBody.toString(2)
 //println elasticResponse.json
-		def sr = SearchRegistration.get(postBody["registration.id"].toLong())
-		def c = new DistinctCount(registration:sr)
+		//def sr = SearchRegistration.get(postBody["registration.id"].toLong())
+		//def c = new DistinctCount(registration:sr)
+		def c = new DistinctCount()
 //println postBody.query.toString(2)
 		c.query = postBody.query
 		c.terms = postBody.query.query.bool.must.query_string.query
@@ -121,12 +140,13 @@ order by q.dateCreated desc """.toString()
 		c.timedOut = json.timed_out
 		c.label = postBody.label
 		c.countType = postBody.countType
+		c.uuid = postBody.uuid
 		def cardinalityLabel = postBody.label + " Cardinality Estimate"
 		c.cardinalityEstimate = json.aggregations[cardinalityLabel].value
 		def buckets = json.aggregations[postBody.label]?.buckets
 		c.bucketCount = (buckets) ?  buckets.size() : 0
 		c.save(failOnError:true,flush:true)
-		sr.save(failOnError:true,flush:true)
+		//sr.save(failOnError:true,flush:true)
 		println "CE: [${postBody.label}] ${c.id} ${c.cardinalityEstimate}"
 		
 		/*

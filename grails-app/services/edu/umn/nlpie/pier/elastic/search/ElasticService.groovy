@@ -8,6 +8,8 @@ import groovy.json.JsonOutput
 
 @Transactional
 class ElasticService {
+	
+	def umlsIndexSearchUrl
 
     def search( url, elasticQuery ) {
 		def rest = new RestBuilder()
@@ -24,7 +26,7 @@ class ElasticService {
 		def rest = new RestBuilder()
 		//TODO externalize rest url
 		def body = [ "query": [ "match": [ "cui": "${cui}" ] ] ]
-		rest.post( "http://nlp05.ahc.umn.edu:9200/umls_2013/entry/_search" ) { json body }
+		rest.post( umlsIndexSearchUrl ) { json body }
 		//println r.json.toString(2)
 		//println "--------------------"
 

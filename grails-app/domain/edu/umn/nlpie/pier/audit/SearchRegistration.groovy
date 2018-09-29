@@ -38,13 +38,13 @@ class SearchRegistration {
 	def getCountQueries( List registrationList ) {
 		DistinctCount.findAllBySearchRegistrationInList(this)
 	}
-	def getMaxSequence() {
+	/*def getMaxSequence() {
 		def seq = 0
 		this.queries.each {
 			seq = ( it.sequence>seq ) ? it.sequence : seq
 		}
 		println seq
 		seq
-	}
+	}*/
 
 }

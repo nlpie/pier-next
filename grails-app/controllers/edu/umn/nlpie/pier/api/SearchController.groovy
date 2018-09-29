@@ -1,11 +1,15 @@
 package edu.umn.nlpie.pier.api
 
+import org.apache.commons.lang.StringEscapeUtils
+
 import edu.umn.nlpie.pier.api.exception.BadElasticRequestException
 import edu.umn.nlpie.pier.api.exception.HttpMethodNotAllowedException
 import edu.umn.nlpie.pier.api.exception.PierApiException
 import grails.converters.JSON
 import grails.plugin.springsecurity.annotation.Secured
+import grails.plugins.rest.client.RestBuilder
 import grails.validation.ValidationException
+import groovy.json.JsonBuilder
 
 
 @Secured(["ROLE_USER"])
@@ -17,6 +21,7 @@ class SearchController {//extends RestfulController {
 	def elasticService
 	def searchService
 	def auditService
+	def springSecurityService
 	
 	//TODO refactor to superclass
 	private respondWithException(Exception e) {
@@ -25,12 +30,9 @@ class SearchController {//extends RestfulController {
 		//render(status: e.status, text: '{"message":"'+ msg +'"}', contentType: "application/json") as JSON
 	}
 	
-	
 	def index() { }	//default search view
 	
-	
 	def search() { }	//deprecated 
-	
 	
 	def elastic() {
 		//println request.JSON.toString(2)
@@ -49,16 +51,17 @@ class SearchController {//extends RestfulController {
 			if ( status==500 ) {
 				throw new PierApiException( message:elasticResponse.json.error.root_cause.reason )
 			}
-			auditService.logQueryAndResponse( postBody, elasticResponse )
+
+			auditService.logQueryAndResponse( request, postBody, elasticResponse )
 			respond elasticResponse.json 
 		} catch( PierApiException e) {
-			auditService.logException ( postBody, elasticResponse, e )
+			auditService.logException ( request, postBody, elasticResponse, e )
 			respondWithException(e)
 		} catch( ValidationException e) {
-			auditService.logException ( postBody, e )
+			auditService.logException ( request, postBody, elasticResponse, e )
 			respondWithException( new PierApiException( postBody, elasticResponse, e ) )
 		} catch( Exception e) {
-			auditService.logException ( postBody, elasticResponse, e )
+			auditService.logException ( request, postBody, elasticResponse, e )
 			respondWithException( new PierApiException( message:e.message ) ) 
 		} finally {
 		
@@ -91,6 +94,116 @@ class SearchController {//extends RestfulController {
 			"status": 500
 		  }
 		  */
+	}
+	
+	def export() {
+		def postBody = request.JSON
+println postBody
+		postBody.query.sort = ["_doc"]
+println postBody
+		def elasticResponse
+		try {
+			if ( request.method!="POST" ) throw new HttpMethodNotAllowedException(message:"issue GET instead")
+			//TODO sanity check on request.JSON - needs query, url, searchRequest.id, etc
+			//println postBody.toString(2)
+			elasticResponse = elasticService.search( postBody.url+"?scroll=1m", postBody.query )
+println elasticResponse.json.toString(2)
+			def status = elasticResponse.status
+			if ( status==400 ) {
+				throw new BadElasticRequestException( message:"Malformed query - check your syntax" )
+			}
+			if ( status==500 ) {
+				throw new PierApiException( message:elasticResponse.json.error.root_cause.reason )
+			}
+			//auditService.logQueryAndResponse( postBody, elasticResponse )
+			respond elasticResponse.json
+		} catch( PierApiException e) {
+			auditService.logException ( request, postBody, elasticResponse, e )
+			respondWithException(e)
+		} catch( ValidationException e) {
+			auditService.logException ( request, postBody, elasticResponse, e )
+			respondWithException( new PierApiException( postBody, elasticResponse, e ) )
+		} catch( Exception e) {
+			auditService.logException ( request, postBody, elasticResponse, e )
+			respondWithException( new PierApiException( message:e.message ) )
+		} finally {
+		
+		}
+	}
+	
+	def streamCsv() {
+		def b = new Date().time
+		def index = session["searchContext"]
+		if (index=="All Notes") index = "notes"
+		println "SearchController.streamcsv: ${request.forwardURI}"
+		def qJson = JSON.parse(session['esCsvQuery'])
+		println "SearchController.streamcsv:\n${qJson.toString(2)}"
+		def es = "http://${grailsApplication.config.elasticsearch.host}:9200"
+		def forwardURI = "/${index}/note/_search"	//request.forwardURI.minus(request.contextPath).replace("streamcsv", index)	//set ES type to note
+		def qs = "search_type=scan&scroll=2m&size=100"
+		def rest = new RestBuilder()
+		def esResponse
+		def totalDocs
+		
+		//set up scroll-scan
+		println "SearchController.streamcsv: ${es}${forwardURI}?${qs}"
+		esResponse = rest.post("${es}${forwardURI}?${qs}") {
+			json qJson.toString()
+		}
+		println esResponse.json.toString(2)	//contains _scroll_id
+		
+		//use _scroll_id to get results
+		forwardURI = "/_search/scroll"
+		qs = "scroll=2m&scroll_id=${esResponse.json._scroll_id}"
+		//def total = esResponse.json.hits.total
+		
+		response.contentType = "text/csv"	//"text/tab-separated-values"
+		response.setHeader("Content-disposition", "attachment; filename=dl.csv")
+		
+		def i=0
+		def columns
+		def data = response.outputStream//new StringBuilder()
+		def sortJson = new JsonBuilder(["sort":"_doc"])
+		while (true) {
+			qs = "scroll=2m&scroll_id=${esResponse.json._scroll_id}"
+			esResponse = rest.post("${es}${forwardURI}?${qs}") {
+				sortJson.toString()
+			}
+			def numberOfHits = esResponse.json.hits.hits.length()
+			
+			println "SearchController.streamcsv: docs so far: ${i}, current scroll size: ${esResponse.json.hits.hits.length()} ${new Date()}"
+			if ( numberOfHits ) {
+				def fields = esResponse.json.hits.hits[0].fields
+				if ( !columns ) {
+					columns = fields.names().sort()
+					data << columns.join(",") << "\n"
+				}
+			
+				esResponse.json.hits.hits.each { hit ->
+					i++
+					columns.each { col ->
+						def fieldValue = StringEscapeUtils.escapeCsv( hit.fields[col] ? hit.fields[col][0].toString() : "null" )
+						if ( col=="pat_mrn" )  {
+							def tmp = new StringBuilder()
+							tmp << "fv_mrn:" << fieldValue
+							fieldValue = tmp
+						}
+						data << fieldValue
+						if ( col!=columns[columns.length()-1] ) {
+							data << ","
+						} else {
+							data << "\n"
+						}
+					}
+				}
+
+			} else if (esResponse.json.hits.hits.length() == 0) {
+				//Break condition: No hits are returned
+				break;
+			}
+		}
+		data.flush()
+		println "streamed csv took ${(new Date().time-b)/1000}s"
 	}
 	
 	def noteCount() {
@@ -129,7 +242,7 @@ class SearchController {//extends RestfulController {
 		//println request.JSON.toString(2)
 		def postBody = request.JSON
 		def elasticResponse
-		//try {
+		try {
 			if ( request.method!="POST" ) throw new HttpMethodNotAllowedException(message:"issue GET instead")
 			//TODO sanity check on request.JSON - needs query, url, searchRequest.id, etc
 			elasticResponse = elasticService.search( postBody.url, postBody.query )
@@ -142,7 +255,7 @@ class SearchController {//extends RestfulController {
 			def distinctCount = searchService.logBucketCountInfo( postBody, elasticResponse )
 			//respond elasticResponse.json
 			respond distinctCount
-	/*	} catch( PierApiException e) {
+		} catch( PierApiException e) {
 			//auditService.logException ( postBody, elasticResponse, e )
 			respondWithException(e)
 		} catch( ValidationException e) {
@@ -154,7 +267,7 @@ class SearchController {//extends RestfulController {
 			respondWithException( new PierApiException( message:e.message ) )
 		} finally {
 		
-		}*/
+		}
 	}
 	
 	def scrollCount() {
@@ -289,9 +402,14 @@ expansion formula:
 		respond searchService.searchHistory( jsonBody.excludeMostRecent )	//projection 
 	}
 	
-	def savedQueries() {
+	def savedQueriesByContext() {
 		//TODO put exception handling in place
-		respond searchService.savedQueries()
+		respond searchService.savedQueriesByContext( request.JSON.authorizedContext )
+	}
+	
+	def savedQueriesByUserExcludingContext() {
+		//TODO put exception handling in place
+		respond searchService.savedQueriesByUserExcludingContext( request.JSON.authorizedContext )
 	}
 	
 	

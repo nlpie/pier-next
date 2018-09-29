@@ -1,3 +1,4 @@
+import edu.umn.nlpie.pier.audit.UserAuthenticationEvent
 import grails.util.Environment
 
 // locations to search for config files that get merged into the main config;
@@ -132,8 +133,10 @@ environments {
         grails.serverURL = "https://nlppier.ahc.umn.edu"
     }
 	fvdev {
-		//TODO issue ssh -N -f rmcewan1@nlp02.fairview.org -L 9200:nlp02.fairview.org:9200 prior to spinning up this env, then the FV ES cluster is available on localhost:9200
+		//sudo /usr/lib/jvm/jre/bin/keytool -import -alias fv-ldap -keystore /usr/lib/jvm/jre/lib/security/cacerts -file ~/fv-ldap.cer 
+		//TODO issue ssh -N -f rmcewan1@nlp02.fairview.org -L 9200:localhost:9200 prior to spinning up this env, then the FV ES cluster is available on localhost:9200
 		//TODO fire a script to do this after exchanging keys
+		//https://confluence.atlassian.com/kb/unable-to-connect-to-ssl-services-due-to-pkix-path-building-failed-779355358.html
 		disable.auto.recompile=false
 		grails.gsp.enable.reload=true
 		grails.logging.jul.usebridge = false
@@ -150,6 +153,7 @@ environments {
 		grails.plugin.springsecurity.ldap.search.filter='(sAMAccountName={0})'
 	}
 	fvtest {
+		//sudo /usr/lib/jvm/jre/bin/keytool -import -alias fv-ldap -keystore /usr/lib/jvm/jre/lib/security/cacerts -file ~/fv-ldap.cer 
 		//TODO issue ssh -N -f rmcewan1@nlp02.fairview.org -L 9200:nlp02.fairview.org:9200 prior to spinning up this env, then the FV ES cluster is available on localhost:9200
 		//TODO fire a script to do this after exchanging keys
 		disable.auto.recompile=false
@@ -227,6 +231,28 @@ grails.plugin.springsecurity.controllerAnnotations.staticRules = [
 //security logout
 grails.plugin.springsecurity.logout.postOnly = false
 grails.plugin.springsecurity.logout.afterLogoutUrl = '/search'
+//grails.plugin.springsecurity.successHandler.defaultTargetUrl = '/search/login'
+
+grails.plugin.springsecurity.useSecurityEventListener = true
+grails.plugin.springsecurity.onInteractiveAuthenticationSuccessEvent = { e, appCtx ->
+	println e.toString()
+	//println e.authentication.authorities.join(" ")
+	def auth = e.authentication
+	def deets = auth.details
+	//println details.toString()
+	def remoteAddress = deets.remoteAddress
+	def session =  deets.sessionId
+	println auth.principal.username
+	UserAuthenticationEvent.withNewSession {
+		new UserAuthenticationEvent( 
+			username: auth.principal.username,
+			roles: auth.authorities.join(" "),
+			remoteAddress: deets.remoteAddress,
+			session: deets.sessionId,
+			eventInfo: e.toString()
+		).save(failOnError:true)
+	}
+}
 
 
 

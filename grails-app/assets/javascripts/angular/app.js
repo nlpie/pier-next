@@ -33,6 +33,6 @@ angular.module( 'app', ['angular-growl', 'ngSanitize', 'xeditable', 'angularSlid
 		editableOptions.theme = 'default';	//bs3
 		editableOptions.icon_set = 'font-awesome';
 	})
-	.config(['growlProvider', function(growlProvider) {
+	.config( ['growlProvider', function(growlProvider) {
 		growlProvider.globalPosition('top-right');
 	}]);

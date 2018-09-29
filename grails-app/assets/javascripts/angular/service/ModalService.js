@@ -38,11 +38,11 @@ class ModalService {
 	    });
 	}
 	
-	ok() {
+	expOk() {
 		this.expansionInstance.close();
 	}
 	
-	cancel() {
+	expClear() {
 		this.expansionInstance.dismiss();
 	}
 	

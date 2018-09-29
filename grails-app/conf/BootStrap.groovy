@@ -36,6 +36,8 @@ class BootStrap {
 		configUser("rmcewan1", [user,analyst,superadmin])
 		configUser("hultm041", [user,analyst,superadmin])
 		configUser("ghultma1", [user,analyst,superadmin])
+		configUser("alber475", [user,analyst])
+		configUser("linde527", [user,analyst])
 		
 		configUser("gmelton",[user,analyst])
 		configUser("pakh0002",[user,analyst])
@@ -43,6 +45,7 @@ class BootStrap {
 		//Init FV users
 		configUser("jessler1",[user,cancer])
 		configUser("mleonar1",[user,cancer,cardio])
+		configUser("ehoule1", [user,cancer,cardio])
 		configUser("jmarkow1",[user,cardio])
 		configUser("jlibor1", [user,cardio])
 		configUser("pvonide1",[user,cardio])
@@ -54,9 +57,7 @@ class BootStrap {
 		
 		//populate elastic data
 		Cluster.withSession { session ->
-			//def u = User.findByUsername("rmcewan")?:new User(username:"rmcewan",password:"umn").save(failOnError:true)
 			def app = configUser("nlppier", [])
-			//def app = User.findByUsername("nlppier")?:new User(username:"nlppier",password:"${this.generatePassword()}",enabled:false).save(failOnError:true)
 			
 			def epicOntology = Ontology.findByName('Epic Categories')?:new Ontology(name:'Epic Categories', description:"what shows in Epic").save(flush:true, failOnError:true)
 			def epicHL7LoincOntology = Ontology.findByName('HL7 LOINC')?:new Ontology(name:'HL7 LOINC', description:"DO Axis values").save(flush:true, failOnError:true)
@@ -80,6 +81,7 @@ class BootStrap {
 			
 			def noteId = Field.findByFieldName("note_id")?:new Field(fieldName:"note_id",dataTypeName:"LONG", description:"Epic note id", aggregatable:false)
 			def mrn = Field.findByFieldName("mrn")?:new Field(fieldName:"mrn",dataTypeName:"NOT_ANALYZED_STRING", description:"Epic patient identifier", aggregatable:true)
+			def patientId = Field.findByFieldNameAndType("patient_id", null)?:new Field(fieldName:"patient_id", dataTypeName:"LONG", description:"CDR Patient ID", aggregatable:true, exportable:true)
 			def encounterId = Field.findByFieldName("encounter_id")?:new Field(fieldName:"encounter_id",dataTypeName:"LONG", description:"Epic visit number", aggregatable:true)
 			def serviceDate = Field.findByFieldName("service_date")?:new Field(fieldName:"service_date",dataTypeName:"DATE", description:"Date of Service", aggregatable:true, exportable:true)
 			def filingDatetime = Field.findByFieldName("filing_datetime")?:new Field(fieldName:"filing_datetime",dataTypeName:"DATETIME", description:"When note was filed", aggregatable:true, exportable:true)
@@ -100,6 +102,7 @@ class BootStrap {
 			def noteType = Type.findByTypeName("note")?:new Type(typeName:"note", description:"CDR note", environment:Environment.current.name)
 			noteType.addToFields(noteId)
 			noteType.addToFields(mrn)
+			noteType.addToFields(patientId)
 			noteType.addToFields(encounterId)
 			noteType.addToFields(serviceDate)
 			noteType.addToFields(filingDatetime)
@@ -124,7 +127,7 @@ class BootStrap {
 					fp.numberOfFilterOptions = 25
 					fp.aggregate = true
 				}
-				if ( f.fieldName=="mrn" || f.fieldName=="note_id") {
+				if ( f.fieldName=="mrn" || f.fieldName=="patient_id") {
 					fp.computeDistinct = true
 					//if ( f.fieldName=="note_id" || f.fieldName=="mrn" ) fp.aggregate = false
 				}
@@ -147,19 +150,34 @@ class BootStrap {
 			def surgPathContextFilterField = Field.findByFieldNameAndType("authorized_context_filter_value", null)?:new Field(fieldName:"authorized_context_filter_value",dataTypeName:"NOT_ANALYZED_STRING", description:"Array of search contexts that include this note",contextFilterField:true, aggregatable:false )
 			def pathCui = Field.findByFieldNameAndType("cuis", null)?:new Field(fieldName:"cuis", dataTypeName:"NOT_ANALYZED_STRING", description:"UMLS CUIs identified by BioMedICUS NLP pipeline", aggregatable:true, exportable:true, significantTermsAggregatable:true)
 			
-			def pathCollDate = Field.findByFieldNameAndType("collection_datetime", null)?:new Field(fieldName:"collection_datetime", dataTypeName:"DATETIME", description:"Specimen collection time", aggregatable:true, exportable:true)
+			def pathCollDate = Field.findByFieldNameAndType("collection_datetime", null)?:new Field(fieldName:"collection_datetime", dataTypeName:"DATETIME", description:"Specimen collection date/time", aggregatable:true, exportable:false)
+			def pathResultDate = Field.findByFieldNameAndType("result_datetime", null)?:new Field(fieldName:"result_datetime", dataTypeName:"DATETIME", description:"Result date/time", aggregatable:false, exportable:false)
 			def procCode = Field.findByFieldNameAndType("proc_code", null)?:new Field(fieldName:"proc_code", dataTypeName:"NOT_ANALYZED_STRING", description:"Specimen collection procedure code", aggregatable:true, exportable:true)
 			def procName = Field.findByFieldNameAndType("proc_name", null)?:new Field(fieldName:"proc_name", dataTypeName:"NOT_ANALYZED_STRING", description:"Specimen collection procedure name", aggregatable:true, exportable:true)
 			def authProv = Field.findByFieldNameAndType("authorizing_prov_name", null)?:new Field(fieldName:"authorizing_prov_name", dataTypeName:"NOT_ANALYZED_STRING", description:"Authorizing provider", aggregatable:true, exportable:true)
 			def resultsInterp = Field.findByFieldNameAndType("rslts_interpreter", null)?:new Field(fieldName:"rslts_interpreter", dataTypeName:"NOT_ANALYZED_STRING", description:"Name of provider interpreting results ", aggregatable:true, exportable:true)
 			
+			def specNumber = Field.findByFieldNameAndType("specimen_number", null)?:new Field(fieldName:"specimen_number", dataTypeName:"NOT_ANALYZED_STRING", description:"Specimen number", aggregatable:true, exportable:true)
+			def pathOrderId = Field.findByFieldNameAndType("order_id", null)?:new Field(fieldName:"order_id", dataTypeName:"NOT_ANALYZED_STRING", description:"CDR Order ID", aggregatable:true, exportable:true)
+			def pathServiceId = Field.findByFieldNameAndType("service_id", null)?:new Field(fieldName:"service_id", dataTypeName:"LONG", description:"CDR Service ID", aggregatable:true, exportable:true)
+			def pathPatientId = Field.findByFieldNameAndType("patient_id", null)?:new Field(fieldName:"patient_id", dataTypeName:"LONG", description:"CDR Patient ID", aggregatable:true, exportable:true)
+			def pathReportLen = Field.findByFieldNameAndType("report_length", null)?:new Field(fieldName:"report_length", dataTypeName:"INTEGER", description:"Character length of report", aggregatable:false, exportable:true)
+			
+			surgPathType.addToFields(pathCui)
 			surgPathType.addToFields(report)
 			surgPathType.addToFields(surgPathContextFilterField)
 			surgPathType.addToFields(pathCollDate)
+			surgPathType.addToFields(pathResultDate)
 			surgPathType.addToFields(procCode)
 			surgPathType.addToFields(procName)
 			surgPathType.addToFields(authProv)
 			surgPathType.addToFields(resultsInterp)
+			surgPathType.addToFields(specNumber)
+			surgPathType.addToFields(pathOrderId)
+			surgPathType.addToFields(pathServiceId)
+			surgPathType.addToFields(pathPatientId)
+			surgPathType.addToFields(pathReportLen)
+			
 			//surgPathType.addToFields(pathCui)
 			surgPathType.fields.each { f ->
 				println "adding surg path pref for ${f.fieldName}"
@@ -170,6 +188,10 @@ class BootStrap {
 					fp.ontology=biomedicus
 					fp.label = "Medical Concepts"
 					fp.numberOfFilterOptions = 10
+				}
+				if ( f.fieldName=="mrn" || f.fieldName=="patient_id") {
+					fp.computeDistinct = true
+					//if ( f.fieldName=="note_id" || f.fieldName=="mrn" ) fp.aggregate = false
 				}
 				f.addToPreferences(fp)
 			}
@@ -254,7 +276,7 @@ class BootStrap {
 				if ( f.fieldName=="text") fp.aggregate=false
 				if ( f.fieldName=="procedure_name" || f.fieldName=="procedure_code" 
 					|| f.fieldName=="ef_measures" || f.fieldName=="test_name_orig") fp.numberOfFilterOptions=100
-				if ( f.fieldName=="mrn" ) { fp.computeDistinct = true
+				if ( f.fieldName=="mrn" || f.fieldName=="patient_id" ) { fp.computeDistinct = true
 				}
 			
 				f.addToPreferences(fp)
@@ -284,7 +306,7 @@ class BootStrap {
 	
 	User configUser( username, roles ) {
 		def pwd = RandomStringUtils.randomAlphanumeric(20)
-		def user = User.findByUsername(username)?:new User(username:username,password:pwd).save(failOnError:true)
+		def user = User.findByUsername(username)?:new User(username:username,password:pwd,enabled:true).save(failOnError:true)
 		roles.each { role ->
 			UserRole.create(user, role)
 		}

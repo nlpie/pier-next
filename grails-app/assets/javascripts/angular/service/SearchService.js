@@ -1,14 +1,18 @@
+import AuthorizedContext from '../model/ui/AuthorizedContext';
 
 class SearchService {
 	
 	//for some reason service constructors do not need inject annotation?
-	constructor( $http, $q, growl ) {
+	constructor( $http, $q, growl, $timeout ) {
 		this.$http = $http;
 		this.$q = $q;
+		this.$timeout = $timeout;
 		this.growl = growl;
 		this.searchHistory = undefined;
-		this.savedQueries = undefined;
+		this.savedQueriesByContext = undefined;
+		this.savedQueriesByUserExcludingContext = undefined;
 		this.relatedTerms = undefined;
+		this.exportMsg = "now";
 	}
 	
 	fetchContexts() {
@@ -17,7 +21,12 @@ class SearchService {
 
 	
 	fetchAuthorizedContextByLabel( label ) {
+//alert("auth context by label");
     	return this.$http.post( APP.ROOT + '/config/authorizedContextByLabel/', { "label": label } );
+    }
+	
+	fetchAuthorizedContextByQueryId( queryId ) {
+    	return this.$http.post( APP.ROOT + '/config/authorizedContextByQueryId/', { "queryId": queryId } );
     }
 	
 	setActiveCorpus( corpus, corpora ) {
@@ -30,7 +39,8 @@ class SearchService {
     	}
     }
 	
-	fetchHistory() {	
+	fetchHistory() {
+//alert("fetch history");
 		let me = this;
 		return this.$http.post( APP.ROOT + '/search/historySummary', { "excludeMostRecent":false } )
 		.then( function(response) {
@@ -46,33 +56,67 @@ class SearchService {
 	    	});
     }
 	
-	fetchSavedQueries() {	
-		let me = this;
-		return this.$http.post( APP.ROOT + '/search/savedQueries' )
-		.then( function(response) {
-			me.savedQueries = response.data;
-		});
+	fetchSavedQueries( authorizedContext ) {
+		if ( authorizedContext ) {
+			let me = this;
+			this.$http.post( APP.ROOT + '/search/savedQueriesByContext', {"authorizedContext": authorizedContext} )
+			.then( function(response) {
+				me.savedQueriesByContext = response.data;
+			});
+			this.$http.post( APP.ROOT + '/search/savedQueriesByUserExcludingContext', {"authorizedContext": authorizedContext} )
+			.then( function(response) {
+				me.savedQueriesByUserExcludingContext = response.data;
+			});
+		}
 	}
 
-	fetchPreviousQuery( id ) {
+	fetchPreviousQueries( id ) {
+//alert( "fetch prev queries");
 		return this.$http.get( APP.ROOT + '/search/recentQuery/' + id );
 	}
 		
-	saveQuery( registrationId ) {
+	saveQuery( searchInstance ) {
 		let me = this;
-		this.$http.get( APP.ROOT + '/settings/saveQuery/' + registrationId )
+		this.$http.get( APP.ROOT + '/settings/saveQuery/' + searchInstance.uuid )
 			.then( function(response) {	
-				//alert("Query saved")
+				me.fetchSavedQueries( searchInstance.authorizedContext );
 				me.growl.success( "Query saved", {ttl:1000} );
 			})
 			.catch( function(e) {
-				//alert("problem")
 				me.growl.error( "Error - contact support", {ttl:30000} );
 			});
 	}
 	
+	exportSearch( currentSearch ) {
+		let me = this;
+		currentSearch.status.exporting = true;
+		//let gr = this.exporting();
+		this.$http.get( APP.ROOT + '/search/export/' + currentSearch.registrationId )
+			.then( function(response) {	
+				currentSearch.status.exporting = false;
+				me.$timeout(function() { 
+					gr.destroy();
+					me.exported();
+				}, 5000 );
+				//return data				
+			})
+			.catch( function(e) {
+				me.growl.error( "Error - " + JSON.stringify(e), {ttl:15000} );
+				currentSearch.status.exporting = false;
+			});
+	}
+	
+	exporting() {
+		let growl = this.growl.info( "Exporting...<i class=\"fa fa-spinner fa-spin\"></i>", {ttl:-1, disableCloseButton: true, referenceId:"export"} );
+		return growl;
+	}
+	
+	exported( currentSearch, timeout ) {
+		this.growl.success( "done", {ttl:5000, referenceId:"export"} );
+	}
+	
 }
 
-SearchService.$inject = [ '$http', '$q', 'growl' ];
+SearchService.$inject = [ '$http', '$q', 'growl', '$timeout' ];
 
 export default SearchService;
