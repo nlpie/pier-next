@@ -111,6 +111,7 @@ class Search {
     		corpusThatNeedsAggs.metadata.aggregations = new CorpusAggregationsResponse( response.data );
 //alert("corpus in corpusAggregations\n"+JSON.stringify(corpusThatNeedsAggs,null,'\t'));
 	    	console.log("aggregations set for " + corpusThatNeedsAggs.name);
+	    	me.searchService.fetchSavedQueries( searchContext.label );
 	    	return me.$q.when( me );
 	    });
     }
@@ -145,7 +146,7 @@ class Search {
 		let me = this;
     	this.dec(search)	
 		.then( me.complete )		
-		.then( me.searchService.fetchHistory() )
+		.then( me.searchService.fetchHistory() );
     }
     
     
