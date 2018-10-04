@@ -8,6 +8,10 @@ class DocumentsResponse {
     	console.info("docs took " + this.took);
     	this.timedOut = data.timed_out;
     }
+	
+	isEmpty() {
+		return ( this.total==0 ) ? true : false;
+	}
 
 }
 

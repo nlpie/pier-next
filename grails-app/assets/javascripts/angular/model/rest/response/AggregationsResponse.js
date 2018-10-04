@@ -9,11 +9,15 @@ class AggregationsResponse {
     	this.aggs = undefined;
     	if ( this.total>0 ) {	//do not set if results
     		this.aggs = data.aggregations;
+    		this.decorateCorpus( corpus );
     	}
-    	this.decorateCorpus( corpus );
     }
     
     clear() { }
+    
+    isEmpty() {
+		return ( this.total==0 ) ? true : false;
+	}
     
     decorateCorpus( corpus ) {
     	let me = this;
