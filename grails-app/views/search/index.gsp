@@ -63,17 +63,17 @@
 					<div ng-show="corpus.status.searchingDocs" id="docs-spinner" style="padding-top:25px">
 						<asset:image src="ajax-loader.gif" alt="searching corpus..." /> searching corpus...
 					</div>
+					<div ng-show="corpus.results.docs.isEmpty() && !corpus.status.searchingDocs">NO DOCUMENTS FOUND</div>
 					<div ng-repeat="doc in corpus.results.docs.hits track by $index"
-						ng-if="corpus.results.docs && !corpus.status.searchingDocs" 
+						ng-if="!corpus.results.docs.isEmpty() && !corpus.status.searchingDocs" 
 						ng-switch="corpus.name">
 						<div ng-switch-when="Surgical Pathology Reports" class="panel panel-default panel-body">
 							<pre ng-bind-html="doc.highlight ? doc.highlight[corpus.metadata.defaultSearchField].join('<br>&nbsp;&vellip;<br> ') : doc._source[corpus.metadata.defaultSearchField]">
 							</pre>
-							<!-- <pre 
-								ng-repeat="frag in doc.highlight[corpus.metadata.defaultSearchField] track by $index"
-								ng-bind-html="frag.toString()">
+						</div>
+						<div ng-switch-when="Copath Reports" class="panel panel-default panel-body">
+							<pre ng-bind-html="doc.highlight ? doc.highlight[corpus.metadata.defaultSearchField].join('<br>&nbsp;&vellip;<br> ') : doc._source[corpus.metadata.defaultSearchField]">
 							</pre>
-							 -->
 						</div>
 						<div ng-switch-when="Echo Reports" class="panel panel-default panel-body">
 							<pre ng-bind-html="'*** PIER-HEADER mrn:' + doc._source['mrn'] + '; ef_results:' + doc._source['ef_results'] + ' ***\n\n' + doc._source[corpus.metadata.defaultSearchField]">
