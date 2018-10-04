@@ -267,7 +267,7 @@ class Search {
     	let decorators = [];
     	for ( let corpus of search.context.corpora ) {
     		let index = 0;
-    		if ( corpus.results.aggs && corpus.results.aggs.aggs['Medical Concepts'] ) {
+    		if ( corpus.results.aggs && !corpus.results.aggs.isEmpty() && corpus.results.aggs.aggs['Medical Concepts'] ) {
     			for ( let bucket of corpus.results.aggs.aggs['Medical Concepts'].buckets ) {
     				index++;
     				//console.log(bucket.key);
@@ -324,7 +324,7 @@ class Search {
 		return this.$http.post( APP.ROOT + '/search/elastic/', JSON.stringify( payload ) )
 			.then( function( aggsSearchResponse ) {
 				let results = aggsSearchResponse.data;
-				corpus.results.aggs = new AggregationsResponse( results, corpus );	//TODO refactoring that will create client-side objects for API data will eventually have a method for putting date slider on corpus.metadata.aggregations
+				corpus.results.aggs = new AggregationsResponse( results, corpus );
 				
 				if ( me.instance.distinctCounts.on ) {
 					var maxCount = corpus.results.aggs.total;
