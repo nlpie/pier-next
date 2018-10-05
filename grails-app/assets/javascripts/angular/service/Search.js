@@ -146,11 +146,7 @@ class Search {
 		let me = this;
     	this.dec(search)	
 		.then( me.complete )		
-<<<<<<< HEAD
 		.then( me.searchService.fetchHistory() );
-=======
-		.then( me.searchService.fetchHistory() )
->>>>>>> db35fe8c0db1ca3ccb2ffd2ad5a072252163706f
     }
     
     
@@ -272,11 +268,7 @@ class Search {
     	let decorators = [];
     	for ( let corpus of search.context.corpora ) {
     		let index = 0;
-<<<<<<< HEAD
     		if ( corpus.results.aggs && !corpus.results.aggs.isEmpty() && corpus.results.aggs.aggs['Medical Concepts'] ) {
-=======
-    		if ( corpus.results.aggs && corpus.results.aggs.aggs['Medical Concepts'] ) {
->>>>>>> db35fe8c0db1ca3ccb2ffd2ad5a072252163706f
     			for ( let bucket of corpus.results.aggs.aggs['Medical Concepts'].buckets ) {
     				index++;
     				//console.log(bucket.key);
@@ -333,11 +325,7 @@ class Search {
 		return this.$http.post( APP.ROOT + '/search/elastic/', JSON.stringify( payload ) )
 			.then( function( aggsSearchResponse ) {
 				let results = aggsSearchResponse.data;
-<<<<<<< HEAD
 				corpus.results.aggs = new AggregationsResponse( results, corpus );
-=======
-				corpus.results.aggs = new AggregationsResponse( results, corpus );	//TODO refactoring that will create client-side objects for API data will eventually have a method for putting date slider on corpus.metadata.aggregations
->>>>>>> db35fe8c0db1ca3ccb2ffd2ad5a072252163706f
 				
 				if ( me.instance.distinctCounts.on ) {
 					var maxCount = corpus.results.aggs.total;
