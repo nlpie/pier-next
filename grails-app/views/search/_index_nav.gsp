@@ -47,17 +47,7 @@
 		<form class="navbar-form">
        		<div class="form-group" style="display:inline;" >
        			<div class="input-group" style="display:table;">
-					<div class="input-group-btn" class="input-group-addon" style="width:1%;">
-						<button ng-repeat="corpus in sc.currentSearch.context.corpora track by $index" type="button" class="btn btn-default" 
-								ng-if="corpus.status.active && corpus.status.userSelectedFilters"
-								style="border-right:none"
-		  						ng-mouseover="corpus.status.showBan=true" 
-		  						ng-mouseleave="corpus.status.showBan=false"
-		  						title="remove filters for this corpus"
-		  						ng-click="corpus.removeFilters();sc.currentSearch.dirty( corpus )">
-							<i class="fa fa-filter"></i>
-							<i class="fa fa-ban" style="color:red;cursor:hand" ng-if="corpus.status.showBan==true"></i>
-						</button>
+					<div class="input-group-btn" class="input-group-addon" style="width:1%;">					
 						<button type="button" class="btn btn-default" data-toggle="dropdown" style="border-right:none;border-left:none">
                             <span class="label-icon" title="{{sc.currentSearch.context.description}}" >{{sc.currentSearch.context.label}}</span>
                             <span class="caret"></span>
