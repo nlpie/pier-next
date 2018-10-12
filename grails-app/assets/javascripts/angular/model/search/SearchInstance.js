@@ -6,9 +6,11 @@ class SearchInstance {
 		this.authorizedContext = undefined;
 		this.uuid = this.generateUuid();
 		//this.inputExpansion = false;
+		this.ACTIVE = { 'color':'green' };
+		this.INACTIVE = { 'color':'#ccc' };
 		this.distinctCounts =  {
 			on : false,
-			style: {}
+			style: this.INACTIVE
 		}
 		this.recent = { docsQuery:undefined, aggsQuery: undefined };
 		//auditedQuery returned from server after successful execution
@@ -28,7 +30,7 @@ class SearchInstance {
 	}
 	
 	toggleDistinctCounts() {
-    	console.log("toggle distinct counts");
+    	//console.log("toggle distinct counts");
     	this.distinctCounts.on = !this.distinctCounts.on;
     	if ( this.distinctCounts.on ) {
     		this.distinctCountsOn();
@@ -39,12 +41,12 @@ class SearchInstance {
 	
 	distinctCountsOn() {
     	this.distinctCounts.on = true;
-    	this.distinctCounts.style = { 'color':'green' };
+    	this.distinctCounts.style = this.ACTIVE;
     }
 	
 	distinctCountsOff() {
     	this.distinctCounts.on = false;
-    	this.distinctCounts.style = {};
+    	this.distinctCounts.style = this.INACTIVE;
     }
 	
 }

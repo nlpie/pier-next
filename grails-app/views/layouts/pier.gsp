@@ -80,7 +80,7 @@
 					<span class="icon-bar"></span>
 					<span class="icon-bar"></span>
 				</button>
-				<a class="navbar-brand" href="${request.contextPath}"><g:meta name="app.title"/></a>
+				<a class="navbar-brand" style="color:white" href="${request.contextPath}"><g:meta name="app.title"/></a>
 			</div>
 			<div id="navbar" class="navbar-collapse collapse" ng-controller="helpController as hc">
 					<!-- <ul class="nav navbar-nav navbar-left" ng-controller="LoginCtrl">
@@ -129,24 +129,6 @@
 	                            </li>
 							</ul>
 						</li>
-        <!--  
-
-						<ul class="dropdown-menu pull-right">
-                            <li role="presentation" class="dropdown-header pull-right">Saved Queries</li>
-                        	<li ng-repeat="sq in hc.searchService.savedQueries track by $index">
-								<a ng-click="hc.currentSearch.recentSearch(sq.query.id)">
-                        			<div title="click to search">
-	                        			<sub style="color:gray">{{sq.registration.authorizedContext}}</sub>
-	                        			<br>
-	                        			<span style="text-decoration:none">{{sq.query.label}}</span>  
-	                        			<small style="color:gray" ng-if="sq.query.filters"><i>Filters: {{sq.query.filters}}</i></small>
-                        			</div>
-                        		</a>
-                            </li>
-                        </ul>
-						
-					-->	
-						
 						<li class="<g:if test="${actionName=='help'}">active</g:if>">
 							<a data-toggle="tooltip" data-placement="bottom" title="help">
 								<i class="fa fa-question fa-lg" aria-hidden="true"
@@ -185,10 +167,14 @@
 	<!-- was here -->
 
 	<script>
-		$(document).ready(function(){
-		    $('[data-toggle="tooltip"]').tooltip({ delay:{show: 500, hide: 100} });
-		});		
-	</script>
+	$(document).ready(function(){
+	    //$('.expansion-control').tooltip({delay: {show: 300, hide: 2300}}); 
+		$('[data-toggle="tooltip"]').tooltip({
+		      animation: true,
+		      delay: {show: 500, hide: 0}
+		    });
+	});
+</script>
 </body>
 
 </html>

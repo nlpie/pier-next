@@ -17,8 +17,9 @@
 
 		<ul class="nav navbar-nav navbar-right">
 			<!-- configure links in NavCtrl links property -->
-			<li tooltip-placement="bottom" uib-tooltip-template="'expansion-tooltip.html'" 
-						tooltip-popup-close-delay="1250" uib-data-container="body">
+			
+			<!--<li tooltip-placement="bottom" uib-tooltip-template="'expansion-tooltip.html'" 
+						tooltip-popup-delay="1000" tooltip-popup-close-delay="1100" uib-data-container="body">
 				<a ng-style="sc.currentSearch.inputExpansion.style">
 					<i class="fa fa-expand fa-lg" ng-click="sc.modalService.vectorExpansions('lg','expansionController')"></i> 
 					<sup ng-if="sc.currentSearch.inputExpansion.cardinality()" >{{sc.currentSearch.inputExpansion.cardinality()}}</sup>
@@ -31,6 +32,7 @@
 					</i>
 				</a>
 			</li>
+			-->
 			<li data-container="body" data-toggle="tooltip" 
 				data-placement="bottom" 
 				ng-click="sc.searchService.exportSearch(sc.currentSearch)"
@@ -48,7 +50,9 @@
        		<div class="form-group" style="display:inline;" >
        			<div class="input-group" style="display:table;">
 					<div class="input-group-btn" class="input-group-addon" style="width:1%;">					
-						<button type="button" class="btn btn-default" data-toggle="dropdown" style="border-right:none;border-left:none">
+						<button type="button" class="btn btn-default" data-toggle="dropdown" style="border-right:none;border-left:none"
+							uib-tooltip="search contexts" tooltip-popup-delay="1000" tooltip-placement="bottom" uib-data-container="body"
+						>
                             <span class="label-icon" title="{{sc.currentSearch.context.description}}" >{{sc.currentSearch.context.label}}</span>
                             <span class="caret"></span>
                         </button>
@@ -65,18 +69,21 @@
                             </li>
                         </ul>
                     </div>
+					
 					<input id="user-input" type="text" name="query" class="form-control" 
 						placeholder="term1 AND (term2 OR term3) NOT (term4 OR &#34;multiterm phrase&#34;)" 
 						ng-model="sc.currentSearch.userInput"
 						ng-change="sc.currentSearch.dirty()"
 						style="border-right:none;-webkit-box-shadow: none !important;-moz-box-shadow: none !important;box-shadow: none !important;
-							position: relative;height:33.1px"
-						/>
+							position: relative"
+					/>
 					
 					<div class="input-group-btn" class="input-group-addon" style="width:1%;">
-						
-						<button type="button" class="btn btn-default recent-queries" data-toggle="dropdown" style="border-left:none" title="search history">
-							<i class="fa fa-caret-down recent-queries" aria-hidden="true"></i>
+
+						<button type="button" class="btn btn-default recent-queries blend-adjacent" data-toggle="dropdown" 
+							uib-tooltip="recent searches" tooltip-popup-delay="1000" tooltip-placement="bottom" uib-data-container="body"
+						>
+							<i class="fa fa-caret-down recent-queries"></i>
 						</button>
 						<ul class="dropdown-menu pull-right">
                             <li role="presentation" class="dropdown-header" style="font-variant:small-caps">Recent Searches</li>
@@ -94,8 +101,39 @@
                         		</a>
                             </li>
                         </ul>
+                        
+                        <button 
+                        	class="btn btn-default blend-adjacent" 
+		  					tooltip-placement="bottom" uib-tooltip-template="'filter-tooltip.html'" 
+							tooltip-popup-delay="1000" tooltip-popup-close-delay="2000" uib-data-container="body"
+			  			>
+		  					<span data-container="body" data-toggle="tooltip" data-placement="bottom" data-html="true">
+		  						<i class="fa fa-filter" ng-style="sc.currentSearch.context.corpus.status.filter.style"></i>
+							</span>
+						</button>
+
+						<button ng-click="sc.modalService.vectorExpansions('lg','expansionController')" 
+							class="btn btn-default blend-adjacent" 
+							tooltip-placement="bottom" uib-tooltip-template="'expansion-tooltip.html'" 
+							tooltip-popup-delay="1000" tooltip-popup-close-delay="1100" uib-data-container="body">
+							<span ng-style="sc.currentSearch.inputExpansion.style">
+								<i class="fa fa-expand fa-lg"></i> 
+								<sup ng-if="sc.currentSearch.inputExpansion.cardinality()" >{{sc.currentSearch.inputExpansion.cardinality()}}</sup>
+							</span>
+						</button>
+						
+						<button 
+							ng-click="sc.currentSearch.instance.toggleDistinctCounts()"
+							class="btn btn-default blend-adjacent"
+							data-container="body" data-toggle="tooltip" data-placement="bottom" data-html="true" 
+							title="enable/disable distinct counts for applicable category aggregates">
+							<i class="tally" ng-style="sc.currentSearch.instance.distinctCounts.style">
+								EB
+							</i>
+						</button>
+						
 						<button class="btn btn-default" type="submit" ng-click="sc.currentSearch.e()">
-							<i class="fa fa-search" ng-class="sc.currentSearch.searchIconClass" aria-hidden="true"></i>
+							<i class="fa fa-search" ng-class="sc.currentSearch.searchIconClass"></i>
 						</button>
 					</div>
 				</div>
@@ -126,14 +164,4 @@
     </div><!-- /.navbar-collapse -->
   </div><!-- /.container-fluid -->
 </nav>
-
-<script>
-$(document).ready(function(){
-    //$('.expansion-control').tooltip({delay: {show: 300, hide: 2300}}); 
-	$('[data-toggle="tooltip"]').tooltip({
-	      animation: true,
-	      delay: {show: 200, hide: 300}
-	    });
-});
-</script>
   					
