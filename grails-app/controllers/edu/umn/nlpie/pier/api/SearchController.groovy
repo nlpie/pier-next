@@ -52,7 +52,8 @@ class SearchController {//extends RestfulController {
 				throw new PierApiException( message:elasticResponse.json.error.root_cause.reason )
 			}
 
-			auditService.logQueryAndResponse( request, postBody, elasticResponse )
+			def query = auditService.logQueryAndResponse( request, postBody, elasticResponse )
+			elasticResponse.json.query = query
 			respond elasticResponse.json 
 		} catch( PierApiException e) {
 			auditService.logException ( request, postBody, elasticResponse, e )

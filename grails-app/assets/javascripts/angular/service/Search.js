@@ -64,11 +64,9 @@ class Search {
 				corpus.dim();
 				corpus.removeCounts();
 			} else {
-				//dim doc results for all copora
-				for (let corpus of this.context.corpora) {
-					corpus.dim();
-					corpus.removeCounts();
-				}
+				//dim doc results for corpus
+				this.context.corpus.dim();
+				this.context.corpus.removeCounts();
 			}
     	}
 	}
@@ -77,40 +75,15 @@ class Search {
 //alert("setContext");
     	this.context = searchContext;
     	this.clearResults();
-    	let activeSet = false;
-    	let tasks = [];
     	let me = this;
-    	let corpusThatNeedsAggs = undefined;
-    	//identify active corpora and specific corpus needing aggregations 
-    	for ( let corpus of this.context.corpora ) {
-    		if ( corpus.metadata.searchable ) {
-    			corpusThatNeedsAggs = corpus;
-//alert("corpus in setContext\n"+JSON.stringify(corpus,null,'\t'));
-    			if ( !activeSet ) {
-    				this.searchService.setActiveCorpus( corpus, this.context.corpora );	//TODO refactor active assignments to a user pref?
-    				activeSet = true;
-    			}
-    			if ( corpus.metadata.filtered ) {
-    				corpus.contextFilter = new TermFilter(corpus.metadata.contextFilterField, this.context.contextFilterValue);	//contextFilter specific to each searchable corpus
-//alert(JSON.stringify(corpus.contextFilter));
-    			}
-				tasks.push ( "placeholder"
-					//this.corpusAggregations( corpus )
-	    			/*.then( function(response) {
-	    				corpus.metadata.aggregations = new CorpusAggregationsResponse( response.data );
-	    				console.log("aggregations set for " + corpus.name);
-	    			})*/
-				);
-			}
-    	}
-    	//tasks.push( this.searchService.fetchHistory() );
+		if ( this.context.corpus.metadata.filtered ) {
+			this.context.corpus.contextFilter = new TermFilter(this.context.corpus.metadata.contextFilterField, this.context.contextFilterValue);	//contextFilter specific to each searchable corpus
+		}
     	console.log("Auth context set to: " + searchContext.label);
-    	
-    	return this.corpusAggregations( corpusThatNeedsAggs )
+    	return this.corpusAggregations( this.context.corpus )
     	.then( function(response) {
-    		corpusThatNeedsAggs.metadata.aggregations = new CorpusAggregationsResponse( response.data );
-//alert("corpus in corpusAggregations\n"+JSON.stringify(corpusThatNeedsAggs,null,'\t'));
-	    	console.log("aggregations set for " + corpusThatNeedsAggs.name);
+    		me.context.corpus.metadata.aggregations = new CorpusAggregationsResponse( response.data );
+	    	console.log("aggregations set for " + me.context.corpus.name);
 	    	me.searchService.fetchSavedQueries( searchContext.label );
 	    	return me.$q.when( me );
 	    });
@@ -131,7 +104,7 @@ class Search {
     e() { 
     	let me = this;
     	this.r("DEFAULT")
-		.then( me.searchCorpora )
+		.then( me.searchCorpus )
 		.then( function(search) {
 			me.finish( search );
 		})
@@ -153,8 +126,8 @@ class Search {
     fetchAndParsePreviousQueryById( queryId ) {
     	//fetch past queries, set actual queries on currentSearch.instance.recent obj, fetch context, set context, parse
     	let me = this;	//currentSearch
-    	let pastQueries = undefined;
-    	let pastQueryInfo = undefined;
+    	//let pastQueries = undefined;
+    	//let pastQueryInfo = undefined;
     	this.searchService.fetchPreviousQuery( queryId )	//returns docs and aggs queries
     		.then( me.parsePastQueryIntoInstance )
     		.then( me.$q.when( me ) );
@@ -183,13 +156,6 @@ class Search {
 		//return me.$q.when( me );
     }
     
-    applyPastFilters( search ) {
-    	for ( let corpus of search.context.corpora ) {
-    		corpus.parsePastQueryFilterArray( pastQuery.query.bool.filter )
-    	}
-    	return search.$q.when( search );
-    }
-    
     recentSearch( query ) {
     	let me = this;
     	this.clearResults();
@@ -214,7 +180,7 @@ class Search {
 				.then( function(response) {
 					me.parsePastQuery( recentQuery ); 
 					me.r("RECENT")	
-					.then( me.searchCorpora )
+					.then( me.searchCorpus )
 					.then( function(search) {
 						me.finish( search );
 					});
@@ -232,18 +198,14 @@ class Search {
     }
     
     parsePastQuery( pastQuery ) { //TODO move to ??? (better abstraction level)
-//alert(JSON.stringify(pastQuery,null,'\t'));
-    	for ( let corpus of this.context.corpora ) {
-    		corpus.parsePastQueryFilterArray( pastQuery.query.bool.filter )
-    	}
-    	//return this.$q.when( this );
+    	this.context.corpus.parsePastQueryFilterArray( pastQuery.query.bool.filter )
     }
     
     encSearch( serviceId ) { 
     	this.serviceId = serviceId;
     	let me = this;
     	this.r("ENCOUNTER")	//returns the current Search instance and passes down the promise chain
-    	.then( me.searchCorpora )
+    	.then( me.searchCorpus )
     	.then( function(search) {
 			me.finish( search );
 		})
@@ -266,25 +228,23 @@ class Search {
     dec( search ) {
 //alert("dec\n");
     	let decorators = [];
-    	for ( let corpus of search.context.corpora ) {
-    		let index = 0;
-    		if ( corpus.results.aggs && !corpus.results.aggs.isEmpty() && corpus.results.aggs.aggs['Medical Concepts'] ) {
-    			for ( let bucket of corpus.results.aggs.aggs['Medical Concepts'].buckets ) {
-    				index++;
-    				//console.log(bucket.key);
-    				decorators.push( 
-    					search.$http.get( APP.ROOT + '/umls/string/' + bucket.key )
-    					.then ( function( response ) {
-    						if (response.data.hits.total>0) {
-    							bucket.label=response.data.hits.hits[0]._source.sui;	//if umls str exits put in key prop
-    						} else {
-    							//corpus.results.aggs.aggs['Medical Concepts'].buckets.splice(index,1);
-    						}
-    					})
-    				);
-    			}
-    		}
-    	}
+		let index = 0;
+		if ( this.context.corpus.results.aggs && !this.context.corpus.results.aggs.isEmpty() && this.context.corpus.results.aggs.aggs['Medical Concepts'] ) {
+			for ( let bucket of this.context.corpus.results.aggs.aggs['Medical Concepts'].buckets ) {
+				index++;
+				//console.log(bucket.key);
+				decorators.push( 
+					search.$http.get( APP.ROOT + '/umls/string/' + bucket.key )
+					.then ( function( response ) {
+						if (response.data.hits.total>0) {
+							bucket.label=response.data.hits.hits[0]._source.sui;	//if umls str exits put in key prop
+						} else {
+							//corpus.results.aggs.aggs['Medical Concepts'].buckets.splice(index,1);
+						}
+					})
+				);
+			}
+		}
     	if ( decorators.length==0 ) {
     		//decorators will not exist if concepts aggs are not set in user's prefs
 //alert ("decorators is zero");
@@ -301,12 +261,14 @@ class Search {
     	//returns es hits
     	corpus.status.searchingDocs = true;
     	let payload = new SearchPayload( corpus, this, "DOCS" );
+    	let me = this;
 //alert("PAYLOAD\n"+JSON.stringify(payload,null,'\t'));
 		return this.$http.post( APP.ROOT + '/search/elastic/', JSON.stringify( payload ) )
 			.then( function( docSearchResponse ) {
 				let results = docSearchResponse.data;
 				corpus.results.docs = new DocumentsResponse( results );
 				corpus.results.pagination.update( corpus.results.docs.total );
+				me.instance.auditedQuery = results.query;
 				return results;
 			})
 			.finally( function() {
@@ -342,12 +304,14 @@ class Search {
     
     d_enc( corpus, serviceId ) { //TODO method calling this sends in fluffed-up DocumentQuery/EncounterQuery
     	corpus.status.searchingDocs = true;
+    	let me = this;
     	let payload = new SearchPayload( corpus, this, "ENC-DOCS", serviceId );
 		return this.$http.post( APP.ROOT + '/search/elastic/', JSON.stringify( payload ) )
 			.then( function( docSearchResponse ) {
 				let results = docSearchResponse.data;
 				corpus.results.docs = new DocumentsResponse( results );
 				corpus.results.pagination.update( corpus.results.docs.total );
+				me.instance.auditedQuery = results.query;
 				return results;
 			})
 			.finally( function() {
@@ -380,6 +344,7 @@ class Search {
     
     d_recent( docsQuery, corpus ) { 
     	corpus.status.searchingDocs = true;
+    	let me = this;
     	let payload = new SearchPayload( corpus, this, "RECENT-DOCS" );
     	//var url = corpus.metadata.url;
     	//var filterDesc = "TBD";
@@ -388,6 +353,7 @@ class Search {
 				let results = docSearchResponse.data;
 				corpus.results.docs = new DocumentsResponse( results );
 				corpus.results.pagination.update( corpus.results.docs.total );
+				me.instance.auditedQuery = results.query;
 				return results;
 			})
 			.finally( function() {
@@ -438,36 +404,24 @@ class Search {
 			});
     }
   
-    searchCorpora( search ) {
+    searchCorpus( search ) {
     	let me = this;
-//alert("searchCorpora\n"+JSON.stringify(search.instance,null,'\t'));
-    	//search corpora, kicks off parallel ($q.all) documents and aggs search
-    	//iterate over corpora and kick off parallel d() and a() searches
-    	let corporaSearch = [];
-    	for ( let corpus of search.context.corpora ) {
-    		if ( corpus.metadata.searchable ) {
-    			corpus.prepare();
-    			let searches = [];
-    			if (search.instance.mode=="RECENT" || search.instance.mode=="SAVED") {
-    				searches.push( search.d_recent( search.instance.recent.docsQuery, corpus ) );
-    				searches.push( search.a_recent( search.instance.recent.aggsQuery, corpus ) );
-    			} else if ( search.instance.mode=="ENCOUNTER" ) {
-    				searches.push( search.d_enc( corpus, search.serviceId ) );
-    				searches.push( search.a_enc( corpus, search.serviceId ) );
-    			} else if ( search.instance.mode=="DEFAULT" ) {
-    				//search.instance.mode in { "DEFAULT" }
-    				searches.push( search.d( corpus ) );
-    				searches.push( search.a( corpus ) );
-    			}
-    			let corpusSearch = search.$q.all( searches )
-	    			.then ( function( results ) {
-	    				//results is an array mapped to searches array
-	    				//return results;
-	    			});
-    			corporaSearch.push( corpusSearch );
-			}
+//alert("searchCorpus\n"+JSON.stringify(search.instance,null,'\t'));
+    	//kicks off parallel ($q.all) documents and aggs search
+		let corpus = search.context.corpus;
+		corpus.prepare();
+		let searches = [];
+		if (search.instance.mode=="RECENT" || search.instance.mode=="SAVED") {
+			searches.push( search.d_recent( search.instance.recent.docsQuery, corpus ) );
+			searches.push( search.a_recent( search.instance.recent.aggsQuery, corpus ) );
+		} else if ( search.instance.mode=="ENCOUNTER" ) {
+			searches.push( search.d_enc( corpus, search.serviceId ) );
+			searches.push( search.a_enc( corpus, search.serviceId ) );
+		} else if ( search.instance.mode=="DEFAULT" ) {
+			searches.push( search.d( corpus ) );
+			searches.push( search.a( corpus ) );
 		}
-    	return search.$q.all( corporaSearch )
+    	return search.$q.all( searches )
     		.then( function(response) {
     			return search;
     		});
@@ -558,14 +512,11 @@ alert("corpus in corpusAggregations\n"+JSON.stringify(corpus,null,'\t'));
     clearResults() {
     	this.searchIconClass = "fa fa-search";
     	//this.inputExpansion = new InputExpansion();
-    	for ( let corpus of this.context.corpora ) {
-    		corpus.results = {};
-    		corpus.removeCounts(); 
-    	}
+    	this.context.corpus.results = {};
+    	this.context.corpus.removeCounts(); 
     }
   
     distinctCounts( corpus, maxCount ) {
-    	//var url = corpus.metadata.url;
 //alert(JSON.stringify(corpus.metadata.aggregations));
     	var me = this;
     	for ( let ontology of corpus.metadata.aggregations ) {

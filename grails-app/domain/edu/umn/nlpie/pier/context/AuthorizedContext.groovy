@@ -11,23 +11,27 @@ class AuthorizedContext {
     static constraints = {
 		requestId()
 		label()
-		filterValue()
+		corpusName()
+		contextFilterValue()
+		filteredContext()
 		username()
 		description()
     }
 	
 	static mapping = {
 		datasource 'notes'
-		table name: "authorized_context_by_user", schema: "notes"	//view in notes schema
+		table name: "unioned_auth_contexts_by_user", schema: "notes"	//view in notes schema
 		version false
 	}
 	
     Long requestId
 	String label
-	String filterValue	//filter value used in ES for note sets
 	String username
 	Long userId
 	String description
+	String corpusName
+	Boolean filteredContext
+	String contextFilterValue	//filter value used in ES for note sets
 	
 	def getRequest() {
 		Request.find(requestId)
@@ -40,18 +44,28 @@ class AuthorizedContext {
 		this.filterValue.trim()
 	}
 
-	
+	def corpus() {  
+		def corpus
+		def corpora = Corpus.searchableCorpora
+		corpora.each { c ->
+			if ( c.name==this.corpusName ) {	
+				c.metadata = new CorpusMetadata(c)
+				corpus = c
+			}
+		}
+		corpus
+	}
 	/**
 	 * 
 	 * @return List of annotated Corpus instances. Annotations are transient fields: a flag indicating the Corpus instance 
 	 * is searchable for this user and an Elastic Type instance from the environment specific cluster configuration detailing cluster, 
 	 * index, and type details for the Corpus instance
 	 */
-	def annotatedCorpora() {  
+	/*def annotatedCorpora() {  
 		def corpora = Corpus.searchableCorpora
 		corpora.each { ct ->
 			//check for document sets associated with this auth context and corpus
-			def availableSearchContext = SearchContext.findByCorpusAndStatusAndRequestId(ct.name,"Completed",this.requestId)
+			def availableSearchContext = SearchContext.findByCorpusNameAndStatusAndRequestId(ct.name,"Completed",this.requestId)
 			if ( availableSearchContext ) {	
 				ct.metadata = new CorpusMetadata(ct)
 			} else { 
@@ -66,6 +80,6 @@ class AuthorizedContext {
 			//ct.metadata.aggregations = settingsService.corpusAggregations( ct.id )	
 		}
 		corpora
-	}
+	}*/
 
 }

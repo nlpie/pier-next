@@ -14,7 +14,7 @@ class UserAuthenticationEvent {
 	String username
 	String roles
 	String remoteAddress
-	String session
+	String session = "DEFAULT_SESSION_ID"
 	String eventInfo
 	
 	Date dateCreated
