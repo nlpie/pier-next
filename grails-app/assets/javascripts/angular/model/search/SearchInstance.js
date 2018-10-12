@@ -11,15 +11,13 @@ class SearchInstance {
 			style: {}
 		}
 		this.recent = { docsQuery:undefined, aggsQuery: undefined };
-		this.pastQueryInfo = undefined;
-		//queryId returned from server after successful execution
-		this.queryId = undefined;	
-//alert(JSON.stringify(this));
+		//auditedQuery returned from server after successful execution
+		this.auditedQuery = undefined;	//TODO does pagination query need to track this?
     }
 	
 	reset() {
 		this.uuid = this.generateUuid();
-		this.queryId = undefined;
+		this.auditedQuery = undefined;
 	}
 	
 	generateUuid() {
