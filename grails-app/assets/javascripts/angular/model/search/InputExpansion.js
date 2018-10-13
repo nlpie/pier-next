@@ -4,11 +4,13 @@ class InputExpansion {
 	
 	constructor( terms ) {	
 		this.terms = []; 		//array of Term objects, property is called 'terms'
-		this.style = {};
 		this.on = false;
 		if ( terms ) {
 			this.terms = terms;
 		}
+		this.ACTIVE = { 'color':'green' };
+		this.INACTIVE = { 'color':'#ccc' };
+		this.style = this.INACTIVE;
     }
 	
 	parseUserInput( userInput ) {
@@ -63,10 +65,10 @@ class InputExpansion {
 			count+=term.expandUsing.length;
 		}
 		if ( count>0 ) {
-			this.style = { 'color':'green' };
+			this.style = this.ACTIVE;
 			this.on = true;
 		} else {
-			this.style = {};
+			this.style = this.INACTIVE;
 			this.on = false;
 		}
 		return count;

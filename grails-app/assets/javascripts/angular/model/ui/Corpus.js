@@ -11,6 +11,7 @@ class Corpus extends AbstractHydrator {
 		this.status = new CorpusStatus();
 		this.results = new Results();
 		this.hydrateObjectProperties( obj );
+		this.currentFilterSummary = undefined;
 	}
 	
 	hydrateObjectProperties( obj ) {
@@ -46,9 +47,9 @@ class Corpus extends AbstractHydrator {
     			}
         	}
     	}
-		this.status.userSelectedFilters = false;
-    	this.status.showBan = false;
+		this.status.inactivateFilter();
     	this.status.dirty = true;
+    	this.updateFilterSummary();
 	}
 	
 	removeCounts() {
@@ -138,9 +139,10 @@ class Corpus extends AbstractHydrator {
     			
         	}
     	}
-		this.status.userSelectedFilters = true;
+		this.status.filter.on = true;
     	this.status.showBan = true;
     	this.status.dirty = true;
+    	this.updateFilterSummary();
 	}
 	
 	isDirty() {
@@ -149,6 +151,25 @@ class Corpus extends AbstractHydrator {
 	
 	prepare() {
 		this.results = new Results();
+	}
+	
+	updateFilterSummary() {
+		//alert("discrete");
+    	let summary = [];
+    	this.status.filter.on = false;
+    	for ( let ontology of this.metadata.aggregations ) {
+    		for ( let aggregation of ontology.aggregations ) {
+    			if ( !( JSON.stringify(aggregation.filters) === JSON.stringify({}) ) && !aggregation.isTemporal ) {
+    				//potential fields to be added
+    				let filter = undefined;	////defer assignment until proof of need is established
+	    			Object.keys( aggregation.filters ).map( function(value,i) {
+	    				if (aggregation.filters[value]==true) summary.push( value );
+	    			});
+    			}
+        	}
+    	}
+    	console.log(summary);
+    	this.currentFilterSummary = summary.join(", ");
 	}
 
 }

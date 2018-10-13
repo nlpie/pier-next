@@ -6,20 +6,20 @@ class SearchInstance {
 		this.authorizedContext = undefined;
 		this.uuid = this.generateUuid();
 		//this.inputExpansion = false;
+		this.ACTIVE = { 'color':'green' };
+		this.INACTIVE = { 'color':'#ccc' };
 		this.distinctCounts =  {
 			on : false,
-			style: {}
+			style: this.INACTIVE
 		}
 		this.recent = { docsQuery:undefined, aggsQuery: undefined };
-		this.pastQueryInfo = undefined;
-		//queryId returned from server after successful execution
-		this.queryId = undefined;	
-//alert(JSON.stringify(this));
+		//auditedQuery returned from server after successful execution
+		this.auditedQuery = undefined;	//TODO does pagination query need to track this?
     }
 	
 	reset() {
 		this.uuid = this.generateUuid();
-		this.queryId = undefined;
+		this.auditedQuery = undefined;
 	}
 	
 	generateUuid() {
@@ -30,7 +30,7 @@ class SearchInstance {
 	}
 	
 	toggleDistinctCounts() {
-    	console.log("toggle distinct counts");
+    	//console.log("toggle distinct counts");
     	this.distinctCounts.on = !this.distinctCounts.on;
     	if ( this.distinctCounts.on ) {
     		this.distinctCountsOn();
@@ -41,12 +41,12 @@ class SearchInstance {
 	
 	distinctCountsOn() {
     	this.distinctCounts.on = true;
-    	this.distinctCounts.style = { 'color':'green' };
+    	this.distinctCounts.style = this.ACTIVE;
     }
 	
 	distinctCountsOff() {
     	this.distinctCounts.on = false;
-    	this.distinctCounts.style = {};
+    	this.distinctCounts.style = this.INACTIVE;
     }
 	
 }

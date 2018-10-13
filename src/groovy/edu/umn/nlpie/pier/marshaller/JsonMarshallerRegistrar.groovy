@@ -96,13 +96,14 @@ class JsonMarshallerRegistrar {
 			//TODO can this AuthorizedContext config piggyback on the standalone config above?
 			cfg.registerObjectMarshaller (AuthorizedContext) { ct ->
 				[
-					//"id": c.id,
 					"requestId": ct.requestId,
 					"label": ct.label,
-					"contextFilterValue": ct.filterValue,
 					"description": ct.description?:"description unavailable",
 					"username": ct.username,
-					"corpora": ct.annotatedCorpora()
+					"corpusName": ct.corpusName,
+					"filteredContext": ct.filteredContext,
+					"contextFilterValue": ct.contextFilterValue,
+					"corpus": ct.corpus()
 				]
 			}
 			cfg.registerObjectMarshaller (Corpus) { c ->
@@ -136,45 +137,6 @@ class JsonMarshallerRegistrar {
 				]
 			}
 		}//authorized.context
-		
-		/*
-		JSON.createNamedConfig ('available.corpora') { DefaultConverterConfiguration<JSON> cfg ->
-			cfg.registerObjectMarshaller (Type) { t ->
-				[
-					id: t.id,
-					name: t.typeName,
-					environment: t.environment,
-					index: t.index
-				]
-			}
-			cfg.registerObjectMarshaller (Index) { i ->
-				[
-					id: i.id,
-					name: i.indexName,
-					cluster: i.cluster
-				]
-			}
-			cfg.registerObjectMarshaller (Cluster) { cl ->
-				[
-					id: cl.id,
-					name: cl.uri
-				]
-			}
-				
-		}//available.corpora
-		*/
-		
-		JSON.registerObjectMarshaller(SearchRegistration) { sr ->
-			[
-				id: sr.id,
-				authorizedContext: sr.authorizedContext,
-				username: sr.username,
-				uuid: sr.uuid,
-				initialUserInput: sr.initialUserInput,
-				searchType: sr.searchType,
-				queries: sr.queries
-			]
-		}
 		
 		JSON.registerObjectMarshaller(Query) { qq ->
 			[

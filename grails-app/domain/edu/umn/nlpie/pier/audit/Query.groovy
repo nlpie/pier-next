@@ -21,7 +21,7 @@ class Query {
 		query sqlType: "mediumtext"
 		exceptionMessage type: 'text'
 		terms sqlType: 'mediumtext'
-		//version false
+		userInput sqlType: 'mediumtext'
 	}
 	
 	//static belongsTo = [ registration:SearchRegistration ]	//client passes in queryLog.id

@@ -6,22 +6,19 @@ class AuthorizedContext extends AbstractHydrator {
 	//pass in response.data object from $http call
 	constructor( obj ) {
 		super( obj );
-		this.corpora = [];
+		this.corpus = undefined;
 		this.hydrateObjectProperties( obj );
 //alert(JSON.stringify(this,null,'\t'));
 	}
 	
 	hydrateObjectProperties( obj ) {
-		let complexNodes = [ "corpora" ];
+		let complexNodes = [ "corpus" ];	//not used, but lists the complex nodes expected
 		for ( let prop in obj ) {
 			let objType = typeof( obj[prop] );
 			switch ( objType ) {
 				case "object":
-					if ( obj[prop]!=null && prop=="corpora" ) {
-						let corpora = obj[prop];
-						for ( let c of corpora ) {
-							this.corpora.push( new Corpus( c ) );
-						}
+					if ( obj[prop]!=null && prop=="corpus" ) {
+						this.corpus = new Corpus( obj[prop] );
 					}
 					break;
 				default:

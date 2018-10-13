@@ -207,7 +207,12 @@ a {
 }
 
 .recent-queries {
-	color: lightgrey;
+	color: #ccc;
+}
+
+.blend-adjacent {
+	border-right:none;
+	border-left:none
 }
 
 .btn-default:hover, .btn-default:active, .btn-default:focus {
@@ -395,9 +400,9 @@ input:checked + .slider:before {
 }
 .tally {
 	font-family:'TallyMark';
-	font-size:1.3em;
+	font-size:0.9em;
 	font-weight:600;
-	vertical-align:text-bottom;
+	vertical-align:text-top;
 }
 .tally-recent-saved {
 	font-family:'TallyMark';

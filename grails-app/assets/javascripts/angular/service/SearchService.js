@@ -29,16 +29,6 @@ class SearchService {
     	return this.$http.post( APP.ROOT + '/config/authorizedContextByQueryId/', { "queryId": queryId } );
     }
 	
-	setActiveCorpus( corpus, corpora ) {
-    	for ( let c of corpora ) {
-    		if ( c.name==corpus.name ) {
-    			c.status.active = true;
-    		} else {
-    			c.status.active = false;
-    		}
-    	}
-    }
-	
 	fetchHistory() {
 //alert("fetch history");
 		let me = this;
@@ -83,7 +73,7 @@ class SearchService {
 				me.growl.success( "Query saved", {ttl:1000} );
 			})
 			.catch( function(e) {
-				me.growl.error( "Error - contact support", {ttl:30000} );
+				me.growl.error( "Error - contact support", {ttl:3000} );
 			});
 	}
 	

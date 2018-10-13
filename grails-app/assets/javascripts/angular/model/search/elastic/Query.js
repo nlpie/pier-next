@@ -29,7 +29,7 @@ alert("BPIC request context");
     setDiscreteValueFilters( corpus ) {
 //alert("discrete");
     	let me = this;
-    	corpus.status.userSelectedFilters = false;
+    	corpus.status.inactivateFilter();
     	for ( let ontology of corpus.metadata.aggregations ) {
     		for ( let aggregation of ontology.aggregations ) {
     			//add filter values in a should clause context of new Bool query, then add to this bool query's filter context
@@ -42,7 +42,7 @@ alert("BPIC request context");
 	    				if ( addFilter ) {
 	    					if ( !filter ) {
 	    						filter = new BoolQuery();	//need is established, assign
-	    						corpus.status.userSelectedFilters = true; //TODO move filtered status to corpus
+	    						corpus.status.activateFilter(); 
 	    					}
 	    					//alert(JSON.stringify(filter,null,'\t'));
 	    					filter.addToShould( new TermFilter( aggregation.field.fieldName,value ) );
@@ -59,7 +59,7 @@ alert("BPIC request context");
     setRangeFilters( corpus ) {
     	//alert("range");
     	let me = this;
-    	//corpus.status.userSelectedFilters = false;
+    	//corpus.status.inactivateFilter();
     	for ( let ontology of corpus.metadata.aggregations ) {
     		for ( let aggregation of ontology.aggregations ) {
     			if ( !( JSON.stringify(aggregation.filters) === JSON.stringify({}) ) && aggregation.isTemporal ) {	    			
