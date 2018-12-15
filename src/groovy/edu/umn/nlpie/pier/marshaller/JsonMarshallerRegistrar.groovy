@@ -7,7 +7,6 @@ import org.codehaus.groovy.grails.web.converters.configuration.DefaultConverterC
 import edu.umn.nlpie.pier.api.CorpusMetadata
 import edu.umn.nlpie.pier.audit.DistinctCount
 import edu.umn.nlpie.pier.audit.Query
-import edu.umn.nlpie.pier.audit.SearchRegistration
 import edu.umn.nlpie.pier.context.AuthorizedContext
 import edu.umn.nlpie.pier.elastic.Cluster
 import edu.umn.nlpie.pier.elastic.Field
@@ -214,7 +213,6 @@ class JsonMarshallerRegistrar {
 					query: q.query,
 					terms: q.terms,
 					type: q.type,
-					//registration: q.registration,
 					authorizedContext: q.authorizedContext,
 					uuid: q.uuid,
 					inputExpansion: q.inputExpansion,
@@ -222,17 +220,6 @@ class JsonMarshallerRegistrar {
 					distinctCounts: q.distinctCounts
 				]
 			}
-			/*cfg.registerObjectMarshaller (SearchRegistration) { SearchRegistration sr ->
-				[ 	id: sr.id,
-					searchType: sr.searchType,
-					initialUserInput: sr.initialUserInput,
-					authorizedContext: sr.authorizedContext,
-					username: sr.username
-				]
-			}
-			cfg.registerObjectMarshaller (AuthorizedContext) { AuthorizedContext ac ->
-			
-			}*/
 		}
 		
 		def marshallers = []

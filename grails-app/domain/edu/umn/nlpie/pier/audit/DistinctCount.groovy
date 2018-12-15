@@ -17,7 +17,6 @@ class DistinctCount {
 	}
 	
 	static hasMany = [ buckets:Bucket, scrollValues:ScrollValue ]
-	//static belongsTo = [ registration:SearchRegistration ]
 	
 	//passed from client
 	String countType

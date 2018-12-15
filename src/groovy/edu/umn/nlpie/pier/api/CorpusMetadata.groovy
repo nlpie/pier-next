@@ -13,11 +13,7 @@ import groovy.transform.InheritConstructors
 @InheritConstructors
 class CorpusMetadata {
 	
-	//SettingsService aggsService
-	
 	CorpusMetadata(Corpus ct) {
-		//this constructor causes issues when type is not found
-		//println "looking for Type with corpus.id:${ct.id} env:${Environment.current.name} status:Searchable "
 		def index = ct.index
 		this.searchable = true
 		this.filtered = true	//most of the time corpus will be assoc with a restricted/filtered search/auth context
@@ -26,7 +22,6 @@ class CorpusMetadata {
 		this.defaultSearchField = index.type.searchableField
 		this.contextFilterField = index.type.contextFilterField
 		this.tooltip = "Includes ${ct.name}"
-		//this.aggregations = aggsService.corpusAggregations( ct.id )
 	}
 	
 	Boolean searchable 
@@ -36,6 +31,6 @@ class CorpusMetadata {
 	String defaultSearchField 
 	String contextFilterField
 	String tooltip
-	JSONArray aggregations
+	JSONArray aggregations	//filled in later. Client-side?
 	
 }

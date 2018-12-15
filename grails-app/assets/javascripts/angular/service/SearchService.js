@@ -81,7 +81,7 @@ class SearchService {
 		let me = this;
 		currentSearch.status.exporting = true;
 		//let gr = this.exporting();
-		this.$http.get( APP.ROOT + '/search/export/' + currentSearch.registrationId )
+		this.$http.get( APP.ROOT + '/search/export/' + currentSearch )
 			.then( function(response) {	
 				currentSearch.status.exporting = false;
 				me.$timeout(function() { 

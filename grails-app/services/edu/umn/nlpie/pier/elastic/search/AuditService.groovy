@@ -11,20 +11,9 @@ class AuditService {
 	def userService
 	static scope = "prototype"
 	
-	/*def register( postBody ) {
-		try {
-			postBody.username = userService.currentUserUsername
-		} catch (Exception e) {
-			postBody.username = "nouserservice.user"
-		}
-		def sr = new SearchRegistration( postBody ).save(failOnError:true)
-		return sr
-	}*/
-	
 	def logQueryAndResponse( request, postBody, elasticResponse ) {
 		//println postBody.toString()
 		def json = elasticResponse.json
-		//def sr = SearchRegistration.get(postBody["registration.id"].toLong())
 		def q = new Query(postBody)
 		q.username = userService.currentUserUsername
 		
@@ -46,9 +35,7 @@ class AuditService {
 	}
 		
 	def logException( request, postBody, elasticResponse, Exception e ) {
-		//def sr = SearchRegistration.get(postBody["registration.id"].toLong())
 		def q = new Query(postBody)
-		//q.registration = sr
 		q.query = postBody.query
 		//q.filters = this.filterSummary( postBody )
 		q.terms = postBody.query.query.bool.must.query_string.query
