@@ -5,7 +5,6 @@ import edu.umn.nlpie.pier.api.ScrollPayload
 import edu.umn.nlpie.pier.api.exception.BadElasticRequestException
 import edu.umn.nlpie.pier.audit.DistinctCount
 import edu.umn.nlpie.pier.audit.Query
-import edu.umn.nlpie.pier.audit.SearchRegistration
 import groovy.sql.Sql
 import groovyx.gpars.GParsPool
 
@@ -93,11 +92,13 @@ order by q.authorizedContext, q.label """.toString()
 		[ "docsQuery":d, "aggsQuery":a]
 	}
 	
+	def scrollNoteIdentifiersToDatabase( postBody, elasticResponse ) {
+		
+	}
+	
 	def logNoteIdCountInfo( postBody, elasticResponse ) {
 		def b = new Date().time
 		def json = elasticResponse.json
-		//println json.toString(2)
-		def sr = SearchRegistration.get(postBody["registration.id"].toLong())
 		def c = new DistinctCount(registration:sr)
 		c.query = postBody.query
 		c.terms = postBody.query.query.bool.must.query_string.query
@@ -119,10 +120,6 @@ order by q.authorizedContext, q.label """.toString()
 	def logBucketCountInfo( postBody, elasticResponse ) {
 		def b = new Date().time
 		def json = elasticResponse.json
-//println postBody.toString(2)
-//println elasticResponse.json
-		//def sr = SearchRegistration.get(postBody["registration.id"].toLong())
-		//def c = new DistinctCount(registration:sr)
 		def c = new DistinctCount()
 //println postBody.query.toString(2)
 		c.query = postBody.query
@@ -183,10 +180,6 @@ order by q.authorizedContext, q.label """.toString()
 		//println postBody.query.fields
 		def json = elasticResponse.json
 		//passed elasticResponse has hits that need to be added to count and ScrollValue collection
-		//println "INIT RESPONSE"
-		//println elasticResponse.json.toString(2)
-		//println postBody.toString(2)
-		def sr = SearchRegistration.get(postBody["registration.id"].toLong())
 		def c = new DistinctCount(registration:sr)
 		c.query = postBody.query
 		c.terms = postBody.query.query.bool.must.query_string.query
