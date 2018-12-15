@@ -18,29 +18,48 @@
 		<ul class="nav navbar-nav navbar-right">
 			<!-- configure links in NavCtrl links property -->
 			
-			<!--<li tooltip-placement="bottom" uib-tooltip-template="'expansion-tooltip.html'" 
-						tooltip-popup-delay="1000" tooltip-popup-close-delay="1100" uib-data-container="body">
-				<a ng-style="sc.currentSearch.inputExpansion.style">
-					<i class="fa fa-expand fa-lg" ng-click="sc.modalService.vectorExpansions('lg','expansionController')"></i> 
-					<sup ng-if="sc.currentSearch.inputExpansion.cardinality()" >{{sc.currentSearch.inputExpansion.cardinality()}}</sup>
-				</a>
+			<li data-container="body" data-toggle="tooltip" data-placement="bottom" title="save query for later use">
+				<a><i class="fa fa-floppy-o fa-lg" ng-click="sc.searchService.saveQuery(sc.currentSearch.instance)"></i></a>
 			</li>
 			
-			<li data-container="body" data-toggle="tooltip" data-placement="bottom" data-html="true" title="enable/disable distinct counts for applicable category aggregates">
-				<a><i class="tally" ng-click="sc.currentSearch.instance.toggleDistinctCounts()" ng-style="sc.currentSearch.instance.distinctCounts.style">
-					EB
-					</i>
+			<li class="dropdown" data-toggle="tooltip" data-placement="bottom" title="saved searches">
+				<a class="dropdown-toggle" data-toggle="dropdown" role="button">
+					<i class="fa fa-list fa-lg" aria-hidden="true"></i>
+					<i class="fa fa-caret-down" aria-hidden="true"></i>
 				</a>
+				<ul class="dropdown-menu">
+					<li role="presentation" class="dropdown-header" style="font-variant:small-caps">Shared queries - current context</li>
+					<li ng-repeat="item in sc.searchService.savedQueriesByContext track by $index"  ng-click="sc.currentSearch.recentSearch(item.query)" >
+						<a>
+                      			<div title="click to search">
+                       			<span style="text-decoration:none">{{item.query.userInput}}</span> 
+                       			<small style="color:green" ng-if="item.query.inputExpansion"><i class="fa fa-expand"></i></small>
+                       			<small style="color:green" ng-if="item.query.distinctCounts"><i class="tally-recent-saved">EB&nbsp;</i></small>
+                       			<small style="color:gray" ng-if="item.query.filterSummary"><i class="fa fa-filter fa-lg" style="color:green"></i><i>: {{item.query.filterSummary}}</i></small>
+                      			</div>
+                     			</a>
+                          </li>
+                          <li role="presentation" class="dropdown-header" style="font-variant:small-caps">Your saved queries - other contexts</li>
+					<li ng-repeat="item in sc.searchService.savedQueriesByUserExcludingContext track by $index"  ng-click="sc.currentSearch.recentSearch(item.query)" >
+						<a>
+                      			<div title="click to search">
+                       			<sub style="color:gray">{{item.query.authorizedContext}}</sub>
+                       			<br>
+                       			<span style="text-decoration:none">{{item.query.userInput}}</span> 
+                       			<small style="color:green" ng-if="item.query.inputExpansion"><i class="fa fa-expand"></i></small>
+                       			<small style="color:green" ng-if="item.query.distinctCounts"><i class="tally-recent-saved">EB&nbsp;</i></small>
+                       			<small style="color:gray" ng-if="item.query.filterSummary"><i class="fa fa-filter fa-lg" style="color:green"></i><i>: {{item.query.filterSummary}}</i></small>
+                      			</div>
+                     			</a>
+                          </li>
+				</ul>
 			</li>
-			-->
+			
 			<li data-container="body" data-toggle="tooltip" 
 				data-placement="bottom" 
 				ng-click="sc.currentSearch.exportResults()"
 				title="download query results">
 				<a><i class="fa fa-download fa-lg"></i></a>
-			</li>
-			<li data-container="body" data-toggle="tooltip" data-placement="bottom" title="save query for later use">
-				<a><i class="fa fa-floppy-o fa-lg" ng-click="sc.searchService.saveQuery(sc.currentSearch.instance)"></i></a>
 			</li>
 		</ul>
 		

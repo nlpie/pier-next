@@ -9,16 +9,17 @@ class SearchContext {
 	
 	static mapping = {
 		datasource 'notes'
-		table name: "search_context", schema: "notes"
+		table name: "unioned_search_contexts", schema: "notes"
 		version false
 	}
 	
 	Long requestSetId
 	Long requestId
 	String label
-	String filterValue
 	String description
 	String status
-	String corpus
+	String corpusName
+	Boolean filteredContext
+	String contextFilterValue
 	
 }
