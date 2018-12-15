@@ -56,7 +56,13 @@ class ConfigService {
 	def authorizedContextByLabel( label ) { 
 		def username = userService.currentUserUsername
 		def ac = AuthorizedContext.findByLabelAndUsername( label,username );
-		if ( !ac ) ac = new AuthorizedContext( label:label, filterValue:0 )
+		if ( !ac ) {
+			println "Created AuthContext from configured corpora (Corpus domain object)"
+			def c = Corpus.findByName( label )
+			ac = new AuthorizedContext( label:c.name, contextFilterValue:0, description:c.description, corpusName:c.name, filteredContext:false )
+		} else {
+			println "AuthContext found in authorized_context db object"
+		}	
 		ac
 	}
 	
