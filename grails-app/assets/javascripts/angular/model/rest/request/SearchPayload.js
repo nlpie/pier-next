@@ -1,4 +1,5 @@
 import DocumentQuery from '../../search/elastic/DocumentQuery';
+import ExportQuery from '../../search/elastic/ExportQuery';
 import AggregationQuery from '../../search/elastic/AggregationQuery';
 import PaginationQuery from '../../search/elastic/PaginationQuery';
 import EncounterDocQuery from '../../search/elastic/clinical/EncounterDocQuery';
@@ -16,6 +17,7 @@ class SearchPayload {
 		this.userInput = search.userInput;
 		this.query = undefined;
 		this.url = corpus.metadata.url;
+		this.scrollUrl = undefined;
 		this.inputExpansion = search.inputExpansion.on;
 		this.distinctCounts = search.instance.distinctCounts.on;
 		this.expansionTerms = undefined;
@@ -44,6 +46,10 @@ class SearchPayload {
 		    case 'RECENT-AGGS':
 				this.query =  new AggregationQuery( corpus, search.inputExpansion.expandUserInput(search.userInput) );
 		    	break;
+		    case 'EXPORT':
+		    	this.scrollUrl = corpus.metadata.scrollUrl;
+				this.query = new ExportQuery( corpus, search.inputExpansion.expandUserInput(search.userInput) );
+				break;
 		    	//need to figure out how to parse fetched query, and assign these parts to new doc and agg queries. Clear currentSearch and assign the parsed values  
 		    //doc-recent: return this.$http.post( APP.ROOT + '/search/elastic/', JSON.stringify( { "registration.id":registration.id, "corpus":corpus.name, "type":"DocumentQuery(recent)", "url":url, "query":docsQuery, "filters":filterDesc, "sequence":this.status.sequence } ) )
 			//agg-recent: return this.$http.post( APP.ROOT + '/search/elastic/', JSON.stringify( { "registration.id":registration.id, "corpus":corpus.name, "type":"AggregationQuery(recent)", "url":url, "query":aggsQuery, "filters":filterDesc, "sequence":this.status.sequence } ) )

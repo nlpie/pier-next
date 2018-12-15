@@ -74,6 +74,21 @@ class SettingsController {//extends RestfulController {
 		}
 	}
 	
+	def corpusExports() {
+		try {
+			if ( request.method!="GET" ) throw new HttpMethodNotAllowedException(message:"issue GET instead")
+			def corpusId = params.id
+			respond settingsService.corpusExports( corpusId )
+		} catch (PierApiException e) {
+			println "pier exception"
+			exceptionResponse(e)
+		} catch (Exception e) {
+			println "reg exception"
+			e.printStackTrace()
+			exceptionResponse( new PierApiException(message:e.message) )
+		}
+	}
+	
 	@Transactional
 	def update() {
 		try {

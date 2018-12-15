@@ -78,7 +78,7 @@ class Corpus {
 		)
 		corps.each { c ->
 			def indexes = c.indexes
-			println "corpus: ${c}, indexes:${indexes.size()}"
+			//println "corpus: ${c}, indexes:${indexes.size()}"
 		}
 		corps
 	}

@@ -7,8 +7,8 @@
 body { 
 	font-family: 'Roboto', sans-serif;
 	padding-top: 50px;
-	line-height:1.25; 
-	overflow:hidden;  /*	prevents vert scroll bar from overlapping fixed top nav */
+	line-height: 1.25; 
+	overflow-y: auto; /*	prevents vert scroll bar from overlapping fixed top nav */
 }
 
 .navbar-inverse-pier {
@@ -18,13 +18,15 @@ body {
 /* main is bootstrap class (aparently), this repositions the page content relative to navs and enables scrolling */
 .main {
 	margin-top: -15px;
-	overflow-y: scroll;
+	overflow-y: auto;
 	color:#444
 }
 
 .dropdown-menu {
    max-height:300px;
    overflow-y: auto;
+   max-width: 600px;
+   white-space: normal;
 }
 
 .pier-li-icon {

@@ -22,6 +22,8 @@ class Query {
 		exceptionMessage type: 'text'
 		terms sqlType: 'mediumtext'
 		userInput sqlType: 'mediumtext'
+		expansionTerms sqlType: 'mediumtext' 
+		filterSummary sqlType: 'mediumtext'
 	}
 	
 	//static belongsTo = [ registration:SearchRegistration ]	//client passes in queryLog.id

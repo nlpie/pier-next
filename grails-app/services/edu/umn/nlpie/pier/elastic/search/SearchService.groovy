@@ -27,13 +27,6 @@ from Query q
 where q.username=? and q.httpStatus=? and q.type in ( 'DocumentQuery','EncounterQuery' )
 order by q.dateCreated desc """.toString()
 
-		/*sql << """
-select distinct q.id as queryId, q.label, q.authorizedContext, q.id as queryId, q.filterSummary, q.saved, q.uuid
-from Query q
-where q.username=? and q.httpStatus=? and q.type in ( 'DocumentQuery','EncounterQuery' )
-group by q.hashCodedQuery, q.filterSummary, q.authorizedContext, q.saved
-order by q.dateCreated desc """.toString()*/
-
 		def lastQueryId = 0.toLong()
 		
 		/*if ( excludeMostRecent ) {
