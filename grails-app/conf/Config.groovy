@@ -11,7 +11,7 @@ grails.config.locations = [
 	"file:/Users/rmcewan/nlppier/ds_${Environment.current.name}.groovy",
 	"file:/usr/share/tomcat-notes_test/conf/ds_${Environment.current.name}.groovy"
 ]
-println "env: ${Environment.current.name} "
+println "Config.groovy ENV: ${Environment.current.name} "
 
 ENV = Environment.current.name.toString()
 
@@ -99,6 +99,9 @@ grails.hibernate.pass.readonly = false
 // configure passing read-only to OSIV session by default, requires "singleSession = false" OSIV mode
 grails.hibernate.osiv.readonly = false
 
+username.placeholder = "UofM Internet ID"
+password.placeholder = "Internet password"
+
 environments {
     development {
         grails.logging.jul.usebridge = true
@@ -112,11 +115,37 @@ environments {
 		grails.plugin.springsecurity.ldap.authorities.groupSearchBase ='ou=People'
 		grails.plugin.springsecurity.ldap.search.base = 'o=University of Minnesota,c=US'
 		grails.plugin.springsecurity.ldap.search.filter='(uid={0})'
+		
+		grails.assets.minifyJs = false
+		grails.assets.minifyCss = false
+		grails.assets.enableSourceMaps = false
+		/*grails.assets.configOptions = [babel: [
+			enabled: true,
+			processJsFiles: true  // add if you want to transpile '*.js'
+		]]
+		grails.assets.minifyOptions = [
+			languageMode: 'ES6',
+			targetLanguage: 'ES5', //Can go from ES6 to ES5 for those bleeding edgers
+			optimizationLevel: 'SIMPLE',
+			angularPass: true // Can use @ngInject annotation for Angular Apps
+		]*/
+				
     }
 	test {
 		grails.logging.jul.usebridge = true
-		grails.assets.minifyJs = true
-		grails.assets.minifyCss = true
+		grails.assets.minifyJs = false
+		grails.assets.minifyCss = false
+		/*enableSourceMaps = true
+		configOptions = [babel: [
+            enabled: true,
+            processJsFiles: true  // add if you want to transpile '*.js'
+        ]]
+		grails.assets.minifyOptions = [
+			languageMode: 'ES6',
+			targetLanguage: 'ES5', //Can go from ES6 to ES5 for those bleeding edgers
+			optimizationLevel: 'SIMPLE',
+			angularPass: true // Can use @ngInject annotation for Angular Apps
+		]*/
 		
 		//LDAP config used by Spring Security LDAP plugin for LDAP authentication
 		grails.plugin.springsecurity.ldap.context.managerDn = ''
@@ -137,6 +166,15 @@ environments {
 		//TODO issue ssh -N -f rmcewan1@nlp02.fairview.org -L 9200:localhost:9200 prior to spinning up this env, then the FV ES cluster is available on localhost:9200
 		//TODO fire a script to do this after exchanging keys
 		//https://confluence.atlassian.com/kb/unable-to-connect-to-ssl-services-due-to-pkix-path-building-failed-779355358.html
+		
+		//And now it just seems to work (for ssh and scp) if I reissue the command after the 'ssh-dss' message.
+		//rmcewan$ scp -P 49595 /Users/rmcewan/Documents/workspace-nlp2/pier-next/target/pier-next-2.0.0.war rmcewan1@127.0.0.1:~/
+		//on nlp01.fairview.org
+		//sudo mv pier-next-2.0.0.war /usr/share/tomcat-notes_test/webapps/notes_test.war
+		//sudo service tomcat@notes_test start
+		//sudo tail -f test-log 
+
+		
 		disable.auto.recompile=false
 		grails.gsp.enable.reload=true
 		grails.logging.jul.usebridge = false
@@ -151,6 +189,9 @@ environments {
 		grails.plugin.springsecurity.ldap.authorities.groupSearchBase ='ou=Users'
 		grails.plugin.springsecurity.ldap.search.base = 'DC=fairview,DC=org'
 		grails.plugin.springsecurity.ldap.search.filter='(sAMAccountName={0})'
+		
+		username.placeholder = "Fairview User ID"
+		password.placeholder = "Password"
 	}
 	fvtest {
 		//sudo /usr/lib/jvm/jre/bin/keytool -import -alias fv-ldap -keystore /usr/lib/jvm/jre/lib/security/cacerts -file ~/fv-ldap.cer 
@@ -170,6 +211,9 @@ environments {
 		grails.plugin.springsecurity.ldap.authorities.groupSearchBase ='ou=Users'
 		grails.plugin.springsecurity.ldap.search.base = 'DC=fairview,DC=org'
 		grails.plugin.springsecurity.ldap.search.filter='(sAMAccountName={0})'
+		
+		username.placeholder = "Fairview User ID"
+		password.placeholder = "Password"
 	}
 }
 
