@@ -141,16 +141,21 @@
 								<i class="fa fa-sliders fa-lg" aria-hidden="true"></i>
 							</a>
 						</li>
-						<!--  <li class="<g:if test="${actionName=='login'}">active</g:if>">
-							<a href="${request.contextPath}/admin/login" data-toggle="tooltip" data-placement="bottom" title="sign in">
+						
+						<sec:ifNotLoggedIn>
+						<li class="<g:if test="${actionName=='auth'}">active</g:if>">
+							<a href="${request.contextPath}/search" data-toggle="tooltip" data-placement="bottom" title="sign in">
 								<i class="fa fa-sign-in fa-lg" aria-hidden="true"></i>
 							</a>
-						</li>-->
+						</li>
+						</sec:ifNotLoggedIn>
+						<sec:ifLoggedIn>
 						<li class="<g:if test="${actionName=='login'}">active</g:if>">
 							<a href="${request.contextPath}/logout" data-toggle="tooltip" data-placement="bottom" title="sign out">
 								<i class="fa fa-sign-out fa-lg" aria-hidden="true"></i>
 							</a>
 						</li>
+						</sec:ifLoggedIn>
 					</ul>
 			</div>
 		</div>
