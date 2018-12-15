@@ -19,29 +19,33 @@ class SettingsService {
 		def corpus = Corpus.get(corpusId.toLong())
     	def index = corpus.index
 		preferencesByOntology( index,'ALL' )	//returns JSONArray
-		/*
-		def indexes = Index.getSearchableIndexes()	//findAllByStatus("Searchable")
-		def map = [:]
-		indexes.each { index ->
-			println "SettingsService.preferences(): ${index.commonName}"
-			map.put( index.commonName, preferencesByOntology( index,'ALL' ) )
-		}
-		map
-		*/
     }
 	
     def corpusAggregations( corpusId ) {
-    	//should return array of ontologies, each of which has an array of aggregations
+    	//returns array of ontologies, each of which has an array of aggregations
     	def corpus = Corpus.get(corpusId.toLong())
-		println "settingsService.corpusAggregations ${corpus.name} ${corpusId}"
     	def index = corpus.index
-    	preferencesByOntology( index,'AGGREGATES' )	//returns JSONArray
+    	preferencesByOntology( index,'USER_AGGREGATES' )	//returns JSONArray
     }
+	
+	def corpusExports( corpusId ) {
+		//returns array of fields user has chosen as exportable
+		def user = User.findByUsername(userService.currentUserUsername)
+		def corpus = Corpus.get(corpusId.toLong())
+		def index = corpus.index
+		def columns = new JSONArray()
+		def fields = new JSONArray()
+		def prefs = FieldPreference.executeQuery('from FieldPreference fp where fp.user=? and fp.field.type.index=? and fp.export=? and field.exportable=? order by fp.label', [ user,index,true,true ], [ readOnly:true ])
+		prefs.each { pr ->
+			columns.add( pr.label )
+			fields.add( pr.field.fieldName )
+		}
+		[ "columns": columns, "fields":fields ]
+	}
 
 	private preferencesByOntology( index,scope ) {
 		def user = User.findByUsername(userService.currentUserUsername)
 		def ontologies = Ontology.list()
-		//def o = [:]
 		def relevantOntologies = new JSONArray()
 		ontologies.each { ontology ->
 			//println "${index} ${ontology}"
@@ -50,15 +54,15 @@ class SettingsService {
 				case "ALL": 
 					prefs = FieldPreference.executeQuery('from FieldPreference fp where fp.user=? and fp.field.type.index=? and fp.ontology=? and (field.aggregatable=? or field.exportable=?) order by fp.label', [ user,index,ontology,true,true ], [ readOnly:true ]) 
 					break
-				case "AGGREGATES": 
+				case "USER_AGGREGATES": 
 					prefs = FieldPreference.executeQuery('from FieldPreference fp where fp.user=? and fp.field.type.index=? and fp.ontology=? and fp.aggregate=? and field.aggregatable=? order by fp.label', [ user,index,ontology,true,true ], [ readOnly:true ])
 					break
 			}
-			if ( prefs.size()>0 ) {	//put ontology and prefs in o only if there are preferences
+			if ( prefs.size()>0 ) {	//put ontology and prefs in relevantOntologies only if there are preferences
 				ontology.fieldPreferences = prefs
 				relevantOntologies.add( ontology )
 			}
-			println "\t${index}: ${relevantOntologies.toString()}" 
+			//println "\t${index}: ${relevantOntologies.toString()}" 
 		}
 		relevantOntologies	
 	}

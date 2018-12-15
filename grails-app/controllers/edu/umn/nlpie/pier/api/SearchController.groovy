@@ -98,17 +98,20 @@ class SearchController {//extends RestfulController {
 	}
 	
 	def export() {
+		//https://stackoverflow.com/questions/48839084/prevent-angular-http-post-request-timeout
 		def postBody = request.JSON
-println postBody
-		postBody.query.sort = ["_doc"]
-println postBody
+		def payload = postBody.payload
+		def fieldMetadata = postBody.fieldMetadata
+		payload.sort = ["_doc"]
 		def elasticResponse
-		try {
+		
+		def downloadFileName = payload.corpus.replace(" ","") << "__"
+		downloadFileName << payload.query.query.bool.must.query_string.query[0].replace(" ","_")
+
+				try {
 			if ( request.method!="POST" ) throw new HttpMethodNotAllowedException(message:"issue GET instead")
-			//TODO sanity check on request.JSON - needs query, url, searchRequest.id, etc
-			//println postBody.toString(2)
-			elasticResponse = elasticService.search( postBody.url+"?scroll=1m", postBody.query )
-println elasticResponse.json.toString(2)
+			elasticResponse = elasticService.search( payload.url+"?scroll=5m", payload.query )
+//println elasticResponse.json.toString(2)
 			def status = elasticResponse.status
 			if ( status==400 ) {
 				throw new BadElasticRequestException( message:"Malformed query - check your syntax" )
@@ -116,95 +119,65 @@ println elasticResponse.json.toString(2)
 			if ( status==500 ) {
 				throw new PierApiException( message:elasticResponse.json.error.root_cause.reason )
 			}
-			//auditService.logQueryAndResponse( postBody, elasticResponse )
-			respond elasticResponse.json
-		} catch( PierApiException e) {
-			auditService.logException ( request, postBody, elasticResponse, e )
-			respondWithException(e)
-		} catch( ValidationException e) {
-			auditService.logException ( request, postBody, elasticResponse, e )
-			respondWithException( new PierApiException( postBody, elasticResponse, e ) )
-		} catch( Exception e) {
-			auditService.logException ( request, postBody, elasticResponse, e )
-			respondWithException( new PierApiException( message:e.message ) )
-		} finally {
-		
-		}
-	}
-	
-	def streamCsv() {
-		def b = new Date().time
-		def index = session["searchContext"]
-		if (index=="All Notes") index = "notes"
-		println "SearchController.streamcsv: ${request.forwardURI}"
-		def qJson = JSON.parse(session['esCsvQuery'])
-		println "SearchController.streamcsv:\n${qJson.toString(2)}"
-		def es = "http://${grailsApplication.config.elasticsearch.host}:9200"
-		def forwardURI = "/${index}/note/_search"	//request.forwardURI.minus(request.contextPath).replace("streamcsv", index)	//set ES type to note
-		def qs = "search_type=scan&scroll=2m&size=100"
-		def rest = new RestBuilder()
-		def esResponse
-		def totalDocs
-		
-		//set up scroll-scan
-		println "SearchController.streamcsv: ${es}${forwardURI}?${qs}"
-		esResponse = rest.post("${es}${forwardURI}?${qs}") {
-			json qJson.toString()
-		}
-		println esResponse.json.toString(2)	//contains _scroll_id
-		
-		//use _scroll_id to get results
-		forwardURI = "/_search/scroll"
-		qs = "scroll=2m&scroll_id=${esResponse.json._scroll_id}"
-		//def total = esResponse.json.hits.total
-		
-		response.contentType = "text/csv"	//"text/tab-separated-values"
-		response.setHeader("Content-disposition", "attachment; filename=dl.csv")
-		
-		def i=0
-		def columns
-		def data = response.outputStream//new StringBuilder()
-		def sortJson = new JsonBuilder(["sort":"_doc"])
-		while (true) {
-			qs = "scroll=2m&scroll_id=${esResponse.json._scroll_id}"
-			esResponse = rest.post("${es}${forwardURI}?${qs}") {
-				sortJson.toString()
-			}
-			def numberOfHits = esResponse.json.hits.hits.length()
 			
-			println "SearchController.streamcsv: docs so far: ${i}, current scroll size: ${esResponse.json.hits.hits.length()} ${new Date()}"
-			if ( numberOfHits ) {
-				def fields = esResponse.json.hits.hits[0].fields
-				if ( !columns ) {
-					columns = fields.names().sort()
-					data << columns.join(",") << "\n"
+			def query = auditService.logQueryAndResponse( request, payload, elasticResponse )
+			
+			//https://stackoverflow.com/questions/23055103/grails-how-to-force-the-browser-to-download-a-file
+			response.setContentType("APPLICATION/OCTET-STREAM")
+			response.setHeader("Content-Disposition", "Attachment;Filename=${downloadFileName}.csv")
+			
+			def data = response.outputStream
+			def columns = fieldMetadata.columns.sort()
+			def fields = fieldMetadata.fields.sort()
+			data << fields.join(",") << "\n"
+			elasticResponse.json.hits.hits.each { hit ->
+				fields.each { f ->
+					def val = StringEscapeUtils.escapeCsv( hit.fields[f] ? hit.fields[f][0].toString() : "null" )
+					data << val
+					if ( f!=fields[fields.length()-1] ) {
+						data << ","
+					} else {
+						data << "\n"
+					}
 				}
+			}
+			data.flush()
 			
-				esResponse.json.hits.hits.each { hit ->
-					i++
-					columns.each { col ->
-						def fieldValue = StringEscapeUtils.escapeCsv( hit.fields[col] ? hit.fields[col][0].toString() : "null" )
-						if ( col=="pat_mrn" )  {
-							def tmp = new StringBuilder()
-							tmp << "fv_mrn:" << fieldValue
-							fieldValue = tmp
-						}
-						data << fieldValue
-						if ( col!=columns[columns.length()-1] ) {
-							data << ","
-						} else {
-							data << "\n"
+			def scrollId = elasticResponse.json._scroll_id
+			def scroll = true
+			while ( scroll ) {
+				def sp = new ScrollPayload( scroll_id:scrollId, scroll:"5m" )
+				elasticResponse = elasticService.scroll( payload.scrollUrl, sp )
+println "${downloadFileName} scroll hits:${elasticResponse.json.hits.hits.size()} , took:${elasticResponse.json.took}"
+				elasticResponse.json.hits.hits.each { hit ->
+				fields.each { f ->
+					def val = StringEscapeUtils.escapeCsv( hit.fields[f] ? hit.fields[f][0].toString() : "null" )
+					data << val
+					if ( f!=fields[fields.length()-1] ) {
+						data << ","
+					} else {
+						data << "\n"
 						}
 					}
 				}
-
-			} else if (esResponse.json.hits.hits.length() == 0) {
-				//Break condition: No hits are returned
-				break;
+				scroll = elasticResponse.json.hits.hits.size()>0 ? true : false
+				scrollId = elasticResponse.json._scroll_id
+				data.flush()
 			}
+			data.close()
+		} catch( PierApiException e) {
+			auditService.logException ( request, payload, elasticResponse, e )
+			respondWithException(e)
+		} catch( ValidationException e) {
+			auditService.logException ( request, payload, elasticResponse, e )
+			respondWithException( new PierApiException( payload, elasticResponse, e ) )
+		} catch( Exception e) {
+			auditService.logException ( request, payload, elasticResponse, e )
+			respondWithException( new PierApiException( message:e.message ) )
+			//e.printStackTrace()
+		} finally {
+			//data.close()
 		}
-		data.flush()
-		println "streamed csv took ${(new Date().time-b)/1000}s"
 	}
 	
 	def noteCount() {
@@ -390,10 +363,6 @@ expansion formula:
 		ea << pt
 	ea = ea - ct
     expansion = ( ea.join(" OR") ) NOT ct
-    
-    
-    
-    
 	*/
 	
 	
@@ -413,13 +382,11 @@ expansion formula:
 		respond searchService.savedQueriesByUserExcludingContext( request.JSON.authorizedContext )
 	}
 	
-	
 	def recentQuery() {
 		JSON.use ('recent.query') {
 			respond searchService.recentQuery(params.id)
 		}
 	}
-	
 	
 	def related() {
 		def jsonBody = request.JSON

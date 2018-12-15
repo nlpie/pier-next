@@ -467,6 +467,47 @@ class Search {
     	if ( !corpus.isDirty() && corpus.results.pagination.first() ) this.p( corpus );
     }
     
+    exportResults() {
+    	this.instance.mode = "EXPORT";
+    	let me = this;
+    	let payload = new SearchPayload( this.context.corpus, this, "EXPORT" );	//returns payload containing an ExportQuery with an empty fields array, need to specify which fields to return	
+    	this.$http.get( APP.ROOT + '/settings/corpusExports/' + this.context.corpus.id )
+			.then( function( exportsResponse ) {
+				let fieldMetadata = exportsResponse.data;
+				let fields = fieldMetadata.fields;
+				payload.query.fields = fields;
+				let postBody = {};
+				postBody.payload = payload;
+				postBody.fieldMetadata = fieldMetadata;
+				
+				//https://systemoverlord.com/2016/08/24/posting-json-with-an-html-form.html
+				//https://stackoverflow.com/questions/6964927/how-to-create-a-form-dynamically-via-javascript
+				var f = document.createElement("form");
+				f.setAttribute('method',"POST");
+				f.setAttribute('action',"search/export");
+				f.setAttribute('enctype', "text/plain");
+				f.setAttribute('id', "download-form")
+
+				var i = document.createElement("input"); //input element, text
+				i.setAttribute('type',"hidden");
+				i.setAttribute('name', JSON.stringify( postBody ) );
+
+				var s = document.createElement("input"); //input element, Submit button
+				s.setAttribute('type',"submit");
+				s.setAttribute('value',"");
+
+				f.appendChild(i);
+				f.appendChild(s);
+				
+				document.body.appendChild(f);
+		        f.submit();
+		        var downloadForm = document.getElementById("download-form");
+		        document.body.removeChild(downloadForm);
+		        
+				//me.searchService.exportResults( payload, fieldMetadata );
+			});
+    }
+    
     ps() {
     	//search item is search history, past search
     }

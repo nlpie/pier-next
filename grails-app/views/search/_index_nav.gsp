@@ -35,7 +35,7 @@
 			-->
 			<li data-container="body" data-toggle="tooltip" 
 				data-placement="bottom" 
-				ng-click="sc.searchService.exportSearch(sc.currentSearch)"
+				ng-click="sc.currentSearch.exportResults()"
 				title="download query results">
 				<a><i class="fa fa-download fa-lg"></i></a>
 			</li>
