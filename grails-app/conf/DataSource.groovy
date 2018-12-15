@@ -154,7 +154,6 @@ environments {
 			//formatSql=true
 		}
 		dataSource_notes {
-println "FVTEST FVTEST"
 			readOnly = false
 			dbCreate = "create-drop"
 			//logSql=true

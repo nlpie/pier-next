@@ -9,7 +9,7 @@
 	<meta name="author" content="">
 	<link rel="icon" href="../../favicon.ico">
 	
-	<title><g:meta name="admin.title"/></title>
+	<title><g:meta name="app.title"/></title>
 	
 	<!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
 	<!--[if lt IE 9]>
@@ -33,6 +33,11 @@
 	
 	
 	<asset:stylesheet src="lib/Roboto.css" />
+	
+	<!--<asset:stylesheet src="application.css" />
+	<asset:javascript src="application.js" />-->
+	
+	
 	
 	<g:javascript>
 		//fill in global values using Grails-provided objects
@@ -97,38 +102,6 @@
 							</a>
 						</li>
 						
-						<li class="dropdown" data-toggle="tooltip" data-placement="bottom" title="saved searches">
-							<a class="dropdown-toggle" data-toggle="dropdown" role="button">
-								<i class="fa fa-list fa-lg" aria-hidden="true"></i>
-								<i class="fa fa-caret-down" aria-hidden="true"></i>
-							</a>
-							<ul class="dropdown-menu">
-								<li role="presentation" class="dropdown-header" style="font-variant:small-caps">Shared queries - current context</li>
-								<li ng-repeat="item in hc.searchService.savedQueriesByContext track by $index"  ng-click="hc.currentSearch.recentSearch(item.query)" >
-									<a>
-	                        			<div title="click to search">
-		                        			<span style="text-decoration:none">{{item.query.userInput}}</span> 
-		                        			<small style="color:green" ng-if="item.query.inputExpansion"><i class="fa fa-expand"></i></small>
-		                        			<small style="color:green" ng-if="item.query.distinctCounts"><i class="tally-recent-saved">EB&nbsp;</i></small>
-		                        			<small style="color:gray" ng-if="item.query.filterSummary"><i class="fa fa-filter fa-lg" style="color:green"></i><i>: {{item.query.filterSummary}}</i></small>
-	                        			</div>
-                        			</a>
-	                            </li>
-	                            <li role="presentation" class="dropdown-header" style="font-variant:small-caps">Your saved queries - other contexts</li>
-								<li ng-repeat="item in hc.searchService.savedQueriesByUserExcludingContext track by $index"  ng-click="hc.currentSearch.recentSearch(item.query)" >
-									<a>
-	                        			<div title="click to search">
-		                        			<sub style="color:gray">{{item.query.authorizedContext}}</sub>
-		                        			<br>
-		                        			<span style="text-decoration:none">{{item.query.userInput}}</span> 
-		                        			<small style="color:green" ng-if="item.query.inputExpansion"><i class="fa fa-expand"></i></small>
-		                        			<small style="color:green" ng-if="item.query.distinctCounts"><i class="tally-recent-saved">EB&nbsp;</i></small>
-		                        			<small style="color:gray" ng-if="item.query.filterSummary"><i class="fa fa-filter fa-lg" style="color:green"></i><i>: {{item.query.filterSummary}}</i></small>
-	                        			</div>
-                        			</a>
-	                            </li>
-							</ul>
-						</li>
 						<li class="<g:if test="${actionName=='help'}">active</g:if>">
 							<a data-toggle="tooltip" data-placement="bottom" title="help">
 								<i class="fa fa-question fa-lg" aria-hidden="true"
@@ -168,18 +141,15 @@
 	</script>
 	
 	<g:layoutBody />
-	
-	<!-- was here -->
 
 	<script>
-	$(document).ready(function(){
-	    //$('.expansion-control').tooltip({delay: {show: 300, hide: 2300}}); 
-		$('[data-toggle="tooltip"]').tooltip({
-		      animation: true,
-		      delay: {show: 500, hide: 0}
-		    });
-	});
-</script>
+		$(document).ready(function(){
+			$('[data-toggle="tooltip"]').tooltip({
+			      animation: true,
+			      delay: {show: 500, hide: 0}
+			    });
+		});
+	</script>
 </body>
 
 </html>

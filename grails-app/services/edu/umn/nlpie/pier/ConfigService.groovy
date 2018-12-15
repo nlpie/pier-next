@@ -19,25 +19,6 @@ class ConfigService {
 	
 	static scope = "prototype"
 	def userService
-
-	/*
-	def getAuthorizedContexts() {
-		def list = new ArrayList()
-		def username = userService.currentUserUsername
-		//if user has ROLE_ANALYST, give access to all contexts and add each searchable corpus for the current env for corpus-wide searching
-		if ( SpringSecurityUtils.ifAnyGranted('ROLE_ANALYST') ) {
-			//list = AuthorizedContext.list(sort:'label')
-			def corpora = Corpus.searchableCorpora
-			corpora.each { ct ->
-				list.add(0,new AuthorizedContext( label:ct.name, filterValue:0 ))
-			}
-			println "${username} IS ROLE_ANALYST, ${list.size()} contexts available"
-		} else {
-			list = AuthorizedContext.findAllByUsername(username,[sort:'label'])
-			println "${username} NOT ROLE_ANALYST, ${list.size()} contexts available"
-		}
-		list
-    }*/
 	
 	def getAuthorizedContexts() {
 		def list = new ArrayList()
@@ -45,10 +26,10 @@ class ConfigService {
 		def corpora = Corpus.searchableCorpora
 		corpora.each { c ->
 			if ( SpringSecurityUtils.ifAnyGranted( c.minimumRole.authority ) ) {  
-				list.add(0,new AuthorizedContext( label:c.name, filterValue:0 ));
+				list.add(0,new AuthorizedContext( label:c.name, contextFilterValue:0, description:c.description, corpusName:c.name, filteredContext:false ));
 			}
 		}
-		//list.addAll( AuthorizedContext.findAllByUsername(username,[sort:'label']) )
+		list.addAll( AuthorizedContext.findAllByUsername(username,[sort:'filteredContext']) )
 		println "${username}, ${list.size()} contexts available"
 		list
 	}
@@ -84,16 +65,21 @@ class ConfigService {
 		def prefs = this.defaultPreferences
 		prefs.each {
 			//println "cloning ${it.field.type}:${it.label}"
-			def field = it.field
-			def fp = new FieldPreference(it.properties)
-			fp.setUser(user)
-			fp.setId(null)
-			fp.setDateCreated(null)
-			fp.setDateCreated(null)
-			fp.setApplicationDefault(false)//this is not strictly necessary for new, non-cloned instance, it's the default value
-			field.addToPreferences(fp)
-			field.save(failOnError:true)
+			def pref = FieldPreference.findByUserAndField( user, it.field )
+			if ( !pref ) {
+				def field = it.field
+				def fp = new FieldPreference(it.properties)
+				fp.setUser(user)
+				fp.setId(null)
+				fp.setDateCreated(null)
+				fp.setDateCreated(null)
+				fp.setApplicationDefault(false)//this is not strictly necessary for new, non-cloned instance, it's the default value
+				field.addToPreferences(fp)
+				field.save(failOnError:true)
+				println "\tfield [${it.field.fieldName}] pref added for [${user.username}]"
+			}
 		}
+		println "PREFERENCES SET FOR ${user.username}"
 	}
 	
 	def generatePassword() {
