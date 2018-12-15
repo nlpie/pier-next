@@ -8,16 +8,17 @@ beans = {
 	jsonMarshallerRegistrar(JsonMarshallerRegistrar)
 	
 	elasticService(ElasticService) {
-		switch(Environment.current) {
-	
-			case Environment.current.name.startsWith("fv"):
-				umlsIndexSearchUrl = "http://nlp02.fairview.org:9200/umls_2013/entry/_search"				
+		def UMN = "http://nlp05.ahc.umn.edu:9200/umls_2013/entry/_search"
+		def FV = "http://nlp02.fairview.org:9200/umls_2013/entry/_search"
+		switch(Environment.current.name) {
+			case [ 'development', 'test', 'production' ]:
+				umlsIndexSearchUrl = UMN
 				break
-			case Environment.DEVELOPMENT:
-				umlsIndexSearchUrl = "http://nlp05.ahc.umn.edu:9200/umls_2013/entry/_search"
+			case [ 'fvdev', 'fvtest', 'fvprod' ]:
+				umlsIndexSearchUrl = FV				
 				break
 			default:
-				umlsIndexSearchUrl = "http://nlp05.ahc.umn.edu:9200/umls_2013/entry/_search"
+				umlsIndexSearchUrl = UMN
 				break
 		}
 	}
