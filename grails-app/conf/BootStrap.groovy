@@ -16,10 +16,11 @@ class BootStrap {
 	def indexService
 	def configService
 
-	//app refresh - db exports: user_authentication_context, query
+	//DO THIS BEFORE SHUTTING DOWN THE INSTANCE
+	//app refresh - db exports: user, user_authentication_event, query
 	
     def init = { servletContext ->
-		
+	
 		println "--START BOOTSTRAP--"
 		
 		//make sure nlppier user and certain roles exist
@@ -31,7 +32,8 @@ class BootStrap {
 		def cardio = Role.findByAuthority("ROLE_CARDIOLOGY")?:new Role(authority:"ROLE_CARDIOLOGY").save(flush:true)
 		def cancer = Role.findByAuthority("ROLE_CANCER")?:new Role(authority:"ROLE_CANCER").save(flush:true)
 		
-		if ( Environment.current == Environment.DEVELOPMENT || Environment.current == Environment.TEST || Environment.current.name=="fvdev" || Environment.current.name=="fvtest" ) {
+		if ( Environment.current == Environment.DEVELOPMENT ||  Environment.current.name=="fvdev" || Environment.current.name=="fvtest" ) {
+		//Environment.current == Environment.TEST ||
 		//if (true==false) {
 			println "${Environment.current.name} RECREATING INDEXES/CORPORA"
 			//populate elastic data
@@ -39,8 +41,9 @@ class BootStrap {
 				def app = configUser("nlppier", [])
 				
 				def epicOntology = Ontology.findByName('Epic Categories')?:new Ontology(name:'Epic Categories', description:"what shows in Epic").save(flush:true, failOnError:true)
-				def epicHL7LoincOntology = Ontology.findByName('HL7 LOINC')?:new Ontology(name:'HL7 LOINC', description:"DO Axis values").save(flush:true, failOnError:true)
+				def epicHL7LoincOntology = Ontology.findByName('HL7 LOINC Document Ontology')?:new Ontology(name:'HL7 LOINC Document Ontology', description:"HL7 LOINC Document Ontology axis values").save(flush:true, failOnError:true)
 				def biomedicus = Ontology.findByName('NLP Annotations')?:new Ontology(name:'NLP Annotations', description:"NLP annotations").save(flush:true, failOnError:true)
+				def mimicOntology = Ontology.findByName('MIMIC Data Element Ontology')?:new Ontology(name:'MIMIC Data Element Ontology', description:"MIMIC data elements").save(flush:true, failOnError:true)
 				
 				
 				def nlp05 = Cluster.findByClusterName("nlp05")?:new Cluster(clusterName:"nlp05",uri:"http://nlp05.ahc.umn.edu:9200",environment:Environment.current.name,description:"test cluster (to be prod)", commonName:"test cluster")
@@ -51,77 +54,187 @@ class BootStrap {
 				if ( Environment.current.name=="fvtest" ) {
 					nlp05.uri = "http://nlp02.fairview.org:9200"
 				}
-				def epicNotesIdx = Index.findByCommonName("Epic Notes")?:new Index(commonName:"Epic Notes", indexName:"notes_v3",  status:"Searchable", description:"clinical epic notes", numberOfShards:6, numberOfReplicas:0, environment:Environment.current.name)//.save(flush:true, failOnError:true)
+				def epicNotesIdx = Index.findByCommonName("Epic Notes")?:new Index(commonName:"Epic Notes", indexName:"notes_v3",  status:"Searchable", description:"clinical epic notes", numberOfShards:6, numberOfReplicas:0, environment:Environment.current.name)
 				
-				def termExpansionIdx = Index.findByCommonName("word2vec nearest terms")?:new Index(commonName:"word2vec nearest terms", indexName:"expansion_v1",  status:"Functional", description:"semantially related terms and misspellings for each term in corpus", numberOfShards:1, numberOfReplicas:0, environment:Environment.current.name, isTermExpansionIndex:true)//.save(flush:true, failOnError:true)
+				def termExpansionIdx = Index.findByCommonName("word2vec nearest terms")?:new Index(commonName:"word2vec nearest terms", indexName:"expansion_v1",  status:"Functional", description:"semantially related terms and misspellings for each term in corpus", numberOfShards:1, numberOfReplicas:0, environment:Environment.current.name, isTermExpansionIndex:true)
 				def termExpansionType = Type.findByTypeName("word")?:new Type(typeName:"word", description:"w2v type", environment:Environment.current.name)
 				termExpansionIdx.type = termExpansionType
 				nlp05.addToIndexes(termExpansionIdx)
 				
-				def noteId = Field.findByFieldName("note_id")?:new Field(fieldName:"note_id",dataTypeName:"LONG", description:"Epic note id", aggregatable:false)
-				def mrn = Field.findByFieldName("mrn")?:new Field(fieldName:"mrn",dataTypeName:"NOT_ANALYZED_STRING", description:"Epic patient identifier", aggregatable:true)
+				//note note-related
+				def noteId = Field.findByFieldName("note_id")?:new Field(fieldName:"note_id",dataTypeName:"LONG", description:"Epic note id", aggregatable:false, exportable:true)
+				def noteVersionId = Field.findByFieldName("note_version_id")?:new Field(fieldName:"note_version_id",dataTypeName:"LONG", description:"Epic note version id", aggregatable:false, exportable:true)
+				def hl7NoteId = Field.findByFieldName("hl7_note_id")?:new Field(fieldName:"hl7_note_id",dataTypeName:"LONG", description:"Realtime HL7 interface primary key for this note", aggregatable:false, exportable:true)
+				def authContext = Field.findByFieldName("authorized_context")?:new Field(fieldName:"authorized_context",dataTypeName:"NOT_ANALYZED_STRING", description:"Array of search contexts that include this note",contextFilterField:false, aggregatable:false )
+				def contextFilter = Field.findByFieldName("authorized_context_filter_value")?:new Field(fieldName:"authorized_context_filter_value",dataTypeName:"LONG", description:"Array of filter values that govern access to this note",contextFilterField:true, aggregatable:false )
+				def filingDate = Field.findByFieldName("filing_date")?:new Field(fieldName:"filing_date",dataTypeName:"DATE", description:"Date note was filed", aggregatable:false, exportable:true)
+				def filingDatetime = Field.findByFieldName("filing_datetime")?:new Field(fieldName:"filing_datetime",dataTypeName:"DATETIME", description:"Date/time note was filed", aggregatable:false, exportable:true)
+				//def noteDatetime = Field.findByFieldName("note_datetime")?:new Field(fieldName:"note_datetime",dataTypeName:"DATETIME", description:"Clarity date/time of note - alternative for filing datetime?", aggregatable:true, exportable:true)
+				def textLength = Field.findByFieldName("text_length")?:new Field(fieldName:"text_length",dataTypeName:"INTEGER", description:"length of analyzed note", aggregatable:false, exportable:true)
+				def textSourceFormat = Field.findByFieldName("text_source_format")?:new Field(fieldName:"text_source_format",dataTypeName:"NOT_ANALYZED_STRING", description:"plain text, rich text, format of analyzed note",contextFilterField:false, aggregatable:true, exportable:true )
+				def text = Field.findByFieldName("text")?:new Field(fieldName:"text",dataTypeName:"SNOWBALL_ANALYZED_STRING", description:"document text", defaultSearchField:true, aggregatable:false, exportable:true)
+				/*
+				"note_id": 603201078,
+				"note_version_id": 552990432,
+				"hl7_note_id":
+				"authorized_context":
+				"authorized_context_filter_value"
+				"filing_date": "2014-07-31",
+				"filing_datetime": "2014-07-31 16:00",
+				"note_datetime": "2014-07-31 16:00",
+				"text_length": 58,
+				"text_source_format": "clarity_plain_text",
+				"text": "  This patient was a no show for this scheduled appointment.  ",
+				*/
+				
+				//pt-related
+				def mrn = Field.findByFieldName("mrn")?:new Field(fieldName:"mrn",dataTypeName:"NOT_ANALYZED_STRING", description:"Epic patient identifier", aggregatable:true, exportable:true)
 				def patientId = Field.findByFieldNameAndType("patient_id", null)?:new Field(fieldName:"patient_id", dataTypeName:"LONG", description:"CDR Patient ID", aggregatable:true, exportable:true)
-				def encounterId = Field.findByFieldName("encounter_id")?:new Field(fieldName:"encounter_id",dataTypeName:"LONG", description:"Epic visit number", aggregatable:true)
+				/*"patient_id": 19813340237,
+				"mrn": "0029583181",*/
+				
+				
+				//encounter-related
+				def encounterId = Field.findByFieldName("encounter_id")?:new Field(fieldName:"encounter_id",dataTypeName:"LONG", description:"Epic visit number", aggregatable:true, exportable:true)
+				def serviceId = Field.findByFieldName("service_id")?:new Field(fieldName:"service_id",dataTypeName:"LONG", description:"CDR encounter identifier", aggregatable:true, exportable:true)
 				def serviceDate = Field.findByFieldName("service_date")?:new Field(fieldName:"service_date",dataTypeName:"DATE", description:"Date of Service", aggregatable:true, exportable:true)
-				def filingDatetime = Field.findByFieldName("filing_datetime")?:new Field(fieldName:"filing_datetime",dataTypeName:"DATETIME", description:"When note was filed", aggregatable:true, exportable:true)
 				def eds = Field.findByFieldName("encounter_department_specialty")?:new Field(fieldName:"encounter_department_specialty",dataTypeName:"NOT_ANALYZED_STRING", description:"Specialty name in Epic", aggregatable:true, exportable:true)
 				def ec = Field.findByFieldName("encounter_center")?:new Field(fieldName:"encounter_center",dataTypeName:"NOT_ANALYZED_STRING", description:"Encounter center name in Epic", aggregatable:true, exportable:true)
-				def ect = Field.findByFieldName("encounter_clinic_type")?:new Field(fieldName:"encounter_clinic_type",dataTypeName:"NOT_ANALYZED_STRING", description:"Clinic type in Epic", aggregatable:true, exportable:true)			
+				def ect = Field.findByFieldName("encounter_clinic_type")?:new Field(fieldName:"encounter_clinic_type",dataTypeName:"NOT_ANALYZED_STRING", description:"Encounter Clinic type in Epic", aggregatable:true, exportable:true)	
+				def ed = Field.findByFieldName("encounter_department")?:new Field(fieldName:"encounter_department",dataTypeName:"NOT_ANALYZED_STRING", description:"Encounter department in Epic", aggregatable:true, exportable:true)
+				def ecType = Field.findByFieldName("encounter_center_type")?:new Field(fieldName:"encounter_center_type",dataTypeName:"NOT_ANALYZED_STRING", description:"Encounter center type in Epic", aggregatable:true, exportable:true)
+				def di = Field.findByFieldName("department_id")?:new Field(fieldName:"department_id",dataTypeName:"NOT_ANALYZED_STRING", description:"CDR department identifier", aggregatable:true, exportable:true)
 				
+				/*"encounter_id": 108211423,
+				"service_id": 48855854232,
+				"service_date": "2014-07-31",
+				"encounter_department_specialty": "Family Practice",
+				"encounter_center": "Fairview Clinics Prior Lake",
+				"encounter_clinic_type": "Primary Care",
+				"encounter_department": "RV FAMILY PRACTICE",
+				"encounter_center_type": "CLINIC",
+				"department_id": "FV:DEPARTMENT_ID:58504",*/
+				
+				
+				//provider-related
 				def pt = Field.findByFieldName("prov_type")?:new Field(fieldName:"prov_type",dataTypeName:"NOT_ANALYZED_STRING", description:"Provider type in Epic name", aggregatable:true, exportable:true)
+				def providerId = Field.findByFieldName("provider_id")?:new Field(fieldName:"provider_id",dataTypeName:"LONG", description:"CDR department identifier", aggregatable:true, exportable:true)
+				def provId = Field.findByFieldName("prov_id")?:new Field(fieldName:"prov_id",dataTypeName:"NOT_ANALYZED_STRING", description:"Provider ID in Epic", aggregatable:true, exportable:true)
+				def provName = Field.findByFieldName("prov_name")?:new Field(fieldName:"prov_name",dataTypeName:"NOT_ANALYZED_STRING", description:"Provider name in Epic", aggregatable:true, exportable:true)
 				
-				def role = Field.findByFieldName("role")?:new Field(fieldName:"role",dataTypeName:"NOT_ANALYZED_STRING", description:"Provider role axis in HL7-LOINC DO", aggregatable:true, exportable:true)
-				def smd = Field.findByFieldName("smd")?:new Field(fieldName:"smd",dataTypeName:"NOT_ANALYZED_STRING", description:"subject matter domain", aggregatable:true, exportable:true)
-				def text = Field.findByFieldName("text")?:new Field(fieldName:"text",dataTypeName:"SNOWBALL_ANALYZED_STRING", description:"document text", defaultSearchField:true, aggregatable:false)
-				def contextFilter = Field.findByFieldName("authorized_context_filter_value")?:new Field(fieldName:"authorized_context_filter_value",dataTypeName:"NOT_ANALYZED_STRING", description:"Array of search contexts that include this note",contextFilterField:true, aggregatable:false )
-				def cui = Field.findByFieldName("cuis")?:new Field(fieldName:"cuis", dataTypeName:"NOT_ANALYZED_STRING", description:"UMLS CUIs identified by BioMedICUS NLP pipeline", aggregatable:true, significantTermsAggregatable:true)
+				/*
+				"prov_type": "Medical Assistant",
+				"provider_id": "33900385981",
+				"prov_id": "CSTEINB2",
+				"prov_name": "STEINBERG, CHERYL",*/
+				
+				//HL7-LOINC_DO
+				def role = Field.findByFieldName("role")?:new Field(fieldName:"role",dataTypeName:"NOT_ANALYZED_STRING", description:"Role axis in HL7-LOINC DO", aggregatable:true, exportable:true)
+				def smd = Field.findByFieldName("smd")?:new Field(fieldName:"smd",dataTypeName:"NOT_ANALYZED_STRING", description:"Subject Matter Domain axis in HL7-LOINC DO", aggregatable:true, exportable:true)
+				def kod = Field.findByFieldName("kod")?:new Field(fieldName:"kod",dataTypeName:"NOT_ANALYZED_STRING", description:"Kind of Document axis in HL7-LOINC DO", aggregatable:true, exportable:true)
+				def tos = Field.findByFieldName("tos")?:new Field(fieldName:"tos",dataTypeName:"NOT_ANALYZED_STRING", description:"Subject Matter Domain axis in HL7-LOINC DO", aggregatable:true, exportable:true)
+				def setting = Field.findByFieldName("setting")?:new Field(fieldName:"setting",dataTypeName:"NOT_ANALYZED_STRING", description:"Setting axis in HL7-LOINC DO", aggregatable:true, exportable:true)
+				
+				/*
+				"role": "9.g. Registered Nurse",
+				"smd": "12. Family Medicine",
+				"kod": "7. Note",
+				"tos": "9.k.1. Progress Note",
+				"setting": "null",*/
+				
+				
+				
+				
+				
+				//B9-related
+				def cui = Field.findByFieldName("cuis")?:new Field(fieldName:"cuis", dataTypeName:"NOT_ANALYZED_STRING", description:"UMLS CUIs identified by BioMedICUS NLP pipeline", aggregatable:true, exportable:true, significantTermsAggregatable:true)
+				//def lowCui = Field.findByFieldName("low_confidence_cuis")?:new Field(fieldName:"low_confidence_cuis", dataTypeName:"NOT_ANALYZED_STRING", description:"UMLS CUIs identified by BioMedICUS NLP pipeline, lower confidence detection", aggregatable:true, exportable:true, significantTermsAggregatable:true)
+				/*"cui": [
+				         "C0030705"
+				         ],
+				"low_confidence_cui": [
+						"C1658449"
+				]*/
 	
-				def clinicalCorpus = Corpus.findByName("Clinical Notes")?: new Corpus(name:"Clinical Notes", description:"notes from Epic", enabled:true, glyph:"fa-file-text-o", minimumRole:analyst).save(flush:true, failOnError:true)
+				def clinicalCorpus = Corpus.findByName("Clinical Notes")?: new Corpus(name:"Clinical Notes", description:"Clinical notes from Epic EHR", enabled:true, glyph:"fa-file-text-o", minimumRole:analyst).save(flush:true, failOnError:true)
 				
-				def noteType = Type.findByTypeName("note")?:new Type(typeName:"note", description:"CDR note", environment:Environment.current.name)
+				def noteType = Type.findByTypeName("note")?:new Type(typeName:"note", description:"Clinical note in Epic", environment:Environment.current.name)
 				noteType.addToFields(noteId)
+				noteType.addToFields(noteVersionId)
+				noteType.addToFields(hl7NoteId)
+				noteType.addToFields(authContext)
+				noteType.addToFields(contextFilter)
+				noteType.addToFields(filingDate)
+				noteType.addToFields(filingDatetime)
+				noteType.addToFields(textLength)
+				noteType.addToFields(textSourceFormat)
+				noteType.addToFields(text)
+				
 				noteType.addToFields(mrn)
 				noteType.addToFields(patientId)
+				
 				noteType.addToFields(encounterId)
+				noteType.addToFields(serviceId)
 				noteType.addToFields(serviceDate)
-				noteType.addToFields(filingDatetime)
-				noteType.addToFields(role)
-				noteType.addToFields(smd)
-				noteType.addToFields(text)
-				noteType.addToFields(contextFilter)
-				noteType.addToFields(cui)
 				noteType.addToFields(eds)
 				noteType.addToFields(ec)
 				noteType.addToFields(ect)
+				noteType.addToFields(ed)
+				noteType.addToFields(ecType)
+				noteType.addToFields(di)
+				
 				noteType.addToFields(pt)
+				noteType.addToFields(providerId)
+				noteType.addToFields(provId)
+				noteType.addToFields(provName)
+				
+				noteType.addToFields(role)
+				noteType.addToFields(smd)
+				noteType.addToFields(kod)
+				noteType.addToFields(tos)
+				noteType.addToFields(setting)
+
+				noteType.addToFields(cui)
+				//noteType.addToFields(lowCui)
+				
 				noteType.fields.each { f ->
 					println "adding pref for ${f.fieldName}"
 					def fp = new FieldPreference(user:app, label:PierUtils.labelFromUnderscore(f.fieldName), ontology:epicOntology, applicationDefault:true)
-					if ( f.contextFilterField || f.defaultSearchField ) fp.aggregate=false
-					if ( f.fieldName=="text" || f.fieldName=="filing_datetime" || f.fieldName=="encounter_id" ) fp.aggregate=false
-					if ( f.fieldName=="role" || f.fieldName=="smd" ) fp.ontology=epicHL7LoincOntology
+					
+					if ( f.contextFilterField || f.defaultSearchField || f.fieldName=="text") fp.aggregate=false
+					
 					if ( f.fieldName=="cuis" ) {
 						fp.ontology=biomedicus
 						fp.label = "Medical Concepts"
-						fp.numberOfFilterOptions = 25
+						fp.numberOfFilterOptions = 20
 						fp.aggregate = true
 					}
-					if ( f.fieldName=="mrn" || f.fieldName=="patient_id") {
+					if ( f.fieldName=="low_confidence_cuis" ) {
+						fp.ontology=biomedicus
+						fp.label = "Low Confidence Medical Concepts"
+						fp.numberOfFilterOptions = 10
+						fp.aggregate = true
+					}
+					
+					if ( f.fieldName=="mrn" || f.fieldName=="patient_id" || f.fieldName=="encounter_id" || f.fieldName=="provider_id" || f.fieldName=="service_id" || f.fieldName=="department_id" ) {
 						fp.computeDistinct = true
-						//if ( f.fieldName=="note_id" || f.fieldName=="mrn" ) fp.aggregate = false
 					}
-					if ( f.fieldName=="role" || f.fieldName=="smd" ) {
-						fp.export = true
-					}
+
+					if ( f.fieldName=="role" || f.fieldName=="smd" || f.fieldName=="setting" || f.fieldName=="kod" || f.fieldName=="tos" ) fp.ontology=epicHL7LoincOntology
+					
 					f.addToPreferences(fp)
 				}
 				epicNotesIdx.type = noteType
 				nlp05.addToIndexes(epicNotesIdx)
-				//println nlp05.toString()
+		
 				nlp05.save(failOnError:true, flush:true)
 				//done with clinical notes config
 				clinicalCorpus.addToIndexes(epicNotesIdx)
 				clinicalCorpus.save(flush:true, failOnError:true)
+				
+				
+				
+				
 				
 				//SURG PATH REPORTS INDEX
 				def surgPathCorpus = Corpus.findByName("Surgical Pathology Reports")?: new Corpus(name:"Surgical Pathology Reports", description:"surgical path reports from CDR", enabled:true, glyph:"icon-i-pathology", minimumRole:analyst).save(flush:true, failOnError:true)
@@ -345,7 +458,124 @@ class BootStrap {
 				copathCorpus.addToIndexes(copathIdx)
 				copathCorpus.save(flush:true, failOnError:true)
 				
+				/*{
+				 "text": "sometext",
+				 "analyzed_text_length": 452,
+				 "note_id": 1886132,
+				 "patient_id": 14831,
+				 "admission_id": 160882,
+				 "analyzed_text_format": "FORMATTED PLAINTEXT",
+				 "diagnosis": "NEWBORN",
+				 "alive": "YES",
+				 
+				 "category": "Nursing/other",
+				 "note_type": "Report",
+				 "gender": "M",
+				 "admission_type": "NEWBORN",
+				 "insurance": "Private",
+				 "religion": "CATHOLIC",
+				 
+				 "marital_status": "null",
+				 "ethnicity": "WHITE",
+				 "caregiver": "Read Only",
+				 
+				 "DOD": null,
+				 "DOB": "2180-08-02",
+				 "admit_date": "2180-08-02",
+				 "discharge_date": "2180-10-28",
+				 
+				 "cui": [],
+				 "acronym": []
+			 	}*/
+				
+				def mimicCorpus = Corpus.findByName("MIMIC")?: new Corpus(name:"MIMIC", description:"MIMIC ICU notes", enabled:true, glyph:"fa-file-text-o", minimumRole:admin).save(flush:true, failOnError:true)
+				def mimicIdx = Index.findByCommonName("MIMIC Notes")?:new Index(commonName:"MIMIC Notes", indexName:"mimic", status:"Searchable", description:"MIMIC ICU notesR", numberOfShards:6, numberOfReplicas:0,environment:Environment.current.name)
+				def mimicType = Type.findByTypeNameAndIndex("note", null)?:new Type(typeName:"note", description:"NOTEEVENTS.TEXT field in the MIMIC distribution", environment:Environment.current.name)
+				
+				def mimicText = Field.findByFieldNameAndType("text", null)?:new Field(fieldName:"text",dataTypeName:"SNOWBALL_ANALYZED_STRING", description:"from NOTEEVENTS.TEXT in MIMIC data set", defaultSearchField:true, aggregatable:false)
+				def mimicTextFmt = Field.findByFieldNameAndType("analyzed_text_format", null)?:new Field(fieldName:"analyzed_text_format", dataTypeName:"NOT_ANALYZED_STRING", description:"whether analyzed text contains new line formatting", aggregatable:false, exportable:false)
+				def mimicNoteId = Field.findByFieldNameAndType("note_id",null)?:new Field(fieldName:"note_id",dataTypeName:"INTEGER", description:"NOTEEVENTS.ROW_ID in MIMIC data set", aggregatable:false)
+				def mimicPatientId = Field.findByFieldNameAndType("patient_id",null)?:new Field(fieldName:"patient_id",dataTypeName:"INTEGER", description:"PATIENTS.ROW_ID in MIMIC data set", aggregatable:true)
+				def mimicAdmissionId = Field.findByFieldNameAndType("admission_id",null)?:new Field(fieldName:"admission_id",dataTypeName:"INTEGER", description:"ADMISSIONS.ROW_ID in MIMIC data set", aggregatable:true)
+				def mimicTextLength = Field.findByFieldNameAndType("analyzed_text_length",null)?:new Field(fieldName:"analyzed_text_length",dataTypeName:"INTEGER", description:"Length of text analyzed by BioMedICUS", aggregatable:false)
+				def mimicDob = Field.findByFieldNameAndType("DOB", null)?:new Field(fieldName:"DOB", dataTypeName:"DATE", description:"", aggregatable:true, exportable:true)
+				def mimicDod = Field.findByFieldNameAndType("DOD", null)?:new Field(fieldName:"DOD", dataTypeName:"DATE", description:"", aggregatable:true, exportable:true)
+				def mimicAdmitDt = Field.findByFieldNameAndType("admit_date", null)?:new Field(fieldName:"admit_date", dataTypeName:"DATE", description:"", aggregatable:true, exportable:true)
+				def mimicDischDt = Field.findByFieldNameAndType("discharge_date", null)?:new Field(fieldName:"discharge_date", dataTypeName:"DATE", description:"", aggregatable:true, exportable:true)
+				
+				def mimicDiagnosis = Field.findByFieldNameAndType("diagnosis", null)?:new Field(fieldName:"diagnosis", dataTypeName:"NOT_ANALYZED_STRING", description:"ADMISSIONS.DIAGNOSIS in MIMIC data set", aggregatable:true, exportable:true)
+				def mimicAlive = Field.findByFieldNameAndType("alive", null)?:new Field(fieldName:"alive", dataTypeName:"NOT_ANALYZED_STRING", description:"PATIENTS.EXPIRE_FLAG in MIMIC data set, cast to YES/NO to reflect whether pt is alive", aggregatable:true, exportable:true)
+				def mimicCategory = Field.findByFieldNameAndType("category", null)?:new Field(fieldName:"category", dataTypeName:"NOT_ANALYZED_STRING", description:"PATIENTS.EXPIRE_FLAG in MIMIC data set, cast to YES/NO to reflect whether pt is alive", aggregatable:true, exportable:true)
+				def mimicNoteType = Field.findByFieldNameAndType("note_type", null)?:new Field(fieldName:"note_type", dataTypeName:"NOT_ANALYZED_STRING", description:"PATIENTS.EXPIRE_FLAG in MIMIC data set, cast to YES/NO to reflect whether pt is alive", aggregatable:true, exportable:true)
+				def mimicGender = Field.findByFieldNameAndType("gender", null)?:new Field(fieldName:"gender", dataTypeName:"NOT_ANALYZED_STRING", description:"PATIENTS.EXPIRE_FLAG in MIMIC data set, cast to YES/NO to reflect whether pt is alive", aggregatable:true, exportable:true)
+				
+				def mimicAdmissionType = Field.findByFieldNameAndType("admission_type", null)?:new Field(fieldName:"admission_type", dataTypeName:"NOT_ANALYZED_STRING", description:"PATIENTS.EXPIRE_FLAG in MIMIC data set, cast to YES/NO to reflect whether pt is alive", aggregatable:true, exportable:true)
+				def mimicInsurance = Field.findByFieldNameAndType("insurance", null)?:new Field(fieldName:"insurance", dataTypeName:"NOT_ANALYZED_STRING", description:"PATIENTS.EXPIRE_FLAG in MIMIC data set, cast to YES/NO to reflect whether pt is alive", aggregatable:true, exportable:true)
+				def mimicReligion = Field.findByFieldNameAndType("religion", null)?:new Field(fieldName:"religion", dataTypeName:"NOT_ANALYZED_STRING", description:"PATIENTS.EXPIRE_FLAG in MIMIC data set, cast to YES/NO to reflect whether pt is alive", aggregatable:true, exportable:true)
+				def mimicMaritalStatus = Field.findByFieldNameAndType("marital_status", null)?:new Field(fieldName:"marital_status", dataTypeName:"NOT_ANALYZED_STRING", description:"PATIENTS.EXPIRE_FLAG in MIMIC data set, cast to YES/NO to reflect whether pt is alive", aggregatable:true, exportable:true)
+				def mimicEthnicity = Field.findByFieldNameAndType("ethnicity", null)?:new Field(fieldName:"ethnicity", dataTypeName:"NOT_ANALYZED_STRING", description:"PATIENTS.EXPIRE_FLAG in MIMIC data set, cast to YES/NO to reflect whether pt is alive", aggregatable:true, exportable:true)
+				def mimicCaregiver = Field.findByFieldNameAndType("caregiver", null)?:new Field(fieldName:"caregiver", dataTypeName:"NOT_ANALYZED_STRING", description:"PATIENTS.EXPIRE_FLAG in MIMIC data set, cast to YES/NO to reflect whether pt is alive", aggregatable:true, exportable:true)
+				
+				def mimicCui = Field.findByFieldNameAndType("cui", null)?:new Field(fieldName:"cui", dataTypeName:"NOT_ANALYZED_STRING", description:"UMLS CUIs identified by BioMedICUS NLP pipeline", aggregatable:true, exportable:true, significantTermsAggregatable:true)
+				def mimicAcronym = Field.findByFieldNameAndType("acronym", null)?:new Field(fieldName:"acronym", dataTypeName:"NOT_ANALYZED_STRING", description:"Word sense disambiguated acronyms by BioMedICUS NLP pipeline", aggregatable:true, exportable:true, significantTermsAggregatable:true)
+				
+				
+				mimicType.addToFields(mimicText)
+				mimicType.addToFields(mimicTextFmt)
+				mimicType.addToFields(mimicNoteId)
+				mimicType.addToFields(mimicPatientId)
+				mimicType.addToFields(mimicAdmissionId)
+				mimicType.addToFields(mimicTextLength)
+				mimicType.addToFields(mimicDob)
+				mimicType.addToFields(mimicDod)
+				mimicType.addToFields(mimicAdmitDt)
+				mimicType.addToFields(mimicDischDt)
+				mimicType.addToFields(mimicDiagnosis)
+				mimicType.addToFields(mimicAlive)
+				mimicType.addToFields(mimicCategory)
+				mimicType.addToFields(mimicNoteType)
+				mimicType.addToFields(mimicGender)
+				
+				mimicType.addToFields(mimicAdmissionType)
+				mimicType.addToFields(mimicInsurance)
+				mimicType.addToFields(mimicReligion)
+				
+				mimicType.addToFields(mimicMaritalStatus)
+				mimicType.addToFields(mimicEthnicity)
+				mimicType.addToFields(mimicCaregiver)
+				mimicType.addToFields(mimicCui)
+				mimicType.addToFields(mimicAcronym)
+				
+				
+				mimicType.fields.each { f ->
+					println "adding mimic prefs for ${f.fieldName}"
+					def fp = new FieldPreference(user:app, label:PierUtils.labelFromUnderscore(f.fieldName), ontology:mimicOntology, applicationDefault:true)
+					if ( f.contextFilterField || f.defaultSearchField ) fp.aggregate=false
+					if ( f.fieldName=="text") fp.aggregate=false
+					if ( f.fieldName=="patient_id" || f.fieldName=="admission_id" ) fp.computeDistinct = true
+					if ( f.fieldName=="acronym" ) fp.ontology = biomedicus
+					if ( f.fieldName=="cui" ) {
+						fp.ontology=biomedicus
+						fp.label = "Medical Concepts"
+						fp.numberOfFilterOptions = 15
+						fp.aggregate = true
+					}
+				
+					f.addToPreferences(fp)
+				}
+				mimicIdx.type = mimicType
+				nlp05.addToIndexes(mimicIdx)
+				
+				println nlp05.toString()
+				nlp05.save(failOnError:true, flush:true)
+				
+				mimicCorpus.addToIndexes(mimicIdx)
+				mimicCorpus.save(flush:true, failOnError:true)
+				
+				
+				
 			}
+			
 		}//end setup if TEST
 		
 		if  ( Environment.current != Environment.PRODUCTION ) {
@@ -363,6 +593,14 @@ class BootStrap {
 			
 			configUser("gmelton",[user,analyst])
 			configUser("pakh0002",[user,analyst])
+			
+			//BPIC
+			configUser("tholk009",[user,analyst])
+			configUser("akke0014",[user,analyst])
+			configUser("andre725",[user,analyst])
+			configUser("baker439",[user,analyst])
+			configUser("rames007",[user,analyst])
+			configUser("siege022",[user,analyst])
 			
 			if  ( Environment.current.name=="fvdev" || Environment.current.name=="fvtest" ) {
 				//Init FV users

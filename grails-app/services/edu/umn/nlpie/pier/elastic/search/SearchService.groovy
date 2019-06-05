@@ -55,7 +55,7 @@ order by q.label """.toString()
 		results.each {
 			queries << new HistorySummaryDTO(it)
 		}
-		println "in context: ${queries.size()}"
+		//println "in context: ${queries.size()}"
 		queries
 	}
 	
@@ -73,7 +73,7 @@ order by q.authorizedContext, q.label """.toString()
 		results.each {
 			queries << new HistorySummaryDTO(it)
 		}
-		println "not in context: ${queries.size()}"
+		//println "not in context: ${queries.size()}"
 		queries
 	}
 	

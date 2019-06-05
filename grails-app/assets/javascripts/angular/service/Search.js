@@ -23,9 +23,30 @@ class Search {
     	this.context = undefined;
     	//this.payload = undefined; 
     	
+    	this.searchIconOptions = { 
+    			"loading": { 
+    				"text":"loading...", 
+    				"class":"fa fa-search fa-spin", 
+    				"style": { "border":{},"color":{} }
+    			},
+    			"refresh": { 
+    				"text":"Refresh", 
+    				"class":"fa fa-refresh fix fa-spin", 
+    				"style": { 
+    					"emphasis":{'border-color':'#4286f4'}, 
+    					"color":{'color':'#4286f4'}
+    				}
+    			},	//"fa fa-refresh fa-spin",#428bca	, 'background':'rgba(66, 134, 244, 0.03)
+    			"default": { 
+    				"text":"Search", 
+    				"class":"fa fa-search", 
+    				"style":{}	//"fa fa-search"
+    			}
+    	}
+    	
     	this.inputExpansion = new InputExpansion(); 
     	this.instance = new SearchInstance();
-		this.searchIconClass = "fa fa-search fa-spin";
+    	this.searchIcon = this.searchIconOptions.loading;
 		
         this.status = {
         	error: undefined,
@@ -56,9 +77,9 @@ class Search {
     dirty( corpus ) {
     	//search and corpus need to be set to dirty
 //alert("dirty: " + this.status.dirty);
-    	if ( this.status.dirty==false ) {
+    	if ( this.status.dirty==false && this.context.corpus.results.docs ) {
     		this.status.dirty = true;
-			this.searchIconClass = "fa fa-refresh fa-spin";
+			this.searchIcon = this.searchIconOptions.refresh;
 			if ( corpus ) {
 				//dim only this corpus
 				corpus.dim();
@@ -96,7 +117,7 @@ class Search {
     complete( search ) {
 //alert("complete");
     	if ( !search ) search = this;	//invocation of this complete() may not be in promise chain that passes search object
-    	search.searchIconClass = "fa fa-search";
+    	search.searchIcon = search.searchIconOptions.default;
     	search.status.dirty = false;
     	return search.$q.when( search );
 	}
@@ -236,11 +257,12 @@ class Search {
 				decorators.push( 
 					search.$http.get( APP.ROOT + '/umls/string/' + bucket.key )
 					.then ( function( response ) {
-						if (response.data.hits.total>0) {
+						bucket.label=response.data.str;
+						/*if (response.data.hits.total>0) {
 							bucket.label=response.data.hits.hits[0]._source.sui;	//if umls str exits put in key prop
 						} else {
 							//corpus.results.aggs.aggs['Medical Concepts'].buckets.splice(index,1);
-						}
+						}*/
 					})
 				);
 			}
@@ -551,7 +573,7 @@ alert("corpus in corpusAggregations\n"+JSON.stringify(corpus,null,'\t'));
     }
     
     clearResults() {
-    	this.searchIconClass = "fa fa-search";
+    	this.searchIcon = this.searchIconOptions.default;
     	//this.inputExpansion = new InputExpansion();
     	this.context.corpus.results = {};
     	this.context.corpus.removeCounts(); 

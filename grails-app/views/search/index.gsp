@@ -21,7 +21,7 @@
 						<label class="pier-ontology-label">{{ontology.name}}</label>
 						<div class="pier-aggregate" ng-repeat="aggregation in ontology.aggregations track by $index">
 							<div>
-								<label ng-click="rc.show(rc.search.context.corpus.metadata.aggregations)">{{aggregation.label}} 
+								<label ng-click="rc.show(aggregation.field.description)">{{aggregation.label}} <!-- rc.search.context.corpus.metadata.aggregations -->
 									<i class="fa fa-question-circle" title="{{aggregation.field.description}}"></i>
 								</label>
 								<span ng-show="aggregation.status.computingCounts" id="aggs-spinner" style="padding-top:25px">
@@ -79,10 +79,15 @@
 							<pre ng-bind-html="doc.highlight ? doc.highlight[rc.search.context.corpus.metadata.defaultSearchField].join('<br>&nbsp;&vellip;<br> ') : doc._source[rc.search.context.corpus.metadata.defaultSearchField]">
 							</pre>
 						</div>
+						<div ng-switch-when="MIMIC" >
+							<pre ng-bind-html="doc.highlight ? doc.highlight[rc.search.context.corpus.metadata.defaultSearchField].join('<br>&nbsp;&vellip;<br> ') : doc._source[rc.search.context.corpus.metadata.defaultSearchField]">
+							</pre>
+						</div>
 						<div ng-switch-when="Echo Reports" class="panel panel-default panel-body">
 							<pre ng-bind-html="'*** PIER-HEADER mrn:' + doc._source['mrn'] + '; ef_results:' + doc._source['ef_results'] + ' ***\n\n' + doc._source[rc.search.context.corpus.metadata.defaultSearchField]">
 							</pre>
 						</div>
+						
 						<div ng-switch-default class="panel panel-default panel-body" style="border:none">
 							<div>
 								<div class="pull-left" style="width:98%" ng-bind-html="doc.highlight ? doc.highlight[rc.search.context.corpus.metadata.defaultSearchField].join('<br>&nbsp;&vellip;<br> ') : doc._source[rc.search.context.corpus.metadata.defaultSearchField]">

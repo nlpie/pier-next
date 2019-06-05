@@ -2,6 +2,7 @@ package edu.umn.nlpie.pier.api
 
 import edu.umn.nlpie.pier.api.exception.HttpMethodNotAllowedException
 import edu.umn.nlpie.pier.api.exception.PierApiException
+import grails.converters.JSON
 import grails.plugin.springsecurity.annotation.Secured
 
 
@@ -18,13 +19,13 @@ class UmlsController {//extends RestfulController {
 		respond ( e, status:e.status )
 		//render(status: e.status, text: '{"message":"'+ msg +'"}', contentType: "application/json") as JSON
 	}
-	
+
 	def string() {
 		try {
 			//println params.id
 			if ( request.method!="GET" ) throw new HttpMethodNotAllowedException(message:"issue GET instead")
-			def umlsEntry = umlsService.umlsStringFromIndex( params.id )
-			respond umlsEntry.json// as JSON
+			def umlsEntry = umlsService.umlsStringFromDb( params.id )	//umlsStringFromIndex( params.id )
+			respond umlsEntry as JSON
 		} catch (PierApiException e) {
 			println "pier exception"
 			exceptionResponse(e)
