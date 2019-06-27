@@ -26,7 +26,7 @@
         				ng-mouseenter="explanationClass='spirit-hover'"
         				ng-mouseleave="explanationClass='spirit-collapse'">
 						<a style="cursor:pointer"
-							ng-click="hCtrl.currentSearch.userInput=xq.query;hCtrl.modalService.helpOk()" data-container="body" data-toggle="tooltip" data-placement="top" title="click to paste into search box">
+							ng-click="hCtrl.currentSearch.userInput=xq.query;hCtrl.currentSearch.dirty();hCtrl.modalService.helpOk()" data-container="body" data-toggle="tooltip" data-placement="top" title="click to paste into search box">
 							{{xq.query}}
 						</a>
 					</div>
