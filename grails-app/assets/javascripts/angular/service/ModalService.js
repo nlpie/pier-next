@@ -24,6 +24,7 @@ class ModalService {
 	      size: size
 	    });
 	    
+	    //https://stackoverflow.com/questions/30356844/angularjs-bootstrap-modal-closing-call-when-clicking-outside-esc
 	    me.expansionInstance.result.then(
 	      function(){
 	    	  //OK
