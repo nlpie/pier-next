@@ -19,14 +19,14 @@ class Search {
     	
     	this.authorizedContexts = undefined;
 
-    	this.userInput = "iliitis";
+    	this.userInput = "";
     	this.context = undefined;
     	//this.payload = undefined; 
     	
     	this.searchIconOptions = { 
     			"loading": { 
     				"text":"loading...", 
-    				"class":"fa fa-search fa-spin", 
+    				"class":"fa fa-arrow-circle-o-right fa-spin", 
     				"style": { "border":{},"color":{} }
     			},
     			"refresh": { 
@@ -39,8 +39,19 @@ class Search {
     			},	//"fa fa-refresh fa-spin",#428bca	, 'background':'rgba(66, 134, 244, 0.03)
     			"default": { 
     				"text":"Search", 
-    				"class":"fa fa-search", 
-    				"style":{}	//"fa fa-search"
+    				"class":"fa fa-lg fa-arrow-circle-o-right",
+    				"style":{
+    					"emphasis":{'color':'#ccc'},
+    					"color":{'color':'#ccc'}
+    				}
+    			},
+    			"go": { 
+    				"text":"Search", 
+    				"class":"fa fa-lg fa-arrow-circle-o-right",
+    				"style":{
+    					"emphasis":{'border-color':'green'}, 
+    					"color":{'color':'green'}
+    				}	//"fa fa-search"
     			}
     	}
     	
@@ -89,6 +100,14 @@ class Search {
 				this.context.corpus.dim();
 				this.context.corpus.removeCounts();
 			}
+    	}
+    	if ( this.status.dirty==false && !this.context.corpus.results.docs ) {
+    		//editing the search field w/o previous results and there is something to search for (not empty input box)
+    		if ( this.userInput.length>0 ) {
+    			this.searchIcon = this.searchIconOptions.go;
+    		} else {
+    			this.searchIcon = this.searchIconOptions.default;
+    		} 
     	}
 	}
 
