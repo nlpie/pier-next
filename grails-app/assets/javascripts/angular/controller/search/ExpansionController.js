@@ -58,7 +58,6 @@ class ExpansionController {
 	}
 	
 	clear() {
-alert("IE reset");
 		this.currentSearch.inputExpansion.reset();
 	}
 	

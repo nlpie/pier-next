@@ -142,7 +142,7 @@
 						</button>
 						
 						<button 
-							ng-click="sc.currentSearch.instance.toggleDistinctCounts()"
+							ng-click="sc.currentSearch.instance.toggleDistinctCounts();sc.currentSearch.dirty();"
 							class="btn btn-default blend-adjacent"
 							data-container="body" data-toggle="tooltip" data-placement="bottom" data-html="true" 
 							title="enable/disable distinct counts for applicable category aggregates">

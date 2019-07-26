@@ -66,11 +66,9 @@ class Search {
         }
         this.init();
         console.info("Search.js complete");
-		
-		this.template = "myPopoverTemplate.html"
         
     }
-    
+    	
     init() {
     	let me = this;
     	this.searchService.fetchContexts()
@@ -105,6 +103,15 @@ class Search {
     		//editing the search field w/o previous results and there is something to search for (not empty input box)
     		if ( this.userInput.length>0 ) {
     			this.searchIcon = this.searchIconOptions.go;
+    		} else {
+    			this.searchIcon = this.searchIconOptions.default;
+    		} 
+    	}
+    	if ( this.status.dirty==false && this.instance.distinctCounts.on ) {
+    		//user has selected distinct counts be computed AND there are previous results
+    		if ( this.context.corpus.results.docs ) {
+    			this.searchIcon = this.searchIconOptions.refresh;
+    			//this.status.dirty = true;
     		} else {
     			this.searchIcon = this.searchIconOptions.default;
     		} 

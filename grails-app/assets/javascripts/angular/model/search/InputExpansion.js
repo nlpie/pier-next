@@ -76,7 +76,7 @@ class InputExpansion {
 	
 	reset() {
 		this.terms = [];
-		this.style = {};
+		this.style = this.INACTIVE;	//{};
 		this.on = false;
 	}
 	
