@@ -69,7 +69,7 @@ class ExpansionController {
 	}
 	
 	toggleAllSemanticallyRelatedTerms( targetTerm, semanticallyRelatedSuggestions ) {
-		this.allSemanticallyRelatedTerms = !this.semanticallyRelatedSuggestions;
+		this.allSemanticallyRelatedTerms = !this.allSemanticallyRelatedTerms;
 		for ( let suggestion of semanticallyRelatedSuggestions ) {
 			this.currentSearch.inputExpansion.add( targetTerm, suggestion );
 		}

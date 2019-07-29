@@ -116,6 +116,15 @@ class Search {
     			this.searchIcon = this.searchIconOptions.default;
     		} 
     	}
+    	if ( this.status.dirty==false && this.inputExpansion.cardinality()>0 ) {
+    		//user has selected distinct counts be computed AND there are previous results
+    		if ( this.context.corpus.results.docs ) {
+    			this.searchIcon = this.searchIconOptions.refresh;
+    			//this.status.dirty = true;
+    		} //else {
+    			//this.searchIcon = this.searchIconOptions.default;
+    		//} 
+    	}
 	}
 
     setContext(searchContext) {
