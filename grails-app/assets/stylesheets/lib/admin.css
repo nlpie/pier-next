@@ -423,3 +423,8 @@ input:checked + .slider:before {
     -webkit-transform-origin: 50% calc(50% - .5px);
     transform-origin: 50% calc(50% - .5px);
 }	
+
+/* wrap pre per user feedback */
+pre {
+	white-space:pre-wrap;
+}
