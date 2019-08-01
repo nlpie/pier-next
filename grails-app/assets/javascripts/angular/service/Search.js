@@ -31,7 +31,7 @@ class Search {
     			},
     			"refresh": { 
     				"text":"Refresh", 
-    				"class":"fa fa-refresh fix fa-spin", 
+    				"class":"fa fa-refresh fix", 
     				"style": { 
     					"emphasis":{'border-color':'#4286f4'}, 
     					"color":{'color':'#4286f4'}
