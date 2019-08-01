@@ -65,7 +65,7 @@
 		
 		<g:render template="expansionSelection" />
 
-		<form class="navbar-form">
+		<form class="navbar-form" ng-submit="sc.currentSearch.e()">
        		<div class="form-group" style="display:inline;" >
        			<div class="input-group" style="display:table;">
 					<div class="input-group-btn" class="input-group-addon" style="width:1%;">					
@@ -93,8 +93,7 @@
 						placeholder="term1 AND (term2 OR term3) NOT (term4 OR &#34;multiterm phrase&#34;)" 
 						ng-model="sc.currentSearch.userInput"
 						ng-change="sc.currentSearch.dirty()"
-						style="border-right:none;-webkit-box-shadow: none !important;-moz-box-shadow: none !important;box-shadow: none !important;
-							position: relative"
+						style="border-right:none;-webkit-box-shadow: none !important;-moz-box-shadow: none !important;box-shadow: none !important;position: relative"
 					/>
 					
 					<div class="input-group-btn" class="input-group-addon" style="width:1%;">
