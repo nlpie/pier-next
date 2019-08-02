@@ -120,7 +120,7 @@
                             </li>
                         </ul>
                         
-                        <button 
+                        <button type="button" 
                         	class="btn btn-default blend-adjacent" 
 		  					tooltip-placement="bottom" uib-tooltip-template="'filter-tooltip.html'" 
 							tooltip-popup-delay="1000" tooltip-popup-close-delay="2000" uib-data-container="body"
@@ -131,7 +131,7 @@
 						</button>
 
 						<button ng-click="sc.modalService.vectorExpansions('lg','expansionController')" 
-							class="btn btn-default blend-adjacent" 
+							class="btn btn-default blend-adjacent" type="button" 
 							tooltip-placement="bottom" uib-tooltip-template="'expansion-tooltip.html'" 
 							tooltip-popup-delay="1000" tooltip-popup-close-delay="1100" uib-data-container="body">
 							<span ng-style="sc.currentSearch.inputExpansion.style">
@@ -140,7 +140,7 @@
 							</span>
 						</button>
 						
-						<button 
+						<button type="button" 
 							ng-click="sc.currentSearch.instance.toggleDistinctCounts();sc.currentSearch.dirty();"
 							class="btn btn-default blend-adjacent"
 							data-container="body" data-toggle="tooltip" data-placement="bottom" data-html="true" 
@@ -150,7 +150,7 @@
 							</i>
 						</button>
 						
-						<button class="btn btn-default" type="submit" ng-click="sc.currentSearch.e()" ng-style="sc.currentSearch.searchIcon.style.emphasis">
+						<button class="btn btn-default" type="submit" ng-style="sc.currentSearch.searchIcon.style.emphasis">
 							{{ sc.currentSearch.searchIcon.text}}
 							<i style="padding-left:5px;padding-right:5px" ng-class="sc.currentSearch.searchIcon.class" ng-style="sc.currentSearch.searchIcon.style.color"></i>	
 						</button>
