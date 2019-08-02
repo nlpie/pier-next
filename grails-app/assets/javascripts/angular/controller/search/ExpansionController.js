@@ -58,7 +58,6 @@ class ExpansionController {
 	}
 	
 	clear() {
-alert("IE reset");
 		this.currentSearch.inputExpansion.reset();
 	}
 	
@@ -70,7 +69,7 @@ alert("IE reset");
 	}
 	
 	toggleAllSemanticallyRelatedTerms( targetTerm, semanticallyRelatedSuggestions ) {
-		this.allSemanticallyRelatedTerms = !this.semanticallyRelatedSuggestions;
+		this.allSemanticallyRelatedTerms = !this.allSemanticallyRelatedTerms;
 		for ( let suggestion of semanticallyRelatedSuggestions ) {
 			this.currentSearch.inputExpansion.add( targetTerm, suggestion );
 		}

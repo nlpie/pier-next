@@ -1,13 +1,14 @@
 
 class ModalService {
 
-	constructor( $http, $q, growl, $uibModal ) {
+	constructor( $http, $q, growl, $uibModal, currentSearch ) {
 		this.$http = $http;
 		this.$q = $q;
 		this.growl = growl;
 		this.$uibModal = $uibModal;
 		this.expansionInstance = undefined;
 		this.helpInstance = undefined;
+		this.currentSearch = currentSearch;
 	}
 	
 	vectorExpansions( size, controllerName ) {
@@ -22,7 +23,24 @@ class ModalService {
 	      bindToController: true,
 	      size: size
 	    });
+	    
+	    //https://stackoverflow.com/questions/30356844/angularjs-bootstrap-modal-closing-call-when-clicking-outside-esc
+	    me.expansionInstance.result.then(
+	      function(){
+	    	  //OK
+	          //alert("Exp Closed!!!");
+	          me.expDetermineDirty();
+	          
+	      }, 
+	      function(){
+	    	  //esc, click off to close, or Cancel
+	          //alert("Exp Dismissed!!!");
+	          me.expDetermineDirty();
+	      }
+	    );
 	}
+	
+	
 	
 	queryHelp( size, controllerName ) {
 		var me = this;
@@ -36,6 +54,12 @@ class ModalService {
 	      bindToController: true,
 	      size: size
 	    });
+	}
+	
+	expDetermineDirty() {
+		//if ( this.currentSearch.inputExpansion.cardinality() ) {
+      	  	this.currentSearch.dirty();
+        //}
 	}
 	
 	expOk() {
@@ -55,6 +79,6 @@ class ModalService {
 	}
 }
 
-ModalService.$inject = [ '$http', '$q', 'growl', '$uibModal' ];
+ModalService.$inject = [ '$http', '$q', 'growl', '$uibModal', 'currentSearch' ];
 
 export default ModalService;

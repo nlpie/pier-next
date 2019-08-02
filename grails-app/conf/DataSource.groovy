@@ -31,7 +31,7 @@ dataSource {
 if ( Environment.current.name!="fvdev" || Environment.current.name!="fvtest" ) {
 	dataSource_notes {
 		readOnly=true
-		dbCreate = "none"
+		dbCreate = "create-drop"
 		//logSql=true
 		//formatSql=true
 		pooled = true
@@ -80,7 +80,7 @@ environments {
 	}
 	test {
 		dataSource {
-			dbCreate = "create-drop"
+			dbCreate = "update"
 			driverClassName = "com.mysql.jdbc.Driver"
 			dialect = "org.hibernate.dialect.MySQL5InnoDBDialect"
 			username = ""	//see config in ds.groovy
@@ -177,7 +177,6 @@ environments {
 		}
 	}
 }
-
 
 // orig environment specific settings
 /*

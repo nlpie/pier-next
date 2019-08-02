@@ -44,6 +44,7 @@ order by q.dateCreated desc """.toString()
 	
 	def savedQueriesByContext( authorizedContext ) {
 		def sql = new StringBuffer()
+
 		sql << """
 select q.id as queryId, q.label, q.authorizedContext, q.id as queryId, q.filterSummary, q.expansionTerms, q.saved, q.uuid, q.userInput, q.inputExpansion, q.distinctCounts
 from Query q
@@ -51,11 +52,12 @@ where q.httpStatus=? and q.type in ( 'DocumentQuery','EncounterQuery' ) and q.sa
 order by q.label """.toString()
 		
 		def results = Query.executeQuery(sql.toString(), [200, true, authorizedContext] )
+
 		def queries = []
 		results.each {
 			queries << new HistorySummaryDTO(it)
 		}
-		println "in context: ${queries.size()}"
+		//println "in context: ${queries.size()}"
 		queries
 	}
 	
@@ -73,7 +75,7 @@ order by q.authorizedContext, q.label """.toString()
 		results.each {
 			queries << new HistorySummaryDTO(it)
 		}
-		println "not in context: ${queries.size()}"
+		//println "not in context: ${queries.size()}"
 		queries
 	}
 	

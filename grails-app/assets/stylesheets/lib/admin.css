@@ -15,7 +15,7 @@ body {
 	background-color: lightgray
 }
 
-/* main is bootstrap class (aparently), this repositions the page content relative to navs and enables scrolling */
+/* main is bootstrap class (apparently), this repositions the page content relative to navs and enables scrolling */
 .main {
 	margin-top: -15px;
 	overflow-y: auto;
@@ -23,7 +23,7 @@ body {
 }
 
 .dropdown-menu {
-   max-height:300px;
+   max-height:400px;
    overflow-y: auto;
    max-width: 600px;
    white-space: normal;
@@ -258,7 +258,7 @@ label:focus,
 }
 
 .form-control {
-	height: 33px;
+	height: 34px;
 }
 
 .noteset-available {
@@ -416,3 +416,10 @@ input:checked + .slider:before {
 	font-size:0.9em;
 	vertical-align:text-bottom;
 }
+
+/* http://jsfiddle.net/Supuhstar/vqp8oL82 */
+.fix .fa-spin {
+	color: red;
+    -webkit-transform-origin: 50% calc(50% - .5px);
+    transform-origin: 50% calc(50% - .5px);
+}	

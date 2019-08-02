@@ -69,7 +69,7 @@
        		<div class="form-group" style="display:inline;" >
        			<div class="input-group" style="display:table;">
 					<div class="input-group-btn" class="input-group-addon" style="width:1%;">					
-						<button type="button" class="btn btn-default" data-toggle="dropdown" style="border-right:none;border-left:none"
+						<button type="button" class="btn btn-default" data-toggle="dropdown" style="border-right:none;"
 							uib-tooltip="search contexts" tooltip-popup-delay="1000" tooltip-placement="bottom" uib-data-container="body"
 						>
                             <span class="label-icon" title="{{sc.currentSearch.context.description}}" >{{sc.currentSearch.context.label}}</span>
@@ -77,7 +77,7 @@
                         </button>
                         <ul class="dropdown-menu" role="menu">
                             <li role="presentation" class="dropdown-header">Authorized Search Contexts</li>
-                        	<li ng-repeat="ctx in sc.currentSearch.authorizedContexts track by $index" class="pull-left">
+                        	<li ng-repeat="ctx in sc.currentSearch.authorizedContexts track by $index" >
                         		<a>
 		                        	<i class="fa {{ctx.corpus.glyph}} pier-li-left-padded-icon"
 		                        		ng-style="{'color':'green'}"
@@ -142,7 +142,7 @@
 						</button>
 						
 						<button 
-							ng-click="sc.currentSearch.instance.toggleDistinctCounts()"
+							ng-click="sc.currentSearch.instance.toggleDistinctCounts();sc.currentSearch.dirty();"
 							class="btn btn-default blend-adjacent"
 							data-container="body" data-toggle="tooltip" data-placement="bottom" data-html="true" 
 							title="enable/disable distinct counts for applicable category aggregates">
@@ -151,8 +151,9 @@
 							</i>
 						</button>
 						
-						<button class="btn btn-default" type="submit" ng-click="sc.currentSearch.e()">
-							<i class="fa fa-search" ng-class="sc.currentSearch.searchIconClass"></i>
+						<button class="btn btn-default" type="submit" ng-click="sc.currentSearch.e()" ng-style="sc.currentSearch.searchIcon.style.emphasis">
+							{{ sc.currentSearch.searchIcon.text}}
+							<i style="padding-left:5px;padding-right:5px" ng-class="sc.currentSearch.searchIcon.class" ng-style="sc.currentSearch.searchIcon.style.color"></i>	
 						</button>
 					</div>
 				</div>
