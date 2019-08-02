@@ -41,7 +41,7 @@ class SearchController {//extends RestfulController {
 		try {
 			if ( request.method!="POST" ) throw new HttpMethodNotAllowedException(message:"issue GET instead")
 			//TODO sanity check on request.JSON - needs query, url, searchRequest.id, etc
-			//println postBody.toString(2)
+			//println postBody.query.toString(2)
 			elasticResponse = elasticService.search( postBody.url, postBody.query )
 			//println elasticResponse.json.toString(2)
 			def status = elasticResponse.status
@@ -129,13 +129,15 @@ class SearchController {//extends RestfulController {
 			def data = response.outputStream
 			def columns = fieldMetadata.columns.sort()
 			def fields = fieldMetadata.fields.sort()
-			data << fields.join(",") << "\n"
+			data << fields.join(",") << "\n"	//change to PIPE DEL?
+println "${downloadFileName} initial scroll hits:${elasticResponse.json.hits.hits.size()} , took:${elasticResponse.json.took}"
 			elasticResponse.json.hits.hits.each { hit ->
 				fields.each { f ->
 					def val = StringEscapeUtils.escapeCsv( hit.fields[f] ? hit.fields[f][0].toString() : "null" )
+					if (f=="mrn") val = "mrn:"+val.toString()
 					data << val
 					if ( f!=fields[fields.length()-1] ) {
-						data << ","
+						data << "," //change to PIPE DEL?
 					} else {
 						data << "\n"
 					}
@@ -148,10 +150,11 @@ class SearchController {//extends RestfulController {
 			while ( scroll ) {
 				def sp = new ScrollPayload( scroll_id:scrollId, scroll:"5m" )
 				elasticResponse = elasticService.scroll( payload.scrollUrl, sp )
-println "${downloadFileName} scroll hits:${elasticResponse.json.hits.hits.size()} , took:${elasticResponse.json.took}"
+println "\t${downloadFileName} additional scroll hits:${elasticResponse.json.hits.hits.size()} , took:${elasticResponse.json.took}"
 				elasticResponse.json.hits.hits.each { hit ->
 				fields.each { f ->
 					def val = StringEscapeUtils.escapeCsv( hit.fields[f] ? hit.fields[f][0].toString() : "null" )
+					if (f=="mrn") val = "mrn:"+val.toString()
 					data << val
 					if ( f!=fields[fields.length()-1] ) {
 						data << ","
