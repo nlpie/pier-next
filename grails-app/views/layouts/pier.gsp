@@ -97,7 +97,7 @@
 					<ul class="nav navbar-nav navbar-right">
 						<!-- configure links in NavCtrl links property -->
 						<li class="<g:if test="${controllerName=='search' && actionName=='index'}">active</g:if>">
-							<a href="${request.contextPath}/search" data-toggle="tooltip" data-placement="bottom" title="search">
+							<a href="${request.contextPath}/search" data-toggle="tooltip" data-placement="bottom" title="new search">
 								<i class="fa fa-search fa-lg" aria-hidden="true"></i>
 							</a>
 						</li>
@@ -105,7 +105,7 @@
 						<li class="<g:if test="${actionName=='help'}">active</g:if>">
 							<a data-toggle="tooltip" data-placement="bottom" title="help">
 								<i class="fa fa-question fa-lg" aria-hidden="true"
-									ng-click="alert('me');hc.modalService.queryHelp('lg','helpController')">
+									ng-click="hc.modalService.queryHelp('lg','helpController')">
 								</i>
 							</a>
 						</li>
@@ -134,7 +134,9 @@
 		</div>
 	</nav>
 	
-	<g:render template="${actionName}_nav" />
+	<g:if test="${actionName!=null}">
+		<g:render template="${actionName}_nav" />
+	</g:if>
 	
 	<script type="text/ng-template" id="queryHelp.template">
 		<g:render template="/common/queryHelp" />
