@@ -49,7 +49,7 @@
 							{{ agg.numberOfFilterOptions }}
 						</a>
 					</div>
-					<div class="col-md-7">{{ agg.field.description }}</div>
+					<div class="col-md-7" ng-bind-html="agg.field.description"></div>
 				</div>
 				<div class="row">
 					<div class="col-md-12">&nbsp;</div>

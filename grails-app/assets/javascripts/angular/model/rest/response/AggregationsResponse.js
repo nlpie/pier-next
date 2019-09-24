@@ -24,12 +24,17 @@ class AggregationsResponse {
     	for ( let ontology of corpus.metadata.aggregations ) {
     		for ( let aggregation of ontology.aggregations ) {
     			if ( aggregation.isTemporal ) {
-//alert(JSON.stringify(me.aggs[aggregation.label+".min"],null,'\t'));
-    				if ( !aggregation.initialSlider ) {
-    					//first, unfiltered return for this search, cache a DateRangeSlider for later use
-    					aggregation.initialSlider = new DateRangeSlider( me.aggs[aggregation.label+".min"], me.aggs[aggregation.label+".max"] );
+    				let minObj = me.aggs[aggregation.label+".min"];
+    				let maxObj = me.aggs[aggregation.label+".max"];
+    				if ( minObj && maxObj ) {
+//alert( `${JSON.stringify(me.aggs[aggregation.label+".min"],null,'\t')} \n ${JSON.stringify(me.aggs[aggregation.label+".max"],null,'\t')}` );
+	    				if ( !aggregation.initialSlider ) {
+	    					//first, unfiltered return for this search, cache a DateRangeSlider for later use
+	    					aggregation.initialSlider = new DateRangeSlider( minObj, maxObj );
+	    				}
+	    				aggregation.currentSlider = new DateRangeSlider( minObj, maxObj );
+	    				//aggregation.currentSlider.filtered = true;
     				}
-    				aggregation.currentSlider = new DateRangeSlider( me.aggs[aggregation.label+".min"], me.aggs[aggregation.label+".max"], aggregation.initialSlider );
 //alert(JSON.stringify(aggregation,null,'\t'));
     			}
     		}

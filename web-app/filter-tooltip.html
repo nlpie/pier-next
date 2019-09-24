@@ -2,11 +2,11 @@
 	nothing to filter
 </span>
 <span ng-if="sc.currentSearch.context.corpus.results.docs && !sc.currentSearch.context.corpus.status.filter.on">
-	select filter categories in the far left column
+	select filter category values from left column
 </span>
 <span ng-if="sc.currentSearch.context.corpus.status.filter.on">
 	current filters:<br>
 	{{ sc.currentSearch.context.corpus.currentFilterSummary }}
 	<br><br>
-	<a ng-click="sc.currentSearch.context.corpus.removeFilters();sc.currentSearch.dirty( sc.currentSearch.context.corpus )">clear all filters</a>
+	<a ng-click="sc.currentSearch.removeFilters()">clear all filters</a>
 </span>

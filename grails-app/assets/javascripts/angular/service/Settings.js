@@ -2,9 +2,10 @@ import CorpusAggregationsResponse from '../model/rest/response/CorpusAggregation
 
 class Settings {
 	
-	constructor( $http, $q, growl ) {
+	//constructor( $http, $q, growl ) {
+	constructor( $http, growl ) {
 		this.$http = $http;
-		this.$q = $q;
+		//this.$q = $q;
 		this.growl = growl;
 		
 		this.styles = {
@@ -98,6 +99,7 @@ class Settings {
 	
 }
 
-Settings.$inject = [ '$http', '$q', 'growl' ];
+//Settings.$inject = [ '$http', '$q', 'growl' ];
+Settings.$inject = [ '$http', 'growl' ];
 
 export default Settings;

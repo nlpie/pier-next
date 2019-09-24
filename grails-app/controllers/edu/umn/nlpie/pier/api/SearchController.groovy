@@ -10,6 +10,7 @@ import grails.plugin.springsecurity.annotation.Secured
 import grails.plugins.rest.client.RestBuilder
 import grails.validation.ValidationException
 import groovy.json.JsonBuilder
+import javax.servlet.http.Cookie
 
 
 @Secured(["ROLE_USER"])
@@ -30,9 +31,21 @@ class SearchController {//extends RestfulController {
 		//render(status: e.status, text: '{"message":"'+ msg +'"}', contentType: "application/json") as JSON
 	}
 	
+	def bookmark() {
+		if ( request.JSON?.bookmark ) {
+			//println "setting bookmark cookie"
+			//set cookie
+			println request.JSON?.bookmark
+			Cookie cookie = new Cookie("bookmark",request.JSON.bookmark)
+			cookie.maxAge = 100
+			cookie.path = "/${grailsApplication.metadata['app.name']}/"
+			response.addCookie( cookie )
+		}
+	}
+	
 	def index() { }	//default search view
 	
-	def search() { }	//deprecated 
+	//def search() { }	//deprecated 
 	
 	def elastic() {
 		//println request.JSON.toString(2)

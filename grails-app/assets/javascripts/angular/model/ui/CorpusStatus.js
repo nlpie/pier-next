@@ -14,16 +14,6 @@ class CorpusStatus {
 			style: this.FILTER_INACTIVE,
 		}
 	}
-
-	/*toggle() {
-		console.log("corpus.status.toggle()");
-		if ( this.filter.on ) {
-			this.filter.style = this.FILTER_INACTIVE;
-		} else {
-			this.filter.style = this.FILTER_ACTIVE;
-		}
-		this.filter.on = !this.filter.on;
-	}*/
 	
 	activateFilter() {
 		this.filter.on = true;

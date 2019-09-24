@@ -1,10 +1,11 @@
 
 class ModalService {
 
-	constructor( $http, $q, growl, $uibModal, currentSearch ) {
-		this.$http = $http;
-		this.$q = $q;
-		this.growl = growl;
+	//constructor( $http, $q, growl, $uibModal, currentSearch ) {
+	constructor( $uibModal, currentSearch ) {
+		//this.$http = $http;
+		//this.$q = $q;
+		//this.growl = growl;
 		this.$uibModal = $uibModal;
 		this.expansionInstance = undefined;
 		this.helpInstance = undefined;
@@ -29,13 +30,13 @@ class ModalService {
 	      function(){
 	    	  //OK
 	          //alert("Exp Closed!!!");
-	          me.expDetermineDirty();
+	          me.expansionChange();
 	          
 	      }, 
 	      function(){
 	    	  //esc, click off to close, or Cancel
 	          //alert("Exp Dismissed!!!");
-	          me.expDetermineDirty();
+	          me.expansionChange();
 	      }
 	    );
 	}
@@ -56,10 +57,8 @@ class ModalService {
 	    });
 	}
 	
-	expDetermineDirty() {
-		//if ( this.currentSearch.inputExpansion.cardinality() ) {
-      	  	this.currentSearch.dirty();
-        //}
+	expansionChange() {
+      	this.currentSearch.expansionChange();
 	}
 	
 	expOk() {
@@ -79,6 +78,7 @@ class ModalService {
 	}
 }
 
-ModalService.$inject = [ '$http', '$q', 'growl', '$uibModal', 'currentSearch' ];
+//ModalService.$inject = [ '$http', '$q', 'growl', '$uibModal', 'currentSearch' ];
+ModalService.$inject = [ '$uibModal', 'currentSearch' ];
 
 export default ModalService;

@@ -1,19 +1,32 @@
+//import Aggregation from './Aggregation';
 
-class DateRangeSlider {
-    constructor( min, max, initialSlider ) {
-    	//min and max are JSON objects returned as either a min or max agg from ES, example follows
+class DateRangeSlider { //extends Aggregation {
+    constructor( min, max ) {
+    	//super( {} );
+    	//this.initialSlider = undefined;
+    	//this.initialSlider = initialSlider;
+    	//min and max are either JSON objects OR primitive values
+    	//either as min and max agg from ES OR gte/lte properties of a RangeFilter (of a recent/save query), examples follow
     	/*
+    	agg example
     	{
     		"value_as_string": "2005-02-19 00:00",
     		"value": 1108771200000
     	}
+    	RangeFilter details example; in this case, min and max are primitives
+    	min value of 1266956980000,
+		max value of 1435301490000
     	*/
-    	this.minValue = min.value;
-		this.maxValue = max.value;
-		let flr =  initialSlider ? initialSlider.options.floor : min.value;
-		let cel =  initialSlider ? initialSlider.options.ceil : max.value;
-		//this.filterOffMinValue = min.value;
-		//this.filterOffMaxValue = max.value;
+		
+    	this.minValue = ( min instanceof Object ) ? min.value : min;
+		this.maxValue = ( max instanceof Object ) ? max.value : max;
+		
+		//let flr = min.value;
+		//let cel = max.value;
+		
+		let flr = this.minValue;
+		let cel = this.maxValue;
+
 		this.options = {
 				floor: flr,
 				ceil: cel,
@@ -32,24 +45,50 @@ class DateRangeSlider {
     }
     
     updateAggregationFilter( aggregation ) {
-    	//TODO move this method to client side Aggregation.js object
+    	//TODO move this method to client side Aggregation.js object?
     	aggregation.filters.min = this.minValue;
     	aggregation.filters.max = this.maxValue;
     	aggregation.initialSlider.filtered = true;
 //alert(JSON.stringify(aggregation,null,'\t'));
     }
     
-    up( aggregation ) {
-    	this.maxValue = this.maxValue = this.maxValue + 86400*1000;
+    maxUp( aggregation ) {
+    	this.maxValue = this.maxValue + 86400*1000;
+        this.updateAggregationFilter( aggregation );
     }
-   
-    reset( aggregation ) {
-    	this.minValue = this.options.floor;
-    	this.maxValue = this.options.ceil;
-    	aggregation.filters = {};
-    	//aggregation.filters.min = this.options.floor;
-    	//aggregation.filters.max = this.options.ceil;
-    	aggregation.initialSlider.filtered = false;
+    maxDown( aggregation ) {
+    	this.maxValue = this.maxValue - 86400*1000;
+        this.updateAggregationFilter( aggregation );
+    }
+    minUp( aggregation ) {
+    	this.minValue = this.minValue + 86400*1000;
+        this.updateAggregationFilter( aggregation );
+    }
+    minDown( aggregation ) {
+    	this.minValue = this.minValue - 86400*1000;
+        this.updateAggregationFilter( aggregation );
+    }
+    
+    fineAdjust( event, aggregation ) {
+    	//alert(event.keyCode);
+    	switch (event.keyCode) {
+        case 37:
+            //left arrow;
+            this.minDown( aggregation );
+            break;
+        case 38:
+            //up arrow
+            this.minUp( aggregation );
+            break;
+        case 39:
+            //right arrow
+        	this.maxUp( aggregation );
+            break;
+        case 40:
+            //down arrow
+            this.maxDown( aggregation );
+            break;
+    	}
     }
 
 }

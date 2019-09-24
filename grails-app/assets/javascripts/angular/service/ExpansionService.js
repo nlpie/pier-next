@@ -1,10 +1,11 @@
 
 class ExpansionService {
 
-	constructor( $http, $q, growl ) {
+	//constructor( $http, $q, growl ) {
+	constructor( $http ) {
 		this.$http = $http;
-		this.$q = $q;
-		this.growl = growl;
+		//this.$q = $q;
+		//this.growl = growl;
 	}
 	
 	fetchRelated( term ) {
@@ -46,6 +47,7 @@ class ExpansionService {
 
 }
 
-ExpansionService.$inject = [ '$http', '$q', 'growl' ];
+//ExpansionService.$inject = [ '$http', '$q', 'growl' ];
+ExpansionService.$inject = [ '$http' ];
 
 export default ExpansionService;

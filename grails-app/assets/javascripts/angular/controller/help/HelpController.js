@@ -1,10 +1,10 @@
 
 class HelpController {
 	
-	constructor( $scope, currentSearch, modalService, searchService ) {
+	constructor( $scope, currentSearch, modalService) { //}, searchService ) {
 		this.currentSearch = currentSearch;
 		this.modalService = modalService;
-		this.searchService = searchService;
+		//this.searchService = searchService;
 		this.queries = [];
 	}
 	
@@ -25,13 +25,13 @@ class HelpController {
 		              {query: '"heart irregular"~10', name:"proximity searches", explanation:"Find notes containing the terms <span class=\"i\">heart</span> and <span class=\"i\">irregular</span> within 10 terms of each other"},
 		              {query: 'mrn:xxxxxxxxxxx', name:"mrn search", explanation:"Restrict results to the specified MRN. Can be used in combination with other terms, e.g., keywords and/or service_date(s)"},
 		              {query: 'service_date:[2018-07-07 TO 2018-07-14]', name:"range searches", explanation:"Restrict results to those with a service date within a range. Ranges using [] are inclusive; use {} for exclusive ranges; these can be used in combination. Wildcards can be used as upper or lower bounds, e.g., service_date:[* TO 2018-12-31]. Single service date values are also permitted, e.g., service_date:2012-06-02"},
-		              {query: 'cuis:C0033213', name:"umls cui searches", explanation:"Find notes tagged with UMLS CUIs (Concept Unique Identifier). Can be combined using logical AND / OR operators, e.g., cuis:C0039796 OR cuis:C2137071"}
+		              {query: 'cui:C0033213', name:"umls cui searches", explanation:"Find notes tagged with UMLS CUIs (Concept Unique Identifier). Can be combined using logical AND / OR operators, e.g., cuis:C0039796 OR cuis:C2137071"}
         ];
 		me.queries = queries;
-		me.searchService.fetchSavedQueries();
+		//me.searchService.fetchSavedQueries();
 	}
 }
 
-HelpController.$inject = [ '$scope', 'currentSearch', 'modalService', 'searchService' ];
+HelpController.$inject = [ '$scope', 'currentSearch', 'modalService' ]; //	, 'searchService' ];
 
 export default HelpController;

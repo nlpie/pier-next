@@ -1,6 +1,7 @@
 package edu.umn.nlpie.pier
 
 import grails.transaction.Transactional
+//import grails.plugin.springsecurity.SpringSecurityService
 
 @Transactional
 class UserService {
@@ -18,7 +19,11 @@ class UserService {
 	}
 	
 	def getCurrentUserUsername() {
-		springSecurityService.currentUser.username
+		springSecurityService.currentUser?.username
+	}
+	
+	def loggedIn() {
+		springSecurityService.isLoggedIn()
 	}
 	
 	/*def getCurrentUserId() {

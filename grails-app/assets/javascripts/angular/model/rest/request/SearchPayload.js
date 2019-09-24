@@ -30,11 +30,11 @@ class SearchPayload {
 				this.query =  new AggregationQuery( corpus, search.inputExpansion.expandUserInput(search.userInput) );
 		    	break;
 			case 'ENC-DOCS':
-				search.userInput = '*';
+				search.userInput = `service_id:${identifier}`;
 				this.query =  new EncounterDocQuery( corpus, search.inputExpansion.expandUserInput(search.userInput), identifier );
 		    	break;
 		    case 'ENC-AGGS':
-		    	search.userInput = "*";
+		    	search.userInput = `service_id:${identifier}`;
 				this.query =  new EncounterAggQuery( corpus, search.inputExpansion.expandUserInput(search.userInput), identifier );
 		    	break;
 		    case 'PAGE':
@@ -60,10 +60,10 @@ class SearchPayload {
 		if ( this.inputExpansion ) {
 			this.expansionTerms = search.inputExpansion.terms;
 		}
-//alert("SearchPayload\n"+JSON.stringify(this,null,'\t'));
+//alert(`SearchPayload.constructor\n ${JSON.stringify(this,null,'\t')}`);
 	}
-	
-	//creates string to be used as filterSummary element in UI dropdown
+
+	//creates string to be used as filterSummary element in UI dropdown - WORKS as expected with mixed filters (values and dates)
 	filterDistiller( query ) {
     	let terms = [];
     	let filterArray = query.query.bool.filter;
