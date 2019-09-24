@@ -16,7 +16,7 @@ class CorpusMetadata {
 	CorpusMetadata(Corpus ct) {
 		def index = ct.index
 		this.searchable = true
-		this.filtered = true	//most of the time corpus will be assoc with a restricted/filtered search/auth context
+		//this.filtered = true	//most of the time corpus will be assoc with a restricted/filtered search/auth context
 		this.url = "${index.cluster.uri}/${index.indexName}/${index.type.typeName}/_search"
 		this.scrollUrl = "${index.cluster.uri}/_search/scroll"
 		this.defaultSearchField = index.type.searchableField
@@ -25,7 +25,7 @@ class CorpusMetadata {
 	}
 	
 	Boolean searchable 
-	Boolean filtered
+	//Boolean filtered
 	String url 
 	String scrollUrl
 	String defaultSearchField 

@@ -2,6 +2,7 @@ import AbstractHydrator from './AbstractHydrator';
 import CorpusMetadata from './CorpusMetadata';
 import CorpusStatus from './CorpusStatus';
 import Results from './Results';
+import DateRangeSlider from './DateRangeSlider';
 
 class Corpus extends AbstractHydrator {
     
@@ -42,14 +43,17 @@ class Corpus extends AbstractHydrator {
 	removeFilters() {
 		for ( let ontology of this.metadata.aggregations ) {
     		for ( let aggregation of ontology.aggregations ) {
-    			if ( !( JSON.stringify(aggregation.filters) === JSON.stringify({}) ) ) {
+    			if ( !( JSON.stringify(aggregation.filters) == JSON.stringify({}) ) ) {
 	    			aggregation.filters = {};
+    			}
+    			if ( aggregation.isTemporal ) {
+    				aggregation.resetSlider();
     			}
         	}
     	}
 		this.status.inactivateFilter();
     	this.status.dirty = true;
-    	this.updateFilterSummary();
+    	this.updateUiFilterInfo();
 	}
 	
 	removeCounts() {
@@ -66,18 +70,35 @@ class Corpus extends AbstractHydrator {
 	}
 	
 	parsePastQueryFilterArray ( queryFilterArray ) {
-//alert("filters queryFilterArray\n" + JSON.stringify(queryFilterArray,null,'\t'));
+//console.log("Corpus.parsePastQueryFilterArray");
+//alert("QUERY FILTER ARRAY\n" + JSON.stringify(queryFilterArray,null,'\t'));
 //alert("filters metadata aggregations\n" + JSON.stringify(this.metadata,null,'\t'));
+//console.info("ONTOLOGY AGGREGATIONS\n" + JSON.stringify(this.metadata.aggregations,null,'\t'));
 		for ( let ontology of this.metadata.aggregations ) {
     		for ( let aggregation of ontology.aggregations ) {
-    			for ( let filter of queryFilterArray ) {
-    				for ( let should of filter.bool.should ) {
-    					if ( should.term[aggregation.field.fieldName] ) {
-    						//console.log( should );
-    						aggregation.filters[ should.term[aggregation.field.fieldName] ] = true;
-//alert( JSON.stringify(should) + "\n" + JSON.stringify(aggregation,null,'\t') );
-    					}
+    			for ( let filterObject of queryFilterArray ) {
+					if ( filterObject.bool ) {
+						for ( let should of filterObject.bool.should ) {
+							if ( should.term[aggregation.field.fieldName] ) {
+//alert("BOOL:\n"+JSON.stringify(filterObject,null,'\t')+"\n"+filterObject.bool.should.length);
+								aggregation.filters[ should.term[aggregation.field.fieldName] ] = true;
+							}
+						}
     				}
+					if ( filterObject.range ) {
+						let rangeObject = filterObject.range;
+						if ( rangeObject.hasOwnProperty( aggregation.field.fieldName ) ) {
+//alert(`Corpus.pastQueryFilterArray: AGGREGATION OBJ\n${JSON.stringify(aggregation,null,'\t')}`);
+//alert(`Corpus.pastQueryFilterArray: RANGE OBJ\n${JSON.stringify(rangeObject,null,'\t')}`);
+							//these are listed separately - no OR (should semantics)\
+							aggregation.filters['min'] = rangeObject[aggregation.field.fieldName].gte;
+							aggregation.filters['max'] = rangeObject[aggregation.field.fieldName].lte;
+//alert(`Corpus.pastQueryFilterArray: AGGREGATION FILTERS\n${JSON.stringify(aggregation.filters,null,'\t')}`);
+							//NEED TO ASSIGN INITIAL SLIDER
+							aggregation.initialSlider = new DateRangeSlider( rangeObject[aggregation.field.fieldName].gte, rangeObject[aggregation.field.fieldName].lte );
+							aggregation.initialSlider.filtered = true;
+						}
+					}
     				
     			}
     			//aggregation
@@ -142,7 +163,7 @@ class Corpus extends AbstractHydrator {
 		this.status.filter.on = true;
     	this.status.showBan = true;
     	this.status.dirty = true;
-    	this.updateFilterSummary();
+    	this.updateUiFilterInfo();
 	}
 	
 	isDirty() {
@@ -153,22 +174,42 @@ class Corpus extends AbstractHydrator {
 		this.results = new Results();
 	}
 	
-	updateFilterSummary() {
-		//alert("discrete");
+	updateUiFilterInfo() {
+//console.log(`Corpus.updateUiFilterInfo:AGGREGATIONS\n${JSON.stringify(this.metadata.aggregations,null,'\t')}`);
     	let summary = [];
-    	this.status.filter.on = false;
+    	let me = this;
+    	me.status.inactivateFilter(); //turn off filtered indication, if there is a match then it will be turned back on
     	for ( let ontology of this.metadata.aggregations ) {
     		for ( let aggregation of ontology.aggregations ) {
-    			if ( !( JSON.stringify(aggregation.filters) === JSON.stringify({}) ) && !aggregation.isTemporal ) {
-    				//potential fields to be added
-    				let filter = undefined;	////defer assignment until proof of need is established
+    			if ( !( JSON.stringify(aggregation.filters) === JSON.stringify({}) ) && !aggregation.isTemportal ) {
+//console.log(`Corpus.updateUiFilterInfo:AGGREGATIONS[${aggregation.label}]\n${JSON.stringify(aggregation,null,'\t')}`);
+    				//let filter = undefined;	////defer assignment until proof of need is established
 	    			Object.keys( aggregation.filters ).map( function(value,i) {
-	    				if (aggregation.filters[value]==true) summary.push( value );
+	    				//discrete filter values handled here
+//alert(`${aggregation.label}\n${JSON.stringify(value)}`);
+	    				if (aggregation.filters[value]==true) {
+	    					summary.push( value );
+	    					me.status.activateFilter();
+	    					/*if ( aggregation.isTemporal ) {
+	    						alert("not here!");
+	    						aggregation.currentSlider.filtered = true;
+	    					}*/
+	    				}
 	    			});
+    			}
+    			//if ( !( JSON.stringify(aggregation.filters) === JSON.stringify({}) ) && aggregation.isTemporal ) {
+    			if ( aggregation.isTemporal && aggregation.isActive() ) {
+	    			//range filters for dates handled here
+//alert(`${aggregation.label}\n${JSON.stringify(aggregation.filters)}`);
+					let min = new Date( aggregation.filters.min ).toLocaleDateString("en-US");
+					let max = new Date( aggregation.filters.max ).toLocaleDateString("en-US");
+					let rangeSummary = `${aggregation.label}:${min}-${max}`;
+					summary.push( rangeSummary );
+					me.status.activateFilter();
     			}
         	}
     	}
-    	console.log(summary);
+//console.log(`Corpus.updateUiFilterInfo:\n${JSON.stringify(summary,null,'\t')}`);
     	this.currentFilterSummary = summary.join(", ");
 	}
 

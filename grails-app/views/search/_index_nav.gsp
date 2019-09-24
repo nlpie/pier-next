@@ -18,8 +18,16 @@
 		<ul class="nav navbar-nav navbar-right">
 			<!-- configure links in NavCtrl links property -->
 			
-			<li data-container="body" data-toggle="tooltip" data-placement="bottom" title="save query for later use">
-				<a><i class="fa fa-floppy-o fa-lg" ng-click="sc.searchService.saveQuery(sc.currentSearch.instance)"></i></a>
+			<li ng-controller="helpController as hc">
+				<a data-toggle="tooltip" data-placement="bottom" title="search help">
+					<i class="fa fa-question fa-lg" ng-click="hc.modalService.queryHelp('lg','helpController')"></i>
+				</a>
+			</li>
+			
+			<li data-container="body" data-toggle="tooltip" data-placement="bottom" title="save search for later use">
+				<a>
+					<i class="fa fa-floppy-o fa-lg" ng-click="sc.searchService.saveQuery(sc.currentSearch.instance)"></i>
+				</a>
 			</li>
 			
 			<li class="dropdown" data-toggle="tooltip" data-placement="bottom" title="saved searches">
@@ -28,8 +36,8 @@
 					<i class="fa fa-caret-down" aria-hidden="true"></i>
 				</a>
 				<ul class="dropdown-menu">
-					<li role="presentation" class="dropdown-header" style="font-variant:small-caps">Shared queries - current context</li>
-					<li ng-repeat="item in sc.searchService.savedQueriesByContext track by $index"  ng-click="sc.currentSearch.recentSearch(item.query)" >
+					<li role="presentation" class="dropdown-header" style="font-variant:small-caps">Shared searches - current context</li>
+					<li ng-repeat="item in sc.searchService.savedQueriesByContext track by $index"  ng-click="sc.currentSearch.recentSearch(item.query,'SHARED')" >
 						<a>
                       			<div title="click to search">
                        			<span style="text-decoration:none">{{item.query.userInput}}</span> 
@@ -39,8 +47,8 @@
                       			</div>
                      			</a>
                           </li>
-                          <li role="presentation" class="dropdown-header" style="font-variant:small-caps">Your saved queries - other contexts</li>
-					<li ng-repeat="item in sc.searchService.savedQueriesByUserExcludingContext track by $index"  ng-click="sc.currentSearch.recentSearch(item.query)" >
+                          <li role="presentation" class="dropdown-header" style="font-variant:small-caps">Your saved searches - other contexts</li>
+					<li ng-repeat="item in sc.searchService.savedQueriesByUserExcludingContext track by $index"  ng-click="sc.currentSearch.recentSearch(item.query,'SAVED')" >
 						<a>
                       			<div title="click to search">
                        			<sub style="color:gray">{{item.query.authorizedContext}}</sub>
@@ -58,7 +66,7 @@
 			<li data-container="body" data-toggle="tooltip" 
 				data-placement="bottom" 
 				ng-click="sc.currentSearch.exportResults()"
-				title="download query results">
+				title="download search results">
 				<a><i class="fa fa-download fa-lg"></i></a>
 			</li>
 		</ul>
@@ -83,7 +91,7 @@
 		                        		ng-style="{'color':'green'}"
 		                        		ng-attr-title="{{sc.currentSearch.context.corpus.metadata.tooltip}}">
 		                        	</i> 
-                        			<span class="pier-li-left-padded-content" ng-click="sc.currentSearch.setContext(ctx)" title="{{ctx.description}}">{{ctx.label}}</span>
+                        			<span class="pier-li-left-padded-content" ng-click="sc.currentSearch.changeContext(ctx)" title="{{ctx.description}}">{{ctx.label}}</span>
                         		</a>
                             </li>
                         </ul>
@@ -92,7 +100,7 @@
 					<input id="user-input" type="text" name="query" class="form-control" 
 						placeholder="term1 AND (term2 OR term3) NOT (term4 OR &#34;multiterm phrase&#34;)" 
 						ng-model="sc.currentSearch.userInput"
-						ng-change="sc.currentSearch.dirty()"
+						ng-change="sc.currentSearch.inputChange('{{sc.currentSearch.userInput}}')"
 						style="border-right:none;-webkit-box-shadow: none !important;-moz-box-shadow: none !important;box-shadow: none !important;position: relative"
 					/>
 					
@@ -106,7 +114,7 @@
 						<ul class="dropdown-menu pull-right">
                             <li role="presentation" class="dropdown-header" style="font-variant:small-caps">Recent Searches</li>
                         	<li ng-repeat="item in sc.searchService.searchHistory track by $index">
-								<a ng-click="sc.currentSearch.recentSearch(item.query)">
+								<a ng-click="sc.currentSearch.recentSearch(item.query,'RECENT')">
                         			<div title="click to search">
 	                        			<sub style="color:gray">{{item.query.authorizedContext}}</sub>
 	                        			<br>
@@ -123,7 +131,7 @@
                         <button type="button" 
                         	class="btn btn-default blend-adjacent" 
 		  					tooltip-placement="bottom" uib-tooltip-template="'filter-tooltip.html'" 
-							tooltip-popup-delay="1000" tooltip-popup-close-delay="2000" uib-data-container="body"
+							tooltip-popup-delay="1000" tooltip-popup-close-delay="3000" uib-data-container="body"
 			  			>
 		  					<span data-container="body" data-toggle="tooltip" data-placement="bottom" data-html="true">
 		  						<i class="fa fa-filter" ng-style="sc.currentSearch.context.corpus.status.filter.style"></i>
@@ -141,7 +149,7 @@
 						</button>
 						
 						<button type="button" 
-							ng-click="sc.currentSearch.instance.toggleDistinctCounts();sc.currentSearch.dirty();"
+							ng-click="sc.currentSearch.countsChange();"
 							class="btn btn-default blend-adjacent"
 							data-container="body" data-toggle="tooltip" data-placement="bottom" data-html="true" 
 							title="enable/disable distinct counts for applicable category aggregates">
@@ -151,7 +159,7 @@
 						</button>
 						
 						<button class="btn btn-default" type="submit" ng-style="sc.currentSearch.searchIcon.style.emphasis">
-							{{ sc.currentSearch.searchIcon.text}}
+							{{sc.currentSearch.searchIcon.text}}
 							<i style="padding-left:5px;padding-right:5px" ng-class="sc.currentSearch.searchIcon.class" ng-style="sc.currentSearch.searchIcon.style.color"></i>	
 						</button>
 					</div>
@@ -178,6 +186,10 @@
 				<button type="button" class="btn btn-default btn-result-pagination" ng-click="sc.currentSearch.lastPage( sc.currentSearch.context.corpus )" ng-style="{cursor:sc.currentSearch.context.corpus.results.forwardCursor( sc.currentSearch.context.corpus )}"> <i class="fa fa-angle-double-right"> </i></button>
 				
 			</div>
+		</div>
+		
+		<div ng-if="sc.currentSearch.instance.lastQuery" class="btn-group pull-left" role="group" style="margin-left:50px">
+			<a ng-click="sc.currentSearch.lastSearch(sc.currentSearch.instance.lastQuery,'BACK')" title="exit the encounter view and return to last search">&larr; Return to search</a>
 		</div>
 
     </div><!-- /.navbar-collapse -->

@@ -4,6 +4,10 @@ import org.apache.commons.lang.RandomStringUtils
 
 import edu.umn.nlpie.pier.audit.Query
 import edu.umn.nlpie.pier.context.AuthorizedContext
+import edu.umn.nlpie.pier.context.PierApplicationConfiguredCorpusContext
+import edu.umn.nlpie.pier.context.PierCorpusContextByUser
+import edu.umn.nlpie.pier.context.PierNoteSetContext
+import edu.umn.nlpie.pier.context.PierNoteSetContextByUser
 import edu.umn.nlpie.pier.elastic.Field
 import edu.umn.nlpie.pier.elastic.Index
 import edu.umn.nlpie.pier.elastic.Type
@@ -20,7 +24,7 @@ class ConfigService {
 	static scope = "prototype"
 	def userService
 	
-	def getAuthorizedContexts() {
+	/*def getAuthorizedContexts() {
 		def list = new ArrayList()
 		def username = userService.currentUserUsername
 		def corpora = Corpus.searchableCorpora
@@ -29,12 +33,44 @@ class ConfigService {
 				list.add(0,new AuthorizedContext( label:c.name, contextFilterValue:0, description:c.description, corpusName:c.name, filteredContext:false ));
 			}
 		}
-		list.addAll( AuthorizedContext.findAllByUsername(username,[sort:'filteredContext']) )
+		if ( SpringSecurityUtils.ifAnyGranted( 'ROLE_ANALYST' ) ) {
+			println "ANALYSTS"
+			list.addAll( ActiveContext.list( [sort:'label']) )
+		} else {
+			list.addAll( AuthorizedContext.findAllByUsername(username,[sort:'filteredContext']) )
+		}
+		println "${username}, ${list.size()} contexts available"
+		list
+	}*/
+	
+	def getAuthorizedContexts() {
+		def list = new ArrayList()
+		def username = userService.currentUserUsername
+		def corpora = Corpus.searchableCorpora
+		
+		//load application-configured corpus contexts, if user has privs
+		corpora.each { c ->
+			if ( SpringSecurityUtils.ifAnyGranted( c.minimumRole.authority ) ) {
+				list.add(0,new PierApplicationConfiguredCorpusContext( label:c.name, contextFilterValue:0, description:c.description, corpusName:c.name, filteredContext:false ));
+			}
+		}
+		
+		//load admin console-configured corpus contexts
+		list.addAll( PierCorpusContextByUser.findAllByUsername(username) )
+		
+		//load note set contexts based on user roles
+		if ( SpringSecurityUtils.ifAnyGranted( 'ROLE_ANALYST' ) ) {
+			println "ANALYST"
+			list.addAll( PierNoteSetContext.list( [sort:'label']) )
+		} else {
+			list.addAll( PierNoteSetContextByUser.findAllByUsername(username,[sort:'filteredContext']) )
+		}
 		println "${username}, ${list.size()} contexts available"
 		list
 	}
 	
-	def authorizedContextByLabel( label ) { 
+	//deprecated 8/5/19
+	/*def authorizedContextByLabel( label ) { 
 		def username = userService.currentUserUsername
 		def ac = AuthorizedContext.findByLabelAndUsername( label,username );
 		if ( !ac ) {
@@ -44,6 +80,31 @@ class ConfigService {
 		} else {
 			println "AuthContext found in authorized_context db object"
 		}	
+		ac
+	}*/
+	
+	def authorizedContextByLabel( label ) {
+		//first try to get context by username and label
+		def ac
+		def username = userService.currentUserUsername
+println "ACBL: ${username} ${label}"
+println "ACBL: looking for PierNoteSetContextByUser"
+		ac = PierNoteSetContextByUser.findByLabelAndUsername( label, username )
+		if ( !ac ) {
+println "ACBL: looking for PierNoteSetContext"
+			ac = PierNoteSetContext.findByLabel( label )
+		}
+		if ( !ac ) {
+println "ACBL: looking for PierCorpusContextByUser"
+			ac = PierCorpusContextByUser.findByLabelAndUsername( label, username )
+		}
+		if ( !ac ) {
+println "ACBL: looking for Corpus to use with PierApplicationConfiguredCorpusContext"
+			def c = Corpus.findByName( label )
+println "ACBL: whole corpus [${c.name}] found for input [${label}]"
+			ac = new PierApplicationConfiguredCorpusContext( label:c.name, contextFilterValue:0, description:c.description, corpusName:c.name, filteredContext:false )
+		}
+println "ACBL: AuthorizedPierContext impl found: ${ac.getClass().getName()}"
 		ac
 	}
 	

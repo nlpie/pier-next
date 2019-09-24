@@ -1,12 +1,12 @@
 package edu.umn.nlpie.pier.context
 
-import edu.umn.nlpie.pier.api.CorpusMetadata;
+import edu.umn.nlpie.pier.api.CorpusMetadata
 import edu.umn.nlpie.pier.ui.Corpus
 
 
 class AuthorizedContext {
 	
-	def settingsService
+	//def settingsService
 
     static constraints = {
 		requestId()
@@ -20,7 +20,10 @@ class AuthorizedContext {
 	
 	static mapping = {
 		datasource 'notes'
-		table name: "unioned_auth_contexts_by_user", schema: "notes"	//view in notes schema
+		//table name: "unioned_auth_contexts_by_user", schema: "notes"	//view in notes schema
+		table name: "pier_context_by_user", schema: "notes"	//view in notes schema
+		corpusName column: 'corpus'
+		contextFilterValue column: 'filter_value'
 		version false
 	}
 	
@@ -33,9 +36,9 @@ class AuthorizedContext {
 	Boolean filteredContext
 	String contextFilterValue	//filter value used in ES for note sets
 	
-	def getRequest() {
+	/*def getRequest() {
 		Request.find(requestId)
-	}
+	}*/
 	
 	String getLabel() {
 		this.label.trim()

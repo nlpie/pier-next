@@ -11,18 +11,35 @@ import SearchPayload from '../model/rest/request/SearchPayload';
 import CountPayload from '../model/rest/request/CountPayload';
 
 class Search {
-    constructor( $http, $q, growl, searchService ) {
+    constructor( $http, $q, growl, searchService, userService, $cookies ) {
     	this.$http = $http;
     	this.$q = $q;
     	this.growl = growl;
     	this.searchService = searchService;
+    	this.userService = userService;
+    	this.$cookies = $cookies;
     	
     	this.authorizedContexts = undefined;
 
     	this.userInput = "";
     	this.context = undefined;
-    	//this.payload = undefined; 
     	
+    	this.bookmarkedQuery = false; 
+    	//this.menuIconQualifier = "new";
+    	
+    	this.menuIcon = undefined;
+    	this.menuIconOptions = {
+			"new": { 
+				"title":"new search", 
+				"class":"fa fa-search fa-lg"
+			},
+			"resume": { 
+				"title":"most-recent search", 
+				"class":"fa fa-arrow-circle-o-left fa-lg"
+			}
+    	}
+    	
+    	this.searchIcon = undefined;
     	this.searchIconOptions = { 
     			"loading": { 
     				"text":"loading...", 
@@ -55,9 +72,7 @@ class Search {
     			}
     	}
     	
-    	this.inputExpansion = new InputExpansion(); 
-    	this.instance = new SearchInstance();
-    	this.searchIcon = this.searchIconOptions.loading;
+    	this.resetOptions();
 		
         this.status = {
         	error: undefined,
@@ -68,6 +83,15 @@ class Search {
         console.info("Search.js complete");
         
     }
+    
+    resetOptions() {
+    	this.userInput = "";
+    	this.inputExpansion = new InputExpansion(); 
+    	this.instance = new SearchInstance();
+    	this.menuIcon = this.menuIconOptions.new;
+    	this.searchIcon = this.searchIconOptions.default;
+    }
+
     	
     init() {
     	let me = this;
@@ -79,61 +103,205 @@ class Search {
     				me.searchService.fetchHistory();
     				me.searchService.fetchSavedQueries( me.context.label );
     			});
+    		}).
+    		then( function() {
+    			//TODO problem is this fires on settings page load b/c of ng-controller in menu item
+    			let pathname = window.location.pathname;
+    			if ( me.hasBookmark() ) {
+    				me.bookmarkedQuery = true;
+    				me.menuIcon = me.menuIconOptions.resume;
+    				if ( pathname.includes("search") && me.bookmarkedQuery ) {
+    					me.growl.info( "resuming with most-recent search", {ttl:2500, referenceId:"docs"} );
+    					let query = JSON.parse( me.getBookmark() );
+    					me.bookmarkSearch( query );
+//alert(`Search.init()\n${me.bookmarkedQuery}`);
+    				}
+    			}
     		});
     }
     
-    //TODO right level of abstraction? - move to Corpus?
-    dirty( corpus ) {
-    	//search and corpus need to be set to dirty
-//alert("dirty: " + this.status.dirty);
-    	if ( this.status.dirty==false && this.context.corpus.results.docs ) {
-    		this.status.dirty = true;
-			this.searchIcon = this.searchIconOptions.refresh;
-			if ( corpus ) {
-				//dim only this corpus
-				corpus.dim();
-				corpus.removeCounts();
-			} else {
-				//dim doc results for corpus
-				this.context.corpus.dim();
-				this.context.corpus.removeCounts();
-			}
-    	}
-    	if ( this.status.dirty==false && !this.context.corpus.results.docs ) {
-    		//editing the search field w/o previous results and there is something to search for (not empty input box)
-    		if ( this.userInput.length>0 ) {
-    			this.searchIcon = this.searchIconOptions.go;
-    		} else {
-    			this.searchIcon = this.searchIconOptions.default;
-    		} 
-    	}
-    	if ( this.status.dirty==false && this.instance.distinctCounts.on ) {
-    		//user has selected distinct counts be computed AND there are previous results
-    		if ( this.context.corpus.results.docs ) {
-    			this.searchIcon = this.searchIconOptions.refresh;
-    			//this.status.dirty = true;
-    		} else {
-    			this.searchIcon = this.searchIconOptions.default;
-    		} 
-    	}
-    	if ( this.status.dirty==false && this.inputExpansion.cardinality()>0 ) {
-    		//user has selected distinct counts be computed AND there are previous results
-    		if ( this.context.corpus.results.docs ) {
-    			this.searchIcon = this.searchIconOptions.refresh;
-    			//this.status.dirty = true;
-    		} //else {
-    			//this.searchIcon = this.searchIconOptions.default;
-    		//} 
-    	}
+    hasResults() {
+    	if ( this.context==undefined ) return false;
+    	return ( this.context.corpus.results.docs ) ? true : false;
+    }
+    
+    //TODO Bookmarks in own class?
+    setBookmark() {
+    	this.$cookies.put( "bookmark", JSON.stringify( this.searchService.lastQuery ) );
+    	this.bookmarkedQuery = true;
+    	this.menuIcon = this.menuIconOptions.resume;
 	}
-
-    setContext(searchContext) {
-//alert("setContext");
+	
+	getBookmark() {
+		return this.$cookies.get( "bookmark" );
+	}
+	
+	hasBookmark() {
+		let cookieBookmark = this.$cookies.get( "bookmark" );
+		if ( cookieBookmark==undefined ) {
+			return false;
+		} else {
+			return true;
+		}
+	}
+	
+	clearBookmark() {
+		this.$cookies.remove( "bookmark" );
+		this.bookmarkedQuery = false;
+		this.menuIcon = this.menuIconOptions.new;
+	}
+	//-------end bookmark methods
+	
+	sliderMouseupChange( aggregation ) {
+		//alert("mouse");
+		if ( this.authenticationExpired() ) return;
+		aggregation.currentSlider.updateAggregationFilter( aggregation );
+		this.context.corpus.updateUiFilterInfo();
+		this.filterChange();
+	}
+	
+	sliderKeyupChange( $event, aggregation ) {
+		//alert("key");
+		if ( this.authenticationExpired() ) return;
+		aggregation.currentSlider.fineAdjust( $event, aggregation );
+		this.context.corpus.updateUiFilterInfo();
+		this.filterChange();
+	}
+	
+    
+    inputChange( oldVal ) {
+    	if ( this.authenticationExpired() ) return;
+    	if ( this.userInput.length==0 ) {
+    		this.searchIcon = this.searchIconOptions.default;
+    		return;
+    	}
+    	if ( this.userInput!=oldVal ) {
+    		//user input has changed
+    		//if ( this.context.corpus.results.docs ) {
+    		if ( this.hasResults() ) {
+    			//edited the search field w/ previous results and there is something to search for (not empty input box)
+    			this.searchIcon = this.searchIconOptions.refresh;
+    			this.context.corpus.dim();
+    			this.context.corpus.removeCounts();
+    			//this.status.dirty = true;
+    			return;
+    		} else {
+    			this.searchIcon = this.searchIconOptions.go;
+    		}
+    		return;
+    	}
+    }
+    
+    appendHelp( exampleQuery ) {
+    	if ( this.authenticationExpired() ) return;
+    	this.userInput = `${this.userInput} ${exampleQuery}`;
+    }
+    
+    appendTemplate( fieldName ) {
+    	alert(fieldName);
+    	if ( this.authenticationExpired() ) return;
+    	this.userInput = `${this.userInput} ${fieldName}:"replace-this"`;
+    }
+    
+    /*appendFieldTerm( field, value ) {
+    	if ( this.authenticationExpired() ) return;
+    	this.userInput = `${this.userInput} ${field}:${value}`;
+    }*/
+    
+    expansionChange() {
+    	if ( this.authenticationExpired() ) return;
+    	if ( this.inputExpansion.cardinality()>0 ) {
+    		if ( this.hasResults() ) {
+    			this.searchIcon = this.searchIconOptions.refresh;
+    			this.context.corpus.dim();
+    		} else {
+    			
+    		}
+    	}		
+    }
+    
+    countsChange() {
+    	if ( this.authenticationExpired() ) return;
+    	this.instance.toggleDistinctCounts();
+    	if ( this.hasResults() ) {
+    		//have results to refresh, counts are either being turned on or off, either way need to refresh
+    		this.searchIcon = this.searchIconOptions.refresh;
+    		this.context.corpus.dim();
+    	} else {
+    		//nothing to refresh, this.instance.countsOn() return value does not matter
+    	}
+    }
+    
+    authenticationExpired() {
+    	if ( !this.userService.isLoggedIn() ) {
+    		if ( this.hasResults() ) {
+    			this.setBookmark();
+    		}
+    		return true;
+    	} else {
+    		return false;
+    	}
+    }
+    
+    
+    //FILTERS
+    //all 4 of these methods will only be called if there are results on the screen, so bookmark the last query if 
+    toggleAggregationValue( aggregation, value ) {
+    	//ORIG ng-click="aggregation.filters[bucket.key]=!aggregation.filters[bucket.key];rc.search.context.corpus.updateUiFilterInfo();rc.search.filterChange()"
+    	if ( this.authenticationExpired() ) return;
+    	aggregation.filters[value]=!aggregation.filters[value];
+    	this.context.corpus.updateUiFilterInfo();
+    	this.filterChange();
+    }
+    toggleSlider() {
+    	//ORIG ng-click="rc.search.context.corpus.updateUiFilterInfo();rc.search.filterChange()" ng-model="aggregation.filters[bucket.key]"
+    	if ( this.authenticationExpired() ) return;
+    	this.context.corpus.updateUiFilterInfo();
+    	rc.search.filterChange();
+    }
+    toggleAggregation( aggregation ) {
+    	if ( this.authenticationExpired() ) return;
+    	aggregation.toggle();
+    	this.context.corpus.updateUiFilterInfo();
+    	this.filterChange();
+    }
+    removeFilters() {
+    	if ( this.authenticationExpired() ) return;
+    	this.context.corpus.removeFilters();
+    	this.filterChange();
+    }
+    
+    navMenuChange() {
+    	if ( this.hasResults() ) {
+    		this.setBookmark();
+    		
+    	}
+    }
+    
+    filterChange() {
+    	if ( this.authenticationExpired() ) return;
+    	//can only call this if there are results
+    	this.searchIcon = this.searchIconOptions.refresh;
+    	this.context.corpus.dim();
+    }
+    
+    changeContext( searchContext ) {
+    	if ( this.authenticationExpired() ) return;
+    	this.resetOptions();
+    	this.setContext( searchContext );
+    }
+    
+    setContext( searchContext ) {
+//alert(`Search.setContext\n${JSON.stringify(searchContext,null,'\t')}`);
+    	if ( this.authenticationExpired() ) return;
     	this.context = searchContext;
     	this.clearResults();
     	let me = this;
-		if ( this.context.corpus.metadata.filtered ) {
+		if ( this.context.filteredContext ) {
+			this.context.corpus.filtered = true;
 			this.context.corpus.contextFilter = new TermFilter(this.context.corpus.metadata.contextFilterField, this.context.contextFilterValue);	//contextFilter specific to each searchable corpus
+		} else {
+			this.context.corpus.filtered = false;
 		}
     	console.log("Auth context set to: " + searchContext.label);
     	return this.corpusAggregations( this.context.corpus )
@@ -157,7 +325,32 @@ class Search {
     	return search.$q.when( search );
 	}
     
-    e() { 
+    /*e() {
+    	if ( this.userInput.length==0 ) {
+    		this.growl.error( "no search term(s) provided", {ttl:3000, referenceId:"docs"} );
+    		return;
+    	}
+    	let li = this.loggedIn();
+    	alert(JSON.stringify(li,null,'\t'));
+    	if ( !li ) return;
+    	let me = this;
+    	this.r("DEFAULT")
+		.then( me.searchCorpus )
+		.then( function(search) {
+			me.finish( search );
+		})
+		.catch( function(e) {
+			me.clearResults();
+			me.remoteError("docs",e);
+		});
+    }*/
+    
+    e() {
+    	if ( this.userInput.length==0 ) {
+    		this.growl.error( "no search term(s) provided", {ttl:3000, referenceId:"docs"} );
+    		return;
+    	}
+    	if ( this.authenticationExpired() ) return;
     	let me = this;
     	this.r("DEFAULT")
 		.then( me.searchCorpus )
@@ -212,7 +405,10 @@ class Search {
 		//return me.$q.when( me );
     }
     
-    recentSearch( query ) {
+    recentSearch( query, mode ) {
+    	//mode in { RECENT, BACK }
+//alert(JSON.stringify(query));
+    	if ( this.authenticationExpired() ) return;
     	let me = this;
     	this.clearResults();
     	this.inputExpansion = new InputExpansion();
@@ -230,12 +426,13 @@ class Search {
 			if ( me.inputExpansion.on ) me.inputExpansion.terms = recentExpansionTerms;
 			if ( queries.docsQuery.distinctCounts ) me.instance.distinctCountsOn();
 			me.searchService.fetchAuthorizedContextByLabel( query.authorizedContext )
+			//me.searchService.fetchAuthorizedContextByQueryId( query.label )
 			.then( function( response ) { 
 				//alert("check on me\n"+JSON.stringify(me));
 				me.setContext( new AuthorizedContext(response.data) )
 				.then( function(response) {
 					me.parsePastQuery( recentQuery ); 
-					me.r("RECENT")	
+					me.r( mode )	
 					.then( me.searchCorpus )
 					.then( function(search) {
 						me.finish( search );
@@ -244,7 +441,10 @@ class Search {
 				.catch( function(e) {
 					me.clearResults();
 					me.remoteError("docs",e);
-				});
+				})
+				/*.finally( function() {
+					if ( mode=="BACK" ) me.instance.backQuery = undefined;
+				});*/
 			});
 		})
 		.catch( function(e) {
@@ -256,9 +456,11 @@ class Search {
     parsePastQuery( pastQuery ) { //TODO move to ??? (better abstraction level)
     	this.context.corpus.parsePastQueryFilterArray( pastQuery.query.bool.filter )
     }
-    
+
     encSearch( serviceId ) { 
+    	if ( this.authenticationExpired() ) return;
     	this.serviceId = serviceId;
+    	this.instance.lastQuery = this.searchService.lastQuery;
     	let me = this;
     	this.r("ENCOUNTER")	//returns the current Search instance and passes down the promise chain
     	.then( me.searchCorpus )
@@ -269,6 +471,16 @@ class Search {
     		me.clearResults();
     		me.remoteError("docs",e);
     	});
+    } 
+    
+    lastSearch( query ) {
+		this.instance.lastQuery = undefined;
+    	this.recentSearch( query, "BACK" );
+    }
+    
+    bookmarkSearch( query ) {
+		this.clearBookmark();
+    	this.recentSearch( query, "BOOKMARK" );
     }
     
     r( mode ) {
@@ -403,6 +615,7 @@ class Search {
     	corpus.status.searchingDocs = true;
     	let me = this;
     	let payload = new SearchPayload( corpus, this, "RECENT-DOCS" );
+//alert(`D_RECENT PAYLOAD ${JSON.stringify(payload,null,'\t')}`);
     	//var url = corpus.metadata.url;
     	//var filterDesc = "TBD";
 		return this.$http.post( APP.ROOT + '/search/elastic/', JSON.stringify( payload ) )
@@ -468,7 +681,8 @@ class Search {
 		let corpus = search.context.corpus;
 		corpus.prepare();
 		let searches = [];
-		if (search.instance.mode=="RECENT" || search.instance.mode=="SAVED") {
+		//if (search.instance.mode=="RECENT" || search.instance.mode=="SAVED" || search.instance.mode=="BACK") {
+		if ( [ "RECENT","SHARED","SAVED","BACK","BOOKMARK" ].includes( search.instance.mode ) ) {
 			searches.push( search.d_recent( search.instance.recent.docsQuery, corpus ) );
 			searches.push( search.a_recent( search.instance.recent.aggsQuery, corpus ) );
 		} else if ( search.instance.mode=="ENCOUNTER" ) {
@@ -488,6 +702,7 @@ class Search {
     //pagination
     nextPage( corpus ) {
     	//next pg, no aggs
+    	if ( this.authenticationExpired() ) return;
     	if ( !corpus.isDirty() && corpus.results.pagination.next() ) {
     		let me = this;
     		this.p( corpus )
@@ -502,6 +717,7 @@ class Search {
     }
     
     lastPage( corpus ) {
+    	if ( this.authenticationExpired() ) return;
 		if ( !corpus.isDirty() && corpus.results.pagination.last() )  {
 			let me = this;
 			return this.p( corpus )
@@ -516,15 +732,21 @@ class Search {
     }
     
     previousPage( corpus ) {
-    	//prev pg, composite
+    	if ( this.authenticationExpired() ) return;
     	if ( !corpus.isDirty() && corpus.results.pagination.previous() ) this.p( corpus );
     }
     
     firstPage( corpus ) {
+    	if ( this.authenticationExpired() ) return;
     	if ( !corpus.isDirty() && corpus.results.pagination.first() ) this.p( corpus );
     }
     
     exportResults() {
+    	if ( this.authenticationExpired() ) return;
+    	if ( !this.hasResults() ) {
+    		this.growl.error( "no results to export", {ttl:3000, referenceId:"docs"} );
+    		return;
+    	}
     	this.instance.mode = "EXPORT";
     	let me = this;
     	let payload = new SearchPayload( this.context.corpus, this, "EXPORT" );	//returns payload containing an ExportQuery with an empty fields array, need to specify which fields to return	
@@ -606,12 +828,15 @@ alert("corpus in corpusAggregations\n"+JSON.stringify(corpus,null,'\t'));
 	    	return me.$q.when( me );
 	    });*/
     }
-    
+
     clearResults() {
+//alert("CLEAR_RESULTS::CONTEXT\n " + JSON.stringify(this.context,null,'\t'));
     	this.searchIcon = this.searchIconOptions.default;
     	//this.inputExpansion = new InputExpansion();
-    	this.context.corpus.results = {};
-    	this.context.corpus.removeCounts(); 
+    	if ( this.context.corpus ) {
+    		this.context.corpus.results = {};
+    		this.context.corpus.removeCounts(); 
+    	}
     }
   
     distinctCounts( corpus, maxCount ) {
@@ -665,6 +890,6 @@ alert("corpus in corpusAggregations\n"+JSON.stringify(corpus,null,'\t'));
     
 }
 
-Search.$inject = [ '$http', '$q', 'growl', 'searchService' ];
+Search.$inject = [ '$http', '$q', 'growl', 'searchService', 'userService', '$cookies' ];
 
 export default Search;

@@ -31,11 +31,12 @@
 	<asset:stylesheet src="lib/rzslider.css" />
 	<asset:stylesheet src="lib/xeditable.min.css" />
 	
+	<!--<asset:stylesheet src="lib/angular-material-1.1.12.min.css" />-->
+	
 	
 	<asset:stylesheet src="lib/Roboto.css" />
 	
-	<!--<asset:stylesheet src="application.css" />
-	<asset:javascript src="application.js" />-->
+
 	
 	
 	
@@ -87,48 +88,54 @@
 				</button>
 				<a class="navbar-brand" style="color:white" href="${request.contextPath}"><g:meta name="app.title"/></a>
 			</div>
-			<div id="navbar" class="navbar-collapse collapse" ng-controller="helpController as hc">
-					<!-- <ul class="nav navbar-nav navbar-left" ng-controller="LoginCtrl">
-						<li ng-repeat="link in links">
-							<a target="_blank" href="{{link.href}}" data-toggle="tooltip" data-placement="bottom" title="Login">{{link.text}} 
-							<i class="fa fa-user" aria-hidden="true"></i></a>
-						</li>
-					</ul> -->
-					<ul class="nav navbar-nav navbar-right">
+			<div id="navbar" class="navbar-collapse collapse">
+					<ul bsTooltip class="nav navbar-nav navbar-right"  ng-controller="searchController as menuSc" >
 						<!-- configure links in NavCtrl links property -->
+						
 						<li class="<g:if test="${controllerName=='search' && actionName=='index'}">active</g:if>">
-							<a href="${request.contextPath}/search" data-toggle="tooltip" data-placement="bottom" title="new search">
-								<i class="fa fa-search fa-lg" aria-hidden="true"></i>
+							<a href="${request.contextPath}/search" bsTooltip data-toggle="tooltip" data-placement="bottom" title="{{menuSc.currentSearch.menuIcon.title}}">
+								<i class="{{menuSc.currentSearch.menuIcon.class}}"></i>
 							</a>
 						</li>
 						
-						<li class="<g:if test="${actionName=='help'}">active</g:if>">
-							<a data-toggle="tooltip" data-placement="bottom" title="help">
-								<i class="fa fa-question fa-lg" aria-hidden="true"
-									ng-click="hc.modalService.queryHelp('lg','helpController')">
-								</i>
-							</a>
-						</li>
-						<li class="<g:if test="${controllerName=='settings' && actionName=='index'}">active</g:if>">
+						<li ng-click="menuSc.currentSearch.navMenuChange()" class="<g:if test="${controllerName=='settings' && actionName=='index'}">active</g:if>">
 							<a href="${request.contextPath}/settings" data-toggle="tooltip" data-placement="bottom" title="settings">
 								<i class="fa fa-sliders fa-lg" aria-hidden="true"></i>
 							</a>
 						</li>
 						
-						<sec:ifNotLoggedIn>
-						<li class="<g:if test="${actionName=='auth'}">active</g:if>">
-							<a href="${request.contextPath}/search" data-toggle="tooltip" data-placement="bottom" title="sign in">
-								<i class="fa fa-sign-in fa-lg" aria-hidden="true"></i>
+						<!-- 
+						<li ng-controller="helpController as hc" class="<g:if test="${actionName=='help'}">active</g:if>">
+							<a data-toggle="tooltip" data-placement="bottom" title="query help">
+								<i class="fa fa-question fa-lg" aria-hidden="true"
+									ng-click="hc.modalService.queryHelp('lg','helpController')">
+								</i>
 							</a>
 						</li>
+						 -->
+						 
+						<sec:ifNotLoggedIn>
+							<li class="<g:if test="${actionName=='auth'}">active</g:if>">
+								<a href="${request.contextPath}/search" data-toggle="tooltip" data-placement="bottom" title="sign in">
+									<i class="fa fa-sign-in fa-lg" aria-hidden="true"></i>
+								</a>
+							</li>
 						</sec:ifNotLoggedIn>
 						<sec:ifLoggedIn>
-						<li class="<g:if test="${actionName=='login'}">active</g:if>">
+							<li class="<g:if test="${actionName=='login'}">active</g:if>">
+								<a href="${request.contextPath}/logout" data-toggle="tooltip" data-placement="bottom" title="sign out">
+									<i class="fa fa-sign-out fa-lg" aria-hidden="true"></i>
+								</a>
+							</li>
+						</sec:ifLoggedIn>
+						
+						<g:if env="development" test="${actionName==null}">
+						<li>
 							<a href="${request.contextPath}/logout" data-toggle="tooltip" data-placement="bottom" title="sign out">
 								<i class="fa fa-sign-out fa-lg" aria-hidden="true"></i>
 							</a>
 						</li>
-						</sec:ifLoggedIn>
+						</g:if>
 					</ul>
 			</div>
 		</div>
@@ -145,10 +152,11 @@
 	<g:layoutBody />
 
 	<script>
-		$(document).ready(function(){
+
+		$(document).ready( function() {
 			$('[data-toggle="tooltip"]').tooltip({
 			      animation: true,
-			      delay: {show: 500, hide: 0}
+			      html: true	
 			    });
 		});
 	</script>

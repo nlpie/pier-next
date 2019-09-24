@@ -15,6 +15,11 @@ class BootStrap {
 	
 	def indexService
 	def configService
+	def grailsApplication
+	
+	def sliderInstructions() {
+		"<br>use handles for coarse adjustment, arrow keys for fine adjustment<br>&larr; decrease min date by 1 day<br>&uarr; increase min date by 1 day<br> &rarr; increase max date by 1 day<br>&darr; decrease max date by 1 day"
+	}
 
 	//DO THIS BEFORE SHUTTING DOWN THE INSTANCE
 	//app refresh - db exports: user, user_authentication_event, query
@@ -32,7 +37,9 @@ class BootStrap {
 		def cardio = Role.findByAuthority("ROLE_CARDIOLOGY")?:new Role(authority:"ROLE_CARDIOLOGY").save(flush:true)
 		def cancer = Role.findByAuthority("ROLE_CANCER")?:new Role(authority:"ROLE_CANCER").save(flush:true)
 		
-		if ( Environment.current == Environment.DEVELOPMENT ||  Environment.current.name=="fvdev" || Environment.current.name=="fvtest" ) {
+		if ( 
+			( Environment.current == Environment.DEVELOPMENT || Environment.current == Environment.TEST ||  Environment.current.name=="fvdev" || Environment.current.name=="fvtest" ) 
+		  	&& grailsApplication.config.dataSource.dbCreate == "create" ) {
 		//Environment.current == Environment.TEST ||
 		//if (true==false) {
 			println "${Environment.current.name} RECREATING INDEXES/CORPORA"
@@ -42,7 +49,8 @@ class BootStrap {
 				
 				def epicOntology = Ontology.findByName('Epic Categories')?:new Ontology(name:'Epic Categories', description:"what shows in Epic").save(flush:true, failOnError:true)
 				def epicHL7LoincOntology = Ontology.findByName('HL7 LOINC Document Ontology')?:new Ontology(name:'HL7 LOINC Document Ontology', description:"HL7 LOINC Document Ontology axis values").save(flush:true, failOnError:true)
-				def biomedicus = Ontology.findByName('NLP Annotations')?:new Ontology(name:'NLP Annotations', description:"NLP annotations").save(flush:true, failOnError:true)
+				def biomedicus = Ontology.findByName('NLP Annotations')?:new Ontology(name:'NLP Annotations', description:"NLP annotations and metadata").save(flush:true, failOnError:true)
+				def cdr = Ontology.findByName('CDR Identifiers')?:new Ontology(name:'CDR Identifiers', description:"Identifiers commonly used in the context of BPIC data requests involving CDR data").save(flush:true, failOnError:true)
 				def mimicOntology = Ontology.findByName('MIMIC Data Element Ontology')?:new Ontology(name:'MIMIC Data Element Ontology', description:"MIMIC data elements").save(flush:true, failOnError:true)
 				
 				
@@ -54,7 +62,7 @@ class BootStrap {
 				if ( Environment.current.name=="fvtest" ) {
 					nlp05.uri = "http://nlp02.fairview.org:9200"
 				}
-				def epicNotesIdx = Index.findByCommonName("Epic Notes")?:new Index(commonName:"Epic Notes", indexName:"notes_v3",  status:"Searchable", description:"clinical epic notes", numberOfShards:6, numberOfReplicas:0, environment:Environment.current.name)
+				def epicNotesIdx = Index.findByCommonName("Epic Notes")?:new Index(commonName:"Epic Notes", indexName:"notes_2019",  status:"Searchable", description:"clinical epic notes", numberOfShards:6, numberOfReplicas:0, environment:Environment.current.name)
 				
 				def termExpansionIdx = Index.findByCommonName("word2vec nearest terms")?:new Index(commonName:"word2vec nearest terms", indexName:"expansion_v1",  status:"Functional", description:"semantially related terms and misspellings for each term in corpus", numberOfShards:1, numberOfReplicas:0, environment:Environment.current.name, isTermExpansionIndex:true)
 				def termExpansionType = Type.findByTypeName("word")?:new Type(typeName:"word", description:"w2v type", environment:Environment.current.name)
@@ -65,39 +73,100 @@ class BootStrap {
 				def noteId = Field.findByFieldName("note_id")?:new Field(fieldName:"note_id",dataTypeName:"LONG", description:"Epic note id", aggregatable:false, exportable:true)
 				def noteVersionId = Field.findByFieldName("note_version_id")?:new Field(fieldName:"note_version_id",dataTypeName:"LONG", description:"Epic note version id", aggregatable:false, exportable:true)
 				def hl7NoteId = Field.findByFieldName("hl7_note_id")?:new Field(fieldName:"hl7_note_id",dataTypeName:"LONG", description:"Realtime HL7 interface primary key for this note", aggregatable:false, exportable:true)
-				def authContext = Field.findByFieldName("authorized_context")?:new Field(fieldName:"authorized_context",dataTypeName:"NOT_ANALYZED_STRING", description:"Array of search contexts that include this note",contextFilterField:false, aggregatable:false )
+				//def authContext = Field.findByFieldName("authorized_context")?:new Field(fieldName:"authorized_context",dataTypeName:"NOT_ANALYZED_STRING", description:"Array of search contexts that include this note",contextFilterField:false, aggregatable:false )
 				def contextFilter = Field.findByFieldName("authorized_context_filter_value")?:new Field(fieldName:"authorized_context_filter_value",dataTypeName:"LONG", description:"Array of filter values that govern access to this note",contextFilterField:true, aggregatable:false )
-				def filingDate = Field.findByFieldName("filing_date")?:new Field(fieldName:"filing_date",dataTypeName:"DATE", description:"Date note was filed", aggregatable:false, exportable:true)
+				def filingDate = Field.findByFieldName("filing_date")?:new Field(fieldName:"filing_date",dataTypeName:"DATE", description:"Date note was filed in Epic ${sliderInstructions()}", aggregatable:true, exportable:true)
 				def filingDatetime = Field.findByFieldName("filing_datetime")?:new Field(fieldName:"filing_datetime",dataTypeName:"DATETIME", description:"Date/time note was filed", aggregatable:false, exportable:true)
 				//def noteDatetime = Field.findByFieldName("note_datetime")?:new Field(fieldName:"note_datetime",dataTypeName:"DATETIME", description:"Clarity date/time of note - alternative for filing datetime?", aggregatable:true, exportable:true)
 				def textLength = Field.findByFieldName("text_length")?:new Field(fieldName:"text_length",dataTypeName:"INTEGER", description:"length of analyzed note", aggregatable:false, exportable:true)
-				def textSourceFormat = Field.findByFieldName("text_source_format")?:new Field(fieldName:"text_source_format",dataTypeName:"NOT_ANALYZED_STRING", description:"plain text, rich text, format of analyzed note",contextFilterField:false, aggregatable:true, exportable:true )
+				def analyzedTextFormat = Field.findByFieldName("analyzed_text_format")?:new Field(fieldName:"analyzed_text_format",dataTypeName:"NOT_ANALYZED_STRING", description:"format of note analyzed during NLP",contextFilterField:false, aggregatable:true, exportable:true )
 				def text = Field.findByFieldName("text")?:new Field(fieldName:"text",dataTypeName:"SNOWBALL_ANALYZED_STRING", description:"document text", defaultSearchField:true, aggregatable:false, exportable:true)
 				/*
-				"note_id": 603201078,
-				"note_version_id": 552990432,
-				"hl7_note_id":
-				"authorized_context":
-				"authorized_context_filter_value"
-				"filing_date": "2014-07-31",
-				"filing_datetime": "2014-07-31 16:00",
-				"note_datetime": "2014-07-31 16:00",
-				"text_length": 58,
-				"text_source_format": "clarity_plain_text",
-				"text": "  This patient was a no show for this scheduled appointment.  ",
+				{
+				    "_index": "notes_2019",
+				    "_type": "note",	
+				    "_id": "1000002486",
+				    "_version": 3,
+				    "_timestamp": 1561566259886,
+				    "found": true,
+				    "_source": {
+				        //NA
+				        "text": "Chief Complaint\n......................................................",
+				        "analyzed_text_length": 968,
+				        "clarity_text_length": 991,
+				        
+
+				        //CDR
+				        "department_id": "FV:DEPARTMENT_ID:92301",
+				        "patient_id": 48837159939,
+				        "service_id": 49119638784,
+				        "provider_id": 49114197756,
+
+				        //Epic
+				         	//NOTE
+				        "note_id": 1000002486,
+				        "note_version_id": 913587030,
+				        "note_format": "RICH TEXT",
+				        "note_status": "SIGNED",
+				        "note_type": "INCOMING MESSAGE PEND NOTES",
+				        "filing_date": "2016-06-16",
+				        "filing_datetime": "2016-06-16 14:28",
+				        	//ENC
+				        "encounter_id": 144047666,
+				        "patient_class": "OUTPATIENT",
+				        "prov_type": "Medical Assistant",
+				        "prov_name": "WEIZENEGGER, KIMBERLY",
+				        "prov_id": "KWEIZEN1",
+				        "encounter_department": "AP UMP HEALTH NP CLINI",
+				        "encounter_department_specialty": "Family Practice",
+				        "encounter_center_type": "CLINIC",
+				        "encounter_clinic_type": "UMP",
+				        "encounter_center": "UMP Affiliate Clinics",
+				        "service_date": "2016-06-16",
+				        	//PT
+				        "mrn": "0029952720",
+				       
+				        //LOINC
+				        "kod": "7. Note",
+				        "tos": "9.k. Subsequent Evaluation",
+				        "setting": "7.b. Office",
+				        "smd": "12. Family Medicine",
+				        "role": "8. Medical Assistant",
+				        
+				        //b9
+				        "analyzed_text_format": "PARSED RTF",
+				        "cui": [
+				            "C0441074",
+				            "C1305855",
+				            "C4050231",
+				            "C0008214",
+				            "C0023882"
+				        ],
+				        "acronym": [
+				            "m >> meters",
+				            "UTI >> urinary tract infection",
+				            "GAD-7 >> seven-item Generalized Anxiety Disorder Scale",
+				            "SpO2 >> oxygen saturation"
+				        ],
+				        
+				        //PIER
+				        "authorized_context_filter_value": [
+				            1917538125,
+				            351010683,
+				            3741645127
+				        ]
+				    }
+				}
 				*/
 				
 				//pt-related
 				def mrn = Field.findByFieldName("mrn")?:new Field(fieldName:"mrn",dataTypeName:"NOT_ANALYZED_STRING", description:"Epic patient identifier", aggregatable:true, exportable:true)
 				def patientId = Field.findByFieldNameAndType("patient_id", null)?:new Field(fieldName:"patient_id", dataTypeName:"LONG", description:"CDR Patient ID", aggregatable:true, exportable:true)
-				/*"patient_id": 19813340237,
-				"mrn": "0029583181",*/
-				
 				
 				//encounter-related
 				def encounterId = Field.findByFieldName("encounter_id")?:new Field(fieldName:"encounter_id",dataTypeName:"LONG", description:"Epic visit number", aggregatable:true, exportable:true)
 				def serviceId = Field.findByFieldName("service_id")?:new Field(fieldName:"service_id",dataTypeName:"LONG", description:"CDR encounter identifier", aggregatable:true, exportable:true)
-				def serviceDate = Field.findByFieldName("service_date")?:new Field(fieldName:"service_date",dataTypeName:"DATE", description:"Date of Service", aggregatable:true, exportable:true)
+				def serviceDate = Field.findByFieldName("service_date")?:new Field(fieldName:"service_date",dataTypeName:"DATE", description:"Encounter date of service in Epic ${sliderInstructions()}", aggregatable:true, exportable:true)
 				def eds = Field.findByFieldName("encounter_department_specialty")?:new Field(fieldName:"encounter_department_specialty",dataTypeName:"NOT_ANALYZED_STRING", description:"Specialty name in Epic", aggregatable:true, exportable:true)
 				def ec = Field.findByFieldName("encounter_center")?:new Field(fieldName:"encounter_center",dataTypeName:"NOT_ANALYZED_STRING", description:"Encounter center name in Epic", aggregatable:true, exportable:true)
 				def ect = Field.findByFieldName("encounter_clinic_type")?:new Field(fieldName:"encounter_clinic_type",dataTypeName:"NOT_ANALYZED_STRING", description:"Encounter Clinic type in Epic", aggregatable:true, exportable:true)	
@@ -105,49 +174,21 @@ class BootStrap {
 				def ecType = Field.findByFieldName("encounter_center_type")?:new Field(fieldName:"encounter_center_type",dataTypeName:"NOT_ANALYZED_STRING", description:"Encounter center type in Epic", aggregatable:true, exportable:true)
 				def di = Field.findByFieldName("department_id")?:new Field(fieldName:"department_id",dataTypeName:"NOT_ANALYZED_STRING", description:"CDR department identifier", aggregatable:true, exportable:true)
 				
-				/*"encounter_id": 108211423,
-				"service_id": 48855854232,
-				"service_date": "2014-07-31",
-				"encounter_department_specialty": "Family Practice",
-				"encounter_center": "Fairview Clinics Prior Lake",
-				"encounter_clinic_type": "Primary Care",
-				"encounter_department": "RV FAMILY PRACTICE",
-				"encounter_center_type": "CLINIC",
-				"department_id": "FV:DEPARTMENT_ID:58504",*/
-				
-				
 				//provider-related
-				def pt = Field.findByFieldName("prov_type")?:new Field(fieldName:"prov_type",dataTypeName:"NOT_ANALYZED_STRING", description:"Provider type in Epic name", aggregatable:true, exportable:true)
+				def pt = Field.findByFieldName("prov_type")?:new Field(fieldName:"prov_type",dataTypeName:"NOT_ANALYZED_STRING", description:"Provider type in Epic", aggregatable:true, exportable:true)
 				def providerId = Field.findByFieldName("provider_id")?:new Field(fieldName:"provider_id",dataTypeName:"LONG", description:"CDR department identifier", aggregatable:true, exportable:true)
 				def provId = Field.findByFieldName("prov_id")?:new Field(fieldName:"prov_id",dataTypeName:"NOT_ANALYZED_STRING", description:"Provider ID in Epic", aggregatable:true, exportable:true)
 				def provName = Field.findByFieldName("prov_name")?:new Field(fieldName:"prov_name",dataTypeName:"NOT_ANALYZED_STRING", description:"Provider name in Epic", aggregatable:true, exportable:true)
-				
-				/*
-				"prov_type": "Medical Assistant",
-				"provider_id": "33900385981",
-				"prov_id": "CSTEINB2",
-				"prov_name": "STEINBERG, CHERYL",*/
 				
 				//HL7-LOINC_DO
 				def role = Field.findByFieldName("role")?:new Field(fieldName:"role",dataTypeName:"NOT_ANALYZED_STRING", description:"Role axis in HL7-LOINC DO", aggregatable:true, exportable:true)
 				def smd = Field.findByFieldName("smd")?:new Field(fieldName:"smd",dataTypeName:"NOT_ANALYZED_STRING", description:"Subject Matter Domain axis in HL7-LOINC DO", aggregatable:true, exportable:true)
 				def kod = Field.findByFieldName("kod")?:new Field(fieldName:"kod",dataTypeName:"NOT_ANALYZED_STRING", description:"Kind of Document axis in HL7-LOINC DO", aggregatable:true, exportable:true)
-				def tos = Field.findByFieldName("tos")?:new Field(fieldName:"tos",dataTypeName:"NOT_ANALYZED_STRING", description:"Subject Matter Domain axis in HL7-LOINC DO", aggregatable:true, exportable:true)
+				def tos = Field.findByFieldName("tos")?:new Field(fieldName:"tos",dataTypeName:"NOT_ANALYZED_STRING", description:"Type of Service axis in HL7-LOINC DO", aggregatable:true, exportable:true)
 				def setting = Field.findByFieldName("setting")?:new Field(fieldName:"setting",dataTypeName:"NOT_ANALYZED_STRING", description:"Setting axis in HL7-LOINC DO", aggregatable:true, exportable:true)
 				
-				/*
-				"role": "9.g. Registered Nurse",
-				"smd": "12. Family Medicine",
-				"kod": "7. Note",
-				"tos": "9.k.1. Progress Note",
-				"setting": "null",*/
-				
-				
-				
-				
-				
 				//B9-related
-				def cui = Field.findByFieldName("cuis")?:new Field(fieldName:"cuis", dataTypeName:"NOT_ANALYZED_STRING", description:"UMLS CUIs identified by BioMedICUS NLP pipeline", aggregatable:true, exportable:true, significantTermsAggregatable:true)
+				def cui = Field.findByFieldName("cui")?:new Field(fieldName:"cui", dataTypeName:"NOT_ANALYZED_STRING", description:"UMLS CUIs identified by BioMedICUS NLP pipeline", aggregatable:true, exportable:true, significantTermsAggregatable:true)
 				//def lowCui = Field.findByFieldName("low_confidence_cuis")?:new Field(fieldName:"low_confidence_cuis", dataTypeName:"NOT_ANALYZED_STRING", description:"UMLS CUIs identified by BioMedICUS NLP pipeline, lower confidence detection", aggregatable:true, exportable:true, significantTermsAggregatable:true)
 				/*"cui": [
 				         "C0030705"
@@ -162,12 +203,12 @@ class BootStrap {
 				noteType.addToFields(noteId)
 				noteType.addToFields(noteVersionId)
 				noteType.addToFields(hl7NoteId)
-				noteType.addToFields(authContext)
+				//noteType.addToFields(authContext)
 				noteType.addToFields(contextFilter)
 				noteType.addToFields(filingDate)
 				noteType.addToFields(filingDatetime)
 				noteType.addToFields(textLength)
-				noteType.addToFields(textSourceFormat)
+				noteType.addToFields(analyzedTextFormat)
 				noteType.addToFields(text)
 				
 				noteType.addToFields(mrn)
@@ -203,22 +244,33 @@ class BootStrap {
 					
 					if ( f.contextFilterField || f.defaultSearchField || f.fieldName=="text") fp.aggregate=false
 					
-					if ( f.fieldName=="cuis" ) {
+					if ( f.fieldName=="cui" ) {
 						fp.ontology=biomedicus
 						fp.label = "Medical Concepts"
 						fp.numberOfFilterOptions = 20
-						fp.aggregate = true
+						fp.aggregate = false
 					}
-					if ( f.fieldName=="low_confidence_cuis" ) {
+					if ( f.fieldName=="analyzed_text_format" ) {
 						fp.ontology=biomedicus
-						fp.label = "Low Confidence Medical Concepts"
-						fp.numberOfFilterOptions = 10
-						fp.aggregate = true
 					}
 					
 					if ( f.fieldName=="mrn" || f.fieldName=="patient_id" || f.fieldName=="encounter_id" || f.fieldName=="provider_id" || f.fieldName=="service_id" || f.fieldName=="department_id" ) {
 						fp.computeDistinct = true
+						if ( f.fieldName=="mrn" || f.fieldName=="encounter_id" ) {
+							fp.export = false
+							fp.aggregate = false
+						}
 					}
+					
+					if ( f.fieldName=="department_id" || f.fieldName=="prov_id" || f.fieldName=="provider_id" ) {
+						fp.export = false
+						fp.aggregate = false
+					}
+					
+					if ( f.fieldName=="department_id" || f.fieldName=="patient_id" || f.fieldName=="service_id" || f.fieldName=="provider_id" ) {
+						fp.ontology = cdr
+					}
+					
 
 					if ( f.fieldName=="role" || f.fieldName=="smd" || f.fieldName=="setting" || f.fieldName=="kod" || f.fieldName=="tos" ) fp.ontology=epicHL7LoincOntology
 					
@@ -237,7 +289,7 @@ class BootStrap {
 				
 				
 				//SURG PATH REPORTS INDEX
-				def surgPathCorpus = Corpus.findByName("Surgical Pathology Reports")?: new Corpus(name:"Surgical Pathology Reports", description:"surgical path reports from CDR", enabled:true, glyph:"icon-i-pathology", minimumRole:analyst).save(flush:true, failOnError:true)
+				def surgPathCorpus = Corpus.findByName("Surgical Pathology Reports")?: new Corpus(name:"Surgical Pathology Reports", description:"surgical path reports from CDR", enabled:true, glyph:"icon-i-pathology", minimumRole:admin).save(flush:true, failOnError:true)
 				
 				def surgPathIdx = Index.findByCommonName("Surgical Pathology Reports")?:new Index(commonName:"Surgical Pathology Reports", indexName:"surgical-path_v1", status:"Searchable", description:"surgical pathology reports", numberOfShards:6, numberOfReplicas:0,environment:Environment.current.name)
 				def surgPathType = Type.findByTypeName("report")?:new Type(typeName:"report", description:"CDR surgical path report", environment:Environment.current.name)
@@ -488,7 +540,7 @@ class BootStrap {
 				 "acronym": []
 			 	}*/
 				
-				def mimicCorpus = Corpus.findByName("MIMIC")?: new Corpus(name:"MIMIC", description:"MIMIC ICU notes", enabled:true, glyph:"fa-file-text-o", minimumRole:admin).save(flush:true, failOnError:true)
+				def mimicCorpus = Corpus.findByName("MIMIC")?: new Corpus(name:"MIMIC", description:"MIMIC ICU notes", enabled:true, glyph:"fa-file-text-o", minimumRole:analyst).save(flush:true, failOnError:true)
 				def mimicIdx = Index.findByCommonName("MIMIC Notes")?:new Index(commonName:"MIMIC Notes", indexName:"mimic", status:"Searchable", description:"MIMIC ICU notesR", numberOfShards:6, numberOfReplicas:0,environment:Environment.current.name)
 				def mimicType = Type.findByTypeNameAndIndex("note", null)?:new Type(typeName:"note", description:"NOTEEVENTS.TEXT field in the MIMIC distribution", environment:Environment.current.name)
 				
@@ -575,32 +627,33 @@ class BootStrap {
 				
 				
 			}
-			
-		}//end setup if TEST
+			println "init() COMPLETE"
+		}//end init()
 		
-		if  ( Environment.current != Environment.PRODUCTION ) {
+		if  ( Environment.current != Environment.PRODUCTION && grailsApplication.config.dataSource.dbCreate == "create" ) {
 			println "${Environment.current.name} UPDATING USERS AND PREFERENCES STARTING"
 	
-			configUser("rmcewan", [user,analyst,superadmin])
-			configUser("rmcewan1", [user,analyst,superadmin])
-			configUser("hultm041", [user,analyst,superadmin])
-			configUser("ghultma1", [user,analyst,superadmin])
+			configUser("rmcewan", [superadmin])
+			configUser("rmcewan1", [superadmin])
+			configUser("hultm041", [superadmin])
+			configUser("ghultma1", [superadmin])
 			configUser("alber475", [user])
 			configUser("linde527", [user])
 			configUser("yingzhu", [user,cancer,cardio])
 			configUser("datar010", [user])
 			configUser("gms", [user])
 			
-			configUser("gmelton",[user,analyst])
-			configUser("pakh0002",[user,analyst])
+			configUser("gmelton",[analyst])
+			configUser("pakh0002",[analyst])
 			
 			//BPIC
-			configUser("tholk009",[user,analyst])
-			configUser("akke0014",[user,analyst])
-			configUser("andre725",[user,analyst])
-			configUser("baker439",[user,analyst])
-			configUser("rames007",[user,analyst])
-			configUser("siege022",[user,analyst])
+			configUser("tholk009",[analyst])
+			configUser("akke0014",[analyst])
+			configUser("andre725",[analyst])
+			configUser("baker439",[analyst])
+			configUser("rames007",[analyst])
+			configUser("siege022",[analyst])
+			configUser("bothr002",[analyst])
 			
 			if  ( Environment.current.name=="fvdev" || Environment.current.name=="fvtest" ) {
 				//Init FV users

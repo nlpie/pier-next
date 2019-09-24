@@ -158,7 +158,21 @@ environments {
 		grails.plugin.springsecurity.ldap.search.filter='(uid={0})'
 	}
     production {
-        grails.logging.jul.usebridge = false
+        grails.logging.jul.usebridge = true
+		
+		grails.assets.minifyJs = false
+		grails.assets.minifyCss = false
+		
+		//LDAP config used by Spring Security LDAP plugin for LDAP authentication
+		grails.plugin.springsecurity.ldap.context.managerDn = ''
+		grails.plugin.springsecurity.ldap.context.managerPassword = ''
+		grails.plugin.springsecurity.ldap.authenticator.useBind = true
+		grails.plugin.springsecurity.ldap.context.server = 'ldaps://ldapauth.umn.edu:636'
+		grails.plugin.springsecurity.ldap.search.derefLink=true
+		grails.plugin.springsecurity.ldap.authorities.groupSearchBase ='ou=People'
+		grails.plugin.springsecurity.ldap.search.base = 'o=University of Minnesota,c=US'
+		grails.plugin.springsecurity.ldap.search.filter='(uid={0})'
+		
         grails.serverURL = "https://nlppier.ahc.umn.edu"
     }
 	fvdev {
@@ -250,9 +264,9 @@ grails.plugin.springsecurity.ldap.authorities.retrieveDatabaseRoles = true	//ret
 grails.plugin.springsecurity.roleHierarchy = '''
    	ROLE_SUPERADMIN > ROLE_ADMIN
    	ROLE_ADMIN > ROLE_ANALYST
+	ROLE_ADMIN > ROLE_CARDIOLOGY
+	ROLE_ADMIN > ROLE_CANCER
    	ROLE_ANALYST > ROLE_USER
-	ROLE_ANALYST > ROLE_CARDIOLOGY
-	ROLE_ANALYST > ROLE_CANCER
 '''
 
 grails.plugin.springsecurity.controllerAnnotations.staticRules = [
@@ -274,7 +288,7 @@ grails.plugin.springsecurity.controllerAnnotations.staticRules = [
 ]
 //security logout
 grails.plugin.springsecurity.logout.postOnly = false
-grails.plugin.springsecurity.logout.afterLogoutUrl = '/search'
+grails.plugin.springsecurity.logout.afterLogoutUrl = '/'
 //grails.plugin.springsecurity.successHandler.defaultTargetUrl = '/search/login'
 
 grails.plugin.springsecurity.useSecurityEventListener = true

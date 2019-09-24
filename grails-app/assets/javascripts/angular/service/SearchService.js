@@ -3,12 +3,16 @@ import AuthorizedContext from '../model/ui/AuthorizedContext';
 class SearchService {
 	
 	//for some reason service constructors do not need inject annotation?
-	constructor( $http, $q, growl, $timeout ) {
+	constructor( $http, $q, growl, $timeout, userService ) {
 		this.$http = $http;
 		this.$q = $q;
-		this.$timeout = $timeout;
 		this.growl = growl;
+		this.$timeout = $timeout;
+		this.userService = userService;
+		
 		this.searchHistory = undefined;
+		this.lastQuery = undefined;
+		this.returnQuery = undefined;
 		this.savedQueriesByContext = undefined;
 		this.savedQueriesByUserExcludingContext = undefined;
 		this.relatedTerms = undefined;
@@ -35,16 +39,26 @@ class SearchService {
 		return this.$http.post( APP.ROOT + '/search/historySummary', { "excludeMostRecent":false } )
 		.then( function(response) {
 			me.searchHistory = response.data;
+			me.setLastQuery();
+			//me.lastQuery = this.searchHistory[0].query;
 		});
 	}
 	
-	fetchHistoryExcludingMostRecent() {
+	setLastQuery() {
+		//alert(JSON.stringify(this.searchHistory));
+		if ( this.searchHistory.length>0 ) {
+			this.lastQuery = this.searchHistory[0].query;
+			//this.lastQuery = response.data[0].query;
+		}
+	}	
+	
+	/*fetchHistoryExcludingMostRecent() {
     	var me = this;	
     	return this.$http.post( APP.ROOT + '/search/historySummary', { "excludeMostRecent":true } )
 	    	.then( function(response) {
 	    		me.searchHistory = response.data;
 	    	});
-    }
+    }*/
 	
 	fetchSavedQueries( authorizedContext ) {
 		if ( authorizedContext ) {
@@ -66,6 +80,7 @@ class SearchService {
 	}
 		
 	saveQuery( searchInstance ) {
+		if ( !this.userService.isLoggedIn() ) return;
 		let me = this;
 		this.$http.get( APP.ROOT + '/settings/saveQuery/' + searchInstance.uuid )
 			.then( function(response) {	
@@ -107,6 +122,6 @@ class SearchService {
 	
 }
 
-SearchService.$inject = [ '$http', '$q', 'growl', '$timeout' ];
+SearchService.$inject = [ '$http', '$q', 'growl', '$timeout', 'userService' ];
 
 export default SearchService;

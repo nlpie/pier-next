@@ -7,15 +7,15 @@ class Aggregation extends AbstractHydrator {
 	constructor( obj ) {
 		super( obj );
 		this.filters = {};
-		this.min = null;
-		this.max = null;
+		this.initialSlider = undefined;	//used when this.isTemporal is true
+    	this.currentSlider = undefined;	//used when this.isTemporal is true
 		this.count = null;
 		this.status = new AggregationStatus();
 		this.field = undefined;
 		this.hydrateObjectProperties( obj );
 //alert(JSON.stringify(this,null,'\t'));
 	}
-	
+
 	hydrateObjectProperties( obj ) {
 		let complexNodes = [ "field" ];
 		for ( let prop in obj ) {
@@ -32,6 +32,29 @@ class Aggregation extends AbstractHydrator {
 		}
 	}
 	
+	toggle() {
+		if ( !( JSON.stringify(this.filters) === JSON.stringify({}) ) ) {
+			//aggregation is currently on, turn it off
+			this.filters = {};
+			if ( this.isTemporal ) {
+				this.resetSlider();
+			}
+		}
+	}
+	
+	valueToggle( value ) {
+		
+	}
+	
+	isActive() {
+		//alert(`${this.field.fieldName}:\nJSON.stringify(this.filters)`);
+		return JSON.stringify(this.filters) !== JSON.stringify({});
+	}
+	
+	resetSlider() {
+		this.currentSlider = angular.copy( this.initialSlider );
+		this.initialSlider.filtered = false;
+	}
 }
 
 export default Aggregation;

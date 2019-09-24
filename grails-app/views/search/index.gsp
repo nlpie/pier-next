@@ -20,9 +20,18 @@
 						ng-repeat="ontology in rc.search.context.corpus.metadata.aggregations track by $index">
 						<label class="pier-ontology-label">{{ontology.name}}</label>
 						<div class="pier-aggregate" ng-repeat="aggregation in ontology.aggregations track by $index">
-							<div>
-								<label ng-click="rc.show(aggregation.field.description)">{{aggregation.label}} <!-- rc.search.context.corpus.metadata.aggregations -->
-									<i class="fa fa-question-circle" title="{{aggregation.field.description}}"></i>
+							<div> 
+								<label>{{aggregation.label}}
+									<i 
+										class="fa fa-question-circle" 
+										bs-tooltip	
+										data-placement="right"
+										title="{{aggregation.field.description}}<br>"
+										data-toggle="tooltip"
+										data-container="body" 
+										data-html="true" 
+										tooltip-popup-close-delay="1500"
+									></i>
 								</label>
 								<span ng-show="aggregation.status.computingCounts" id="aggs-spinner" style="padding-top:25px">
 									<asset:image src="ajax-loader.gif" alt="determining filters..." /> computing <i class="tally-aggregate">EB</i> s
@@ -30,28 +39,34 @@
 								<span ng-if="rc.search.instance.distinctCounts.on && (aggregation.count || aggregation.cardinalityEstimate)" style="font-size:0.7em;margin-right:1em">
 									actual:{{aggregation.count | number}}, estimate:{{aggregation.cardinalityEstimate | number}}
 								</span>
-								<label ng-if="aggregation.isTemporal" class="switch pull-right">
-  									<input type="checkbox" ng-click="rc.search.dirty(rc.search.context.corpus);rc.search.context.corpus.status.activateFilter();aggregation.currentSlider.reset( aggregation )" ng-model="aggregation.initialSlider.filtered">
+								<!-- show toggle if temporal aggregation and it's active -->
+								<label ng-if="aggregation.isTemporal && aggregation.isActive()" class="switch pull-right">
+  									<input type="checkbox" 
+  										ng-click="rc.search.toggleAggregation( aggregation )" 
+  										ng-model="aggregation.initialSlider.filtered">
   									<span class="slider round"></span>
 								</label>
 							</div>
 							<div class="pier-filter" ng-repeat="bucket in rc.search.context.corpus.results.aggs.aggs[aggregation.label].buckets track by $index">
-								<span style="cursor:pointer" ng-click="aggregation.filters[bucket.key]=!aggregation.filters[bucket.key];rc.search.dirty(rc.search.context.corpus);rc.search.context.corpus.status.activateFilter()">
+								<!-- toggle (label/value) for typical string-based filter values for a particular aggregation -->
+								<span style="cursor:pointer" 
+										ng-click="rc.search.toggleAggregationValue( aggregation, bucket.key )">
 									{{ aggregation.isTemporal ? bucket.key_as_string : bucket.label ? bucket.label : bucket.key }}
 								</span>
 								<span style="font-size:0.5em">({{bucket.doc_count | number}})</span>
+								<!-- toggle (slider) for typical string-based filter values for a particular aggregation -->
 								<label class="switch pull-right">
-  									<input type="checkbox" ng-click="rc.search.context.corpus.updateFilterSummary();rc.search.dirty(rc.search.context.corpus);rc.search.context.corpus.status.activateFilter()" ng-model="aggregation.filters[bucket.key]">
+  									<input type="checkbox" ng-click="rc.search.context.corpus.updateUiFilterInfo();rc.search.filterChange()" ng-model="aggregation.filters[bucket.key]">
   									<span class="slider round"></span>
 								</label>
 							</div>
-							<rzslider class="custom-slider" ng-if="aggregation.currentSlider" 
+							<rzslider class="custom-slider" ng-if="aggregation.isTemporal" 
 								rz-slider-model="aggregation.currentSlider.minValue"
 								rz-slider-high="aggregation.currentSlider.maxValue"
-								rz-slider-options="aggregation.currentSlider.options"
-								ng-mouseup="aggregation.currentSlider.updateAggregationFilter( aggregation )"
-								ng-keyup="aggregation.currentSlider.up( aggregation )"
-							></rzslider>
+								rz-slider-options="aggregation.initialSlider.options"
+								ng-mouseup="rc.search.sliderMouseupChange( aggregation )"
+								ng-keyup="rc.search.sliderKeyupChange( $event, aggregation )" >
+							</rzslider>
 							<hr>
 						</div>
 					</div>
@@ -90,17 +105,18 @@
 						
 						<div ng-switch-default class="panel panel-default panel-body" style="border:none">
 							<div>
-								<div class="pull-left" style="width:98%" ng-bind-html="doc.highlight ? doc.highlight[rc.search.context.corpus.metadata.defaultSearchField].join('<br>&nbsp;&vellip;<br> ') : doc._source[rc.search.context.corpus.metadata.defaultSearchField]">
-								</div>
-								<div class="fa fa-ellipsis-h pull-right" slide-toggle="#doc_{{doc._id}}" ></div>
+								<pre style="width:98%" ng-bind-html="doc.highlight ? doc.highlight[rc.search.context.corpus.metadata.defaultSearchField].join('<br>&nbsp;&vellip;<br> ') : doc._source[rc.search.context.corpus.metadata.defaultSearchField]">
+								</pre>
+								<!-- <div class="fa fa-ellipsis-h pull-right" slide-toggle="#doc_{{doc._id}}" ></div> -->
 							</div>
-							<div class="pull-right">
-								<div id="doc_{{doc._id}}" class="slideable infoWidget" duration="0.3s">
-									{{doc._source.encounter_center}} / {{doc._source.encounter_department_specialty}} / {{doc._source.encounter_clinic_type}} |
+							<div>
+								<div id="doc_{{doc._id}}" class="infoWidget" duration="0.3s">
+									<!-- {{doc._source.encounter_center}} / {{doc._source.encounter_department_specialty}} / {{doc._source.encounter_clinic_type}} |   -->
+									<span>Speciality:</span> {{doc._source.encounter_department_specialty}} | 
 									<span>Service date:</span> {{doc._source.service_date}} |
-									<span>Filed:</span> {{doc._source.filing_datetime}} |
-									<span>Provider type:</span> {{doc._source.prov_type}} | 
-									<span ng-click="rc.search.encSearch(doc._source.service_id)"><a style="cursor:pointer"> Encounter view</a></span>
+									<span>Provider type:</span> {{doc._source.prov_type}} |
+									<span>MRN:</span> {{doc._source.mrn}}
+									<span ng-if="!rc.search.instance.lastQuery && doc._source.service_id" ng-click="rc.search.encSearch(doc._source.service_id)"> | <a style="cursor:pointer">Encounter view</a></span>
 								</div>
 							</div>
 						</div>
@@ -108,7 +124,6 @@
 				</div>
 			</div>
 		</div>
-
 	
 </body>
 </html>

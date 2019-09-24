@@ -24,7 +24,7 @@ class SearchService {
 select q.id as queryId, q.label, q.authorizedContext, q.id as queryId, q.filterSummary, q.expansionTerms, q.saved, q.uuid, q.userInput, q.inputExpansion, q.distinctCounts
 from Query q
 where q.username=? and q.httpStatus=? and q.type in ( 'DocumentQuery','EncounterQuery' )
-order by q.dateCreated desc """.toString()
+order by q.dateCreated desc""".toString()
 
 		def lastQueryId = 0.toLong()
 		
@@ -33,7 +33,7 @@ order by q.dateCreated desc """.toString()
 			//lastQueryId = result[0]
 		}
 		
-		def results = Query.executeQuery(sql.toString(), [username, 200] )
+		def results = Query.executeQuery(sql.toString(), [username, 200],[max: 75] )
 		def summaries = []
 		results.each {
 			summaries << new HistorySummaryDTO(it)

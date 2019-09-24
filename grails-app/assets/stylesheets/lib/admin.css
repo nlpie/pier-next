@@ -426,5 +426,17 @@ input:checked + .slider:before {
 
 /* wrap pre per user feedback */
 pre {
-	white-space:pre-wrap;
+	white-space:pre-wrap !important;
+	word-wrap:normal !important;
+}
+
+.intro {
+	margin:20px
+}
+.intro-img {
+	display: block; 
+	margin-left: auto; 
+	margin-right: auto; 
+	width: 80%; 
+	height:auto"
 }

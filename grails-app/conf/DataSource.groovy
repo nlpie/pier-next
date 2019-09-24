@@ -31,7 +31,7 @@ dataSource {
 if ( Environment.current.name!="fvdev" || Environment.current.name!="fvtest" ) {
 	dataSource_notes {
 		readOnly=true
-		dbCreate = "create-drop"
+		dbCreate = "none"
 		//logSql=true
 		//formatSql=true
 		pooled = true
@@ -67,7 +67,7 @@ hibernate {
 environments {
 	development {
 		dataSource {
-			dbCreate = "create-drop"
+			dbCreate = "update"
 			driverClassName = "com.mysql.jdbc.Driver"
 			dialect = "org.hibernate.dialect.MySQL5InnoDBDialect"
 			username = ""	//see config in ds_<env>.groovy
@@ -85,7 +85,7 @@ environments {
 			dialect = "org.hibernate.dialect.MySQL5InnoDBDialect"
 			username = ""	//see config in ds.groovy
 			password = ""	//see config in ds.groovy
-			url = "jdbc:mysql://nlpql.ahc.umn.edu:3306/notes_test"
+			url = "jdbc:mysql://nlpql.ahc.umn.edu:3306/pier_next"
 			properties {
 				validationQuery="SELECT 1"
 			}
@@ -96,9 +96,12 @@ environments {
 			dbCreate = "update"
 			driverClassName = "com.mysql.jdbc.Driver"
 			dialect = "org.hibernate.dialect.MySQL5InnoDBDialect"
-			username = ""	//see config in ds_production.groovy
-			password = ""	//see config in ds_production.groovy
-			url = "jdbc:mysql://nlpql.ahc.umn.edu:3306/notes"
+			username = ""	//see config in ds.groovy
+			password = ""	//see config in ds.groovy
+			url = "jdbc:mysql://nlpql.ahc.umn.edu:3306/pier_next"
+			properties {
+				validationQuery="SELECT 1"
+			}
 		}
 	}
 	fvdev {

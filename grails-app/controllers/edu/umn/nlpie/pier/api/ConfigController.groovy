@@ -1,17 +1,24 @@
 package edu.umn.nlpie.pier.api
 
+import org.apache.commons.lang.RandomStringUtils
+
 import edu.umn.nlpie.pier.ConfigService
 import edu.umn.nlpie.pier.PierUtils
 import edu.umn.nlpie.pier.api.exception.*
+import edu.umn.nlpie.pier.context.AuthorizedUser
 import edu.umn.nlpie.pier.elastic.Index
+import edu.umn.nlpie.pier.springsecurity.Role
+import edu.umn.nlpie.pier.springsecurity.User
+import edu.umn.nlpie.pier.springsecurity.UserRole
 import grails.converters.JSON
 import grails.plugin.springsecurity.annotation.Secured
 
-@Secured(["ROLE_USER"])
+
 class ConfigController {
     
 	ConfigService configService
 	def apiService
+	def dataSource_notes
 	
 	static responseFormats = ['json']
 	//static allowedMethods = [get: "GET", "find": "POST"]
@@ -31,6 +38,7 @@ class ConfigController {
 		}
 	}
 	
+	//deprecated
 	def authorizedContextByQueryId() {
 		JSON.use ('authorized.context') {
 			//println request.JSON
@@ -51,6 +59,7 @@ class ConfigController {
 		}
 	}
 	
+	@Secured(["ROLE_SUPERADMIN"])
 	def reveng() {
 		def index = Index.findByIndexName('notes_v2')
 		println index.cluster
@@ -62,6 +71,28 @@ class ConfigController {
 		PierUtils.underscoreToCamelCase("underscore_to_camel_case")
 		PierUtils.labelFromUnderscore("label_from_underscore")
 	}
+	
+	@Secured(["ROLE_SUPERADMIN"])
+	def users() {
+		def role = Role.findByAuthority("ROLE_USER")
+		AuthorizedUser.list().each {  u->
+			def user = User.findByUsername( u.username )
+			def existingUser = User.findByUsername( u.username )
+			if ( !user ) {
+				user = new User( username:u.username, enabled:true, password:RandomStringUtils.randomAlphanumeric(20) ).save(failOnError:true,flush:true)
+				println "CREATED USER [${u.username}] with ID:[${user.id}]"
+			}
+			if ( !UserRole.exists(user.id,role.id) ) {
+				UserRole.create( user,role )
+				println "CREATED ROLE_USER [${user.username}]"
+			} else {
+				//nothing to do
+			}
+		}
+		//sql.close()
+	}
+	
+	
 
 	def index() {
 		def s = """

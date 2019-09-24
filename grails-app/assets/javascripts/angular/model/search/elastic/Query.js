@@ -15,68 +15,120 @@ class Query {
     }
     
     setContextFilter( corpus ) {
-    	if ( corpus.contextFilterValue ) {
-alert("BPIC request context");
-    		this.query.addToFilter( new TermFilter( corpus.metadata.contextFilterField, corpus.contextFilterValue ) ); //TODO this is not the right reference for a BPIC note set
+    	if ( corpus.filtered ) {
+			this.query.addToFilter( corpus.contextFilter );
     	}
     }
     
     setTextQuery( corpus, userInput ) {
-//alert("query: " + userInput);
     	this.query.addToMust( new QuerystringQuery(corpus.metadata.defaultSearchField, userInput) );
     }
 
     setDiscreteValueFilters( corpus ) {
-//alert("discrete");
+console.log("Query.setDiscreteValueFilters");
     	let me = this;
-    	corpus.status.inactivateFilter();
+    	//corpus.status.inactivateFilter();
     	for ( let ontology of corpus.metadata.aggregations ) {
     		for ( let aggregation of ontology.aggregations ) {
     			//add filter values in a should clause context of new Bool query, then add to this bool query's filter context
     			if ( !( JSON.stringify(aggregation.filters) === JSON.stringify({}) ) && !aggregation.isTemporal ) {
     				//potential fields to be added
-//alert("agg for " + aggregation.field.fieldName);
     				let filter = undefined;	////defer assignment until proof of need is established
 	    			Object.keys( aggregation.filters ).map( function(value,i) {
 	    				let addFilter = aggregation.filters[value];	//could be false
 	    				if ( addFilter ) {
 	    					if ( !filter ) {
-	    						filter = new BoolQuery();	//need is established, assign
-	    						corpus.status.activateFilter(); 
+	    						filter = new BoolQuery();	//need is established, assign new Bool query to hold the OR options for this aggregation
+	    						//corpus.status.activateFilter(); 
 	    					}
-	    					//alert(JSON.stringify(filter,null,'\t'));
 	    					filter.addToShould( new TermFilter( aggregation.field.fieldName,value ) );
 	    				}
 	    			});
-	    			//alert(JSON.stringify(filter,null,'\t'));
 	    			if ( filter ) me.addFilter( filter );	//at least one TermFilter added to should clause of bool
     			}
         	}
     	}
-//alert(JSON.stringify(corpus.metadata.aggregations,null,'\t'));
+//alert(`Query.setDiscreteValueFilters:QUERY\n ${JSON.stringify(me.query,null,'\t')}`);
     }
-    
+ 
     setRangeFilters( corpus ) {
-    	//alert("range");
+console.log("Query.setRangeFilters");
     	let me = this;
-    	//corpus.status.inactivateFilter();
     	for ( let ontology of corpus.metadata.aggregations ) {
     		for ( let aggregation of ontology.aggregations ) {
-    			if ( !( JSON.stringify(aggregation.filters) === JSON.stringify({}) ) && aggregation.isTemporal ) {	    			
+    			if ( !( JSON.stringify(aggregation.filters) === JSON.stringify({}) ) && aggregation.isTemporal ) {	    
+//alert(`Query.setRangeFilters:AGGREGATION\n ${JSON.stringify(aggregation,null,'\t')}`);
     				if ( aggregation.filters.max && aggregation.filters.min ) {
     					//add range filter to filter clause context of this.query
-//alert("range " + aggregation.field.fieldName);
     					let range = new RangeFilter( aggregation.field.fieldName, aggregation.filters.min, aggregation.filters.max );
     					me.addFilter( range );
     				}
     			}
         	}
     	}
+//alert(`Query.setRangeFilters:QUERY\n ${JSON.stringify(me.query,null,'\t')}`);
     }
+    /* Service Date Aggregation
+     {
+		"id": 127,
+		"label": "Service Date",
+		"displayOrder": 10,
+		"numberOfFilterOptions": 5,
+		"isTemporal": true,
+		"isNumeric": false,
+		"countDistinct": false,
+		"aggregate": true,
+		"export": false,
+		"filters": {
+			"min": 1120673830000,
+			"max": 1509401420000
+		},
+		"min": null,
+		"max": null,
+		"count": null,
+		"status": {
+			"computingCounts": false
+		},
+		"field": {
+			"id": 21,
+			"fieldName": "service_date",
+			"aggregatable": true,
+			"significantTermsAggregatable": false,
+			"exportable": true,
+			"contextFilterField": false,
+			"dataTypeName": "DATE",
+			"description": "Date of Service"
+		},
+		"initialSlider": {
+			"minValue": 1098835200000,
+			"maxValue": 1557446400000,
+			"options": {
+				"floor": 1098835200000,
+				"ceil": 1557446400000,
+				"step": 10000,
+				"noSwitching": true,
+				"hideLimitLabels": false
+			},
+			"filtered": true
+		},
+		"currentSlider": {
+			"minValue": 1120673830000,
+			"maxValue": 1509401420000,
+			"options": {
+				"floor": 1098835200000,
+				"ceil": 1557446400000,
+				"step": 10000,
+				"noSwitching": true,
+				"hideLimitLabels": false
+			},
+			"filtered": false
+		}
+	}
+     */
     
     //convienience method
     addFilter( filter ) {
-    	this.query.bool.filter.push( filter );
+    	this.query.addToFilter( filter )
     }
 	
 }

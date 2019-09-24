@@ -7,18 +7,17 @@ import org.codehaus.groovy.grails.web.converters.configuration.DefaultConverterC
 import edu.umn.nlpie.pier.api.CorpusMetadata
 import edu.umn.nlpie.pier.audit.DistinctCount
 import edu.umn.nlpie.pier.audit.Query
-import edu.umn.nlpie.pier.context.AuthorizedContext
-import edu.umn.nlpie.pier.elastic.Cluster
 import edu.umn.nlpie.pier.elastic.Field
 import edu.umn.nlpie.pier.elastic.Index
 import edu.umn.nlpie.pier.elastic.Type
+import edu.umn.nlpie.pier.context.AuthorizedPierContext
 import edu.umn.nlpie.pier.ui.Corpus
 import edu.umn.nlpie.pier.ui.FieldPreference
 import edu.umn.nlpie.pier.ui.Ontology
 import grails.converters.JSON
 
 class JsonMarshallerRegistrar {
-	
+		
 	@PostConstruct
 	void registerMarshallers() {
 		
@@ -93,12 +92,12 @@ class JsonMarshallerRegistrar {
 			
 		JSON.createNamedConfig ('authorized.context') { DefaultConverterConfiguration<JSON> cfg ->
 			//TODO can this AuthorizedContext config piggyback on the standalone config above?
-			cfg.registerObjectMarshaller (AuthorizedContext) { ct ->
+			cfg.registerObjectMarshaller (AuthorizedPierContext) { ct ->
 				[
 					"requestId": ct.requestId,
 					"label": ct.label,
 					"description": ct.description?:"description unavailable",
-					"username": ct.username,
+					//"username": ct.username,
 					"corpusName": ct.corpusName,
 					"filteredContext": ct.filteredContext,
 					"contextFilterValue": ct.contextFilterValue,
@@ -117,7 +116,7 @@ class JsonMarshallerRegistrar {
 				[
 					tooltip: cm.tooltip,
 					searchable: cm.searchable,
-					filtered: cm.filtered,
+					//filtered: cm.filtered,
 					url: cm.url,
 					scrollUrl: cm.scrollUrl,
 					defaultSearchField: cm.defaultSearchField,

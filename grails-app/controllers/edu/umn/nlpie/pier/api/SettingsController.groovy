@@ -8,7 +8,7 @@ import grails.converters.JSON
 import grails.plugin.springsecurity.annotation.Secured
 import grails.transaction.Transactional
 
-@Secured(["ROLE_USER"])
+//@Secured(["ROLE_USER"])
 class SettingsController {//extends RestfulController {
 	
 	def settingsService 
