@@ -122,14 +122,14 @@ println "ACBL: AuthorizedPierContext impl found: ${ac.getClass().getName()}"
 	}
 	
 	//keep - creates set of initial preferences for new users
-	def initalizeUserPreferences(User user) {
+	def initalizeUserPreferences( User user ) {
 		def prefs = this.defaultPreferences
-		prefs.each {
+		prefs.each { defaultPreference ->
 			//println "cloning ${it.field.type}:${it.label}"
-			def pref = FieldPreference.findByUserAndField( user, it.field )
+			def pref = FieldPreference.findByUserAndField( user, defaultPreference.field )
 			if ( !pref ) {
-				def field = it.field
-				def fp = new FieldPreference(it.properties)
+				def field = defaultPreference.field
+				def fp = new FieldPreference( defaultPreference.properties )
 				fp.setUser(user)
 				fp.setId(null)
 				fp.setDateCreated(null)
@@ -137,7 +137,7 @@ println "ACBL: AuthorizedPierContext impl found: ${ac.getClass().getName()}"
 				fp.setApplicationDefault(false)//this is not strictly necessary for new, non-cloned instance, it's the default value
 				field.addToPreferences(fp)
 				field.save(failOnError:true)
-				println "\tfield [${it.field.fieldName}] pref added for [${user.username}]"
+				println "\tfield [${defaultPreference.field.fieldName}] pref added for [${user.username}]"
 			}
 		}
 		println "PREFERENCES SET FOR ${user.username}"

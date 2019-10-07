@@ -42,9 +42,9 @@ if ( Environment.current.name!="fvdev" || Environment.current.name!="fvtest" ) {
 		dialect = org.hibernate.dialect.Oracle10gDialect	//no support for Oracle12c dialect in this version of Hibernate v4.x
 		url = "jdbc:oracle:thin:@//tideprdp.ahc.umn.edu:1521/tideprdp.ahc.umn.edu"
 		properties {
-			maxActive = 10
-			maxIdle = 10
-			minIdle = 5
+			maxActive = 20
+			//maxIdle = 10
+			//minIdle = 5
 			initialSize = 5
 			testOnBorrow=true
 			testWhileIdle=true

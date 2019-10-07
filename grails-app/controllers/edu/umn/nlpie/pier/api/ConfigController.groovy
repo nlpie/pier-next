@@ -79,8 +79,9 @@ class ConfigController {
 			def user = User.findByUsername( u.username )
 			def existingUser = User.findByUsername( u.username )
 			if ( !user ) {
-				user = new User( username:u.username, enabled:true, password:RandomStringUtils.randomAlphanumeric(20) ).save(failOnError:true,flush:true)
+				user = new User( username:u.username, enabled:true, password:configService.generatePassword() ).save(failOnError:true,flush:true)
 				println "CREATED USER [${u.username}] with ID:[${user.id}]"
+				configService.initalizeUserPreferences( u )
 			}
 			if ( !UserRole.exists(user.id,role.id) ) {
 				UserRole.create( user,role )
@@ -92,33 +93,56 @@ class ConfigController {
 		//sql.close()
 	}
 	
-	
-
-	def index() {
-		def s = """
-				<pre>
-				
-				
-				NLP-PIER API Usage
-				
-				Response Types
-				Unsupported HTTP methods (anything but GET or POST) return a 405 response and a message.
-				Invalid GET or POST requests return a 400 response and a JSON message detailing the reason.
-				Server side errors return a 500 response and an error message, though it's likely cryptic. Best to contact the developer.
-				Valid GET requests for which nothing is found return a 404 response and simple message stating nothing was found.
-				Valid POST requests for which no data are found return a 200 response and an empty JSON array/object.
-				???? Requests matching one or more guides return a 200 response with a JSON array containing the matching guide(s), abbreviated or complete as appropriate.
-				
-				
-				Valid Examples
-				
-				Return array of all abbreviated guides:
-				curl -XGET ${apiService.requestedUri(request)}/all
-				Not very useful after first set of guides; consider creating guide groups instead
-				
-				</pre>
-				
-				"""
-				render s
+	@Secured(["ROLE_SUPERADMIN"])
+	def preferences() {
+		/*
+		SELECT * FROM field_preference where user_id=1; #nlppier
+		SELECT * FROM field_preference where user_id=2; #rmcewan
+		#delete from field_preference where user_id=3
+		SELECT * FROM field_preference where user_id=3; #rmcewan1
+		
+		#delete from field_preference where user_id not in (1)
+		
+		select * from field where field_name='service_date'
+		
+		
+		#reset application defaults
+		update field_preference fp
+		inner join field f on f.id=fp.field_id and fp.user_id=1
+		inner join `type` t on t.id=f.type_id
+		inner join `index` i on i.id=t.index_id and i.id=2
+		set fp.aggregate=0, fp.export=0;
+		
+		#update default fields to export
+		update field_preference fp
+		inner join field f on f.id=fp.field_id and fp.user_id=1
+		inner join `type` t on t.id=f.type_id
+		inner join `index` i on i.id=t.index_id and i.id=2
+		set fp.export=1
+		where f.field_name in ( 'service_id', 'patient_id' );
+		
+		#update default field to aggregate
+		update field_preference fp
+		inner join field f on f.id=fp.field_id and fp.user_id=1
+		inner join `type` t on t.id=f.type_id
+		inner join `index` i on i.id=t.index_id and i.id=2
+		set fp.aggregate=1
+		where f.field_name in ( 'service_id', 'patient_id', 'kod', 'smd', 'tos', 'role', 'setting', 'prov_type', 'service_date', 'encounter_center', 'encounter_department');
+		
+		
+		#check results
+		select * from field_preference fp
+		inner join field f on f.id=fp.field_id
+		inner join `type` t on t.id=f.type_id
+		inner join `index` i on i.id=t.index_id
+		where i.id=2
+		and user_id=1 order by fp.ontology_id, fp.label
+		*/
+		
+		def users = User.findAllByEnabled( true )
+		users.each { u ->
+			configService.initalizeUserPreferences( u )			
+		}
 	}
+	
 }
