@@ -1,10 +1,14 @@
 package edu.umn.nlpie.pier.api
 
+import edu.umn.nlpie.pier.context.PierContext
 import grails.plugin.springsecurity.annotation.Secured
 import grails.plugins.rest.client.RestBuilder
 import groovy.json.JsonSlurper
 import groovy.sql.Sql
 import groovyx.gpars.GParsPool
+
+import org.apache.commons.httpclient.HttpClient
+import org.apache.commons.httpclient.methods.HeadMethod
 
 @Secured(["ROLE_SUPERADMIN"])
 class IndexingController {
@@ -87,6 +91,17 @@ class IndexingController {
 			}
 		}
 		println "DONE updateNoteMetaUsingElasticIndex()"
+	}
+	
+	def contexts() {
+		def contexts = PierContext.findAllByNoteStatus('Ready for Processing')
+		contexts.each {
+			println "${it.label}, ${it.contextFilterValue}"
+		}
+	}
+	
+	def compileTest() {
+		HeadMethod head = new HeadMethod( "${cluster}/${index}/${docType}/${noteId}" )
 	}
 	
 }

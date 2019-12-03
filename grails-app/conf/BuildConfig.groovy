@@ -63,6 +63,9 @@ grails.project.dependency.resolution = {
 		//compile 'org.asynchttpclient:async-http-client:2.1.0-alpha19'
 		//compile "org.codehaus.groovy.modules.http-builder:http-builder:0.7"
 		//compile "org.grails:http-client:2.4.5"
+		//compile 'org.apache.httpcomponents:httpclient:4.5.10'
+		compile 'org.apache.httpcomponents:httpclient:4.5.9'
+		compile 'commons-httpclient:commons-httpclient:3.1'
     }
 
     plugins {
