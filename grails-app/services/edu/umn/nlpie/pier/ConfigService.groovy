@@ -63,7 +63,7 @@ class ConfigService {
 			println "ANALYST"
 			list.addAll( PierNoteSetContext.list( [sort:'label']) )
 		} else {
-			list.addAll( PierNoteSetContextByUser.findAllByUsername(username,[sort:'filteredContext']) )
+			list.addAll( PierNoteSetContextByUser.findAllByUsername(username,[sort:'contextFilterValue']) )
 		}
 		println "${username}, ${list.size()} contexts available"
 		list
