@@ -9,10 +9,8 @@
     				<uib-tab ng-repeat="embedding in ctrl.embeddings track by $index" heading="{{ctrl.currentSearch.inputExpansion.targetLabel(embedding.word)}}">
 
 						<div class="row">
-							<div class="col-md-12" ng-if="ctrl.currentSearch.inputExpansion.targetHasExpansions(embedding.word)">
-								<br/>&nbsp;
+							<div class="col-md-12" style="padding:20px" ng-if="ctrl.currentSearch.inputExpansion.targetHasExpansions(embedding.word)">
 								<b>Selected expansion terms:</b> {{ ctrl.currentSearch.inputExpansion.flatten(embedding.word) }}
-								<br/>&nbsp;
 							</div>
 							<div class="col-md-12" ng-if="!ctrl.currentSearch.inputExpansion.targetHasExpansions(embedding.word)">
 								<br/>&nbsp;
@@ -98,19 +96,8 @@
             					</ul>
 							</div>
 						</div>
-<!--
-						<div class="row">
-							<div class="col-md-12">
-								<b>Semantically related terms</b>
-								<small style="color:gray"><i>frequency | cosine similarity</i></small>
-							</div>
-            			</div>
-						<div class="row">
-							<div class="col-md-12">
-								<span ng-click="ctrl.toggleAllSemanticallyRelatedTerms(embedding.word, ctrl.embeddings[$index].semanticallyRelatedTerms )">Select All <input type="checkbox" title="select/de-select all" ng-model="ctrl.allSemanticallyRelatedTerms"></input></span>
-							</div>
-						</div>
--->
+
+
 						<div class="row">
 							<div class="col-md-12">
 								<b style="font-size:1.3em">Semantically related terms</b>
@@ -136,7 +123,7 @@
 										</span>
 										<br>
 										<span style="color:gray;padding-left:13px">
-											<small style="color:gray"><i>{{ suggestion.frequency | number }} | {{ suggestion.cosine_distance | number:2 }}</i></small>>
+											<small style="color:gray"><i>{{ suggestion.frequency | number }} | {{ suggestion.cosine_distance | number:2 }}</i></small>
 										</span>
                 					</li>
             					</ul>
@@ -151,7 +138,7 @@
 										</span>
 										<br>
 										<span style="color:gray;padding-left:13px">
-											<small style="color:gray"><i>{{ suggestion.frequency | number }} | {{ suggestion.cosine_distance | number:2 }}</i></small>>
+											<small style="color:gray"><i>{{ suggestion.frequency | number }} | {{ suggestion.cosine_distance | number:2 }}</i></small>
 										</span>
                 					</li>
             					</ul>
@@ -166,7 +153,7 @@
 										</span>
 										<br>
 										<span style="color:gray;padding-left:13px">
-											<small style="color:gray"><i>{{ suggestion.frequency | number }} | {{ suggestion.cosine_distance | number:2 }}</i></small>>
+											<small style="color:gray"><i>{{ suggestion.frequency | number }} | {{ suggestion.cosine_distance | number:2 }}</i></small>
 										</span>
                 					</li>
             					</ul>
@@ -181,7 +168,7 @@
 										</span>
 										<br>
 										<span style="color:gray;padding-left:13px">
-											<small style="color:gray"><i>{{ suggestion.frequency | number }} | {{ suggestion.cosine_distance | number:2 }}</i></small>>
+											<small style="color:gray"><i>{{ suggestion.frequency | number }} | {{ suggestion.cosine_distance | number:2 }}</i></small>
 										</span>
                 					</li>
             					</ul>

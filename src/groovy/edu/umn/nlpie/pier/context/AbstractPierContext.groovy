@@ -22,9 +22,9 @@ abstract class AbstractPierContext {
 		this.label.trim()
 	}
 	
-	String getFilterValue() {
-		this.filterValue.trim()
-	}
+	/*String getContextFilterValue() {
+		this.contextFilterValue.trim()
+	} DONT NEED HELPER GETTER WHEN IT'S A NUMBER*/
 
 	def corpus() {
 		def corpus

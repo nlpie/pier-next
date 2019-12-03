@@ -687,7 +687,7 @@ class BootStrap {
 		def user = User.findByUsername(username)?:new User(username:username,password:pwd,enabled:true).save(failOnError:true)
 		roles.each { role ->
 			if ( !UserRole.exists(user.id, role.id) ) {
-				UserRole.create(user, role)
+				UserRole.create(user, role).save(flush:true)
 				println "USER CONFIGURED ${username}:${pwd}"
 			}
 		}

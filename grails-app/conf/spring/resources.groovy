@@ -1,4 +1,3 @@
-import edu.umn.nlpie.pier.SettingsService
 import edu.umn.nlpie.pier.elastic.search.ElasticService
 import edu.umn.nlpie.pier.marshaller.JsonMarshallerRegistrar
 import grails.util.Environment
