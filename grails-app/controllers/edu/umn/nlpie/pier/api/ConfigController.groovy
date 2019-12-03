@@ -77,20 +77,18 @@ class ConfigController {
 		def role = Role.findByAuthority("ROLE_USER")
 		AuthorizedUser.list().each {  u->
 			def user = User.findByUsername( u.username )
-			def existingUser = User.findByUsername( u.username )
 			if ( !user ) {
-				user = new User( username:u.username, enabled:true, password:configService.generatePassword() ).save(failOnError:true,flush:true)
+				user = new User( username:u.username, enabled:true, password:configService.generatePassword() ).save( failOnError:true,flush:true )
 				println "CREATED USER [${u.username}] with ID:[${user.id}]"
-				configService.initalizeUserPreferences( u )
+				configService.initalizeUserPreferences( user )
 			}
 			if ( !UserRole.exists(user.id,role.id) ) {
-				UserRole.create( user,role )
+				UserRole.create( user,role ).save(flush:true)
 				println "CREATED ROLE_USER [${user.username}]"
 			} else {
 				//nothing to do
 			}
 		}
-		//sql.close()
 	}
 	
 	@Secured(["ROLE_SUPERADMIN"])
