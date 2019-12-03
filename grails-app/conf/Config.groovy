@@ -195,8 +195,8 @@ environments {
 		grails.assets.minifyJs = false
 		
 		//LDAP config used by Spring Security LDAP plugin for LDAP authentication
-		grails.plugin.springsecurity.ldap.context.managerDn = 'nlp-pier-svc@fairview.org'
-		grails.plugin.springsecurity.ldap.context.managerPassword = '79Rb99@6$qaG73GbXZ5U'
+		grails.plugin.springsecurity.ldap.context.managerDn = ''
+		grails.plugin.springsecurity.ldap.context.managerPassword = ''
 		grails.plugin.springsecurity.ldap.authenticator.useBind = true
 		grails.plugin.springsecurity.ldap.context.server = 'ldaps://ldap-ad.fairview.org:636'
 		grails.plugin.springsecurity.ldap.search.derefLink=true
@@ -217,8 +217,8 @@ environments {
 		grails.assets.minifyJs = false
 		
 		//LDAP config used by Spring Security LDAP plugin for LDAP authentication
-		grails.plugin.springsecurity.ldap.context.managerDn = 'nlp-pier-svc@fairview.org'
-		grails.plugin.springsecurity.ldap.context.managerPassword = '79Rb99@6$qaG73GbXZ5U'
+		grails.plugin.springsecurity.ldap.context.managerDn = ''
+		grails.plugin.springsecurity.ldap.context.managerPassword = ''
 		grails.plugin.springsecurity.ldap.authenticator.useBind = true
 		grails.plugin.springsecurity.ldap.context.server = 'ldaps://ldap-ad.fairview.org:636'
 		grails.plugin.springsecurity.ldap.search.derefLink=true
